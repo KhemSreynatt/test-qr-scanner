@@ -15,18 +15,12 @@
             tg.showScanQrPopup({
                 text: "Please scan a QR code"
             }, function (qrCode) {
+                console.log("Scanned QR Code:", qrCode); // Debug log
                 if (qrCode) {
                     document.getElementById('result').textContent = "Scanned: " + qrCode;
-
-                    // Send result to your Django backend
-                    fetch('/api/qr-result/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ result: qrCode }),
-                    });
+                    // Further processing...
                 } else {
+                    console.log("QR scanning failed or was cancelled"); // Debug log
                     document.getElementById('result').textContent = "Scanning cancelled or failed";
                 }
             });

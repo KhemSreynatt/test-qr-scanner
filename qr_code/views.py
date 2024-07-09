@@ -9,7 +9,7 @@ def qr_result(request):
         data = json.loads(request.body)
         result = data.get('result')
         # Process the result as needed
-        return JsonResponse({'status': 'success'})
+        return JsonResponse({'status': 'success', 'message': f'Processed QR: {result}'})
     return JsonResponse({'status': 'error'}, status=400)
 
 
