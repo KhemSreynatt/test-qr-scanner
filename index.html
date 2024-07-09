@@ -2,13 +2,12 @@
 <html>
 
 <head>
-    <title>Simple QR Scanner</title>
+    <title>QR Scanner Debug</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
 <body>
-    <div id="result">Tap the button to scan QR code</div>
-    <div id="debug"></div>
+    <div id="debug">Debug info will appear here</div>
     <script>
         let tg = window.Telegram.WebApp;
 
@@ -18,17 +17,21 @@
         }
 
         function openQRScanner() {
-            log('Opening QR Scanner...');
+            log('Attempting to open QR scanner...');
+
+            if (typeof tg.showScanQrPopup !== 'function') {
+                log('ERROR: showScanQrPopup is not a function');
+                return;
+            }
+
             tg.showScanQrPopup({
-                text: "Scan any QR code"
+                text: "Scan a QR code"
             }, function (qrCode) {
-                log('Scan completed');
+                log('Scan callback triggered');
                 if (qrCode) {
-                    log('Raw QR data: ' + qrCode);
-                    document.getElementById('result').textContent = "Scanned: " + qrCode;
+                    log('Scanned QR code: ' + qrCode);
                 } else {
-                    log('No QR code scanned');
-                    document.getElementById('result').textContent = "Scanning cancelled or failed";
+                    log('No QR code scanned or scanning cancelled');
                 }
             });
         }
@@ -38,7 +41,7 @@
         tg.MainButton.onClick(openQRScanner);
         tg.MainButton.show();
 
-        log('TMA initialized');
+        log('TMA initialized. Telegram WebApp version: ' + tg.version);
     </script>
 </body>
 
