@@ -165,7 +165,7 @@
         }
         function scanQRCode() {
             console.log("Checking location permission...");
-            checkLocationPermission((isPermitted) => {
+            checkPermissions((isPermitted) => {
                 if (isPermitted) {
                     console.log("Location permitted. Attempting to open QR scanner...");
                     if (typeof tg.showScanQrPopup === 'function') {
