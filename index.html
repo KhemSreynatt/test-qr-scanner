@@ -2,47 +2,62 @@
 <html>
 
 <head>
-    <title>QR Scanner Mini App</title>
+    <title>Attendance Scanner</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
 <body>
-    <div id="result">Tap the button below to scan a QR code</div>
+    <div id="result">Tap the button below to scan attendance QR code</div>
     <script>
         let tg = window.Telegram.WebApp;
 
         function openQRScanner() {
-            tg.showScanQrPopup({
-                text: "Please scan a QR code"
-            }, function (qrCode) {
-                if (qrCode) {
-                    document.getElementById('result').textContent = "Scanned: " + qrCode;
+            navigator.geolocation.getCurrentPosition(function (position) {
+                let latitude = position.coords.latitude;
+                let longitude = position.coords.longitude;
 
-                    // Send result to your Django backend
-                    fetch('/api/qr-result/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ result: qrCode }),
-                    });
-                } else {
-                    document.getElementById('result').textContent = "Scanning cancelled or failed";
-                }
+                tg.showScanQrPopup({
+                    text: "Scan attendance QR code"
+                }, function (qrCode) {
+                    if (qrCode) {
+                        let scannedData = JSON.parse(qrCode);
+                        let now = new Date().toISOString();
+
+                        let attendanceData = {
+                            ...scannedData,
+                            scan_time: now,
+                            latitude: latitude,
+                            longitude: longitude,
+                            user_name: tg.initDataUnsafe.user.first_name + " " + tg.initDataUnsafe.user.last_name
+                        };
+
+                        document.getElementById('result').textContent = "Processing...";
+
+                        // Send to Django backend
+                        fetch('/api/process-attendance/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(attendanceData),
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                document.getElementById('result').textContent = data.message;
+                            });
+                    } else {
+                        document.getElementById('result').textContent = "Scanning cancelled or failed";
+                    }
+                });
+            }, function (error) {
+                console.error("Error getting location:", error);
+                document.getElementById('result').textContent = "Error getting location. Please enable location services.";
             });
         }
 
-        // Set up the main button
-        tg.MainButton.text = "Scan QR Code";
+        tg.MainButton.text = "Scan Attendance QR";
         tg.MainButton.onClick(openQRScanner);
         tg.MainButton.show();
-
-        // Ensure the button is visible when the app is expanded
-        tg.onEvent('viewportChanged', function () {
-            if (tg.isExpanded) {
-                tg.MainButton.show();
-            }
-        });
     </script>
 </body>
 
