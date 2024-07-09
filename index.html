@@ -54,6 +54,8 @@
                     console.log("Scan result:", qrCode);
                     if (qrCode) {
                         document.getElementById('result').textContent = "Scanned: " + qrCode;
+                        alert("Scanned: " + qrCode);
+                        tg.close();
                     } else {
                         document.getElementById('result').textContent = "Scanning cancelled or failed";
                     }
@@ -69,12 +71,11 @@
             video.style.display = 'block';
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
-            let scanning = true; // A flag to indicate if scanning is in progress
-
+            let scanning = true;
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
                 .then(function (stream) {
                     if (!scanning) {
-                        // If scanning was somehow already stopped, we stop the stream immediately
+
                         stopStream(stream);
                         return;
                     }
@@ -106,8 +107,8 @@
                         document.getElementById('result').textContent = "Scanned: " + code.data;
                         scanning = false; // Stop scanning
                         stopStream(video.srcObject);
-                        alert("Success: Scanned QR Code!"); // Show an alert to the user
-                        // You can also call tg.close() if you want to close the Telegram Web App
+                        alert("Success: Scanned QR Code!");
+
                     }
                 }
                 if (scanning) {
