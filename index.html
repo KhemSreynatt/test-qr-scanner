@@ -3,31 +3,30 @@
 
 <head>
     <title>QR Scanner Mini App</title>
-    <script src="https://unpkg.com/qr-scanner/qr-scanner.umd.min.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
 <body>
-    <video id="qr-video"></video>
+    <button id="scanButton">Scan QR Code</button>
     <div id="result"></div>
     <script>
-        const video = document.getElementById('qr-video');
-        const resultElement = document.getElementById('result');
+        let tg = window.Telegram.WebApp;
 
-        QrScanner.hasCamera().then(hasCamera => {
-            if (hasCamera) {
-                const qrScanner = new QrScanner(video, result => {
-                    resultElement.textContent = result;
-                    // Send result to your Django backend
-                    fetch('/api/qr-result/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ result: result }),
-                    });
+        document.getElementById('scanButton').addEventListener('click', function () {
+            tg.showScanQrPopup({
+                text: "Please scan a QR code"
+            }, function (qrCode) {
+                document.getElementById('result').textContent = "Scanned: " + qrCode;
+
+                // Send result to your Django backend
+                fetch('/api/qr-result/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ result: qrCode }),
                 });
-                qrScanner.start();
-            }
+            });
         });
     </script>
 </body>
