@@ -79,57 +79,9 @@
             }
         }
 
-        function checkUserAuthorization(phoneNumber) {
-            return new Promise((resolve) => {
-                // Simulating an API call
-                setTimeout(() => {
-                    // Replace this with actual logic to check user authorization
-                    const authorizedPhones = ['081976999'];
-                    resolve(authorizedPhones.includes(phoneNumber.trim()));
-                }, 1000);
-            });
-        }
-
-        function checkPermissions(callback) {
-            tg.MainButton.text = 'Checking permissions...';
-            tg.MainButton.showProgress();
-
-            if (!tg.initDataUnsafe || !tg.initDataUnsafe.user) {
-                document.getElementById('result').textContent = "Unable to get user data. Please ensure you're using the Telegram app.";
-                callback(false);
-                return;
-            }
-
-            // Request the user's phone number
-            tg.requestContact((result) => {
-                if (result && result.phone_number) {
-                    const userPhoneNumber = result.phone_number;
-                    checkUserAuthorization(userPhoneNumber).then(isAuthorized => {
-                        if (!isAuthorized) {
-                            document.getElementById('result').textContent = "You are not authorized to scan QR codes";
-                            callback(false);
-                            return;
-                        }
-
-                        checkLocationPermission((isPermitted, distance) => {
-                            if (isPermitted) {
-                                callback(true);
-                            } else {
-                                document.getElementById('result').textContent = `You're outside the designated scanning area. Distance: ${distance.toFixed(2)}m`;
-                                callback(false);
-                            }
-                        });
-                    });
-                } else {
-                    document.getElementById('result').textContent = "Phone number is required for verification.";
-                    callback(false);
-                }
-            });
-        }
-
         function scanQRCode() {
             console.log("Checking permissions...");
-            checkPermissions((isPermitted) => {
+            checkLocationPermission((isPermitted) => {
                 if (isPermitted) {
                     console.log("Permissions granted. Attempting to open QR scanner...");
                     if (typeof tg.showScanQrPopup === 'function') {
