@@ -58,9 +58,7 @@
                     (position) => {
                         const userLat = position.coords.latitude;
                         const userLon = position.coords.longitude;
-
                         const distance = calculateDistance(CENTER_LAT, CENTER_LON, userLat, userLon);
-
                         if (distance <= MAX_DISTANCE) {
                             callback(true);
                         } else {
