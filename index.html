@@ -2,46 +2,25 @@
 <html>
 
 <head>
-    <title>QR Scanner Debug</title>
+    <title>Simple QR Scanner</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
 <body>
-    <div id="debug">Debug info will appear here</div>
+    <button onclick="scanQR()">Scan QR Code</button>
+    <div id="result"></div>
     <script>
         let tg = window.Telegram.WebApp;
 
-        function log(message) {
-            console.log(message);
-            document.getElementById('debug').innerHTML += message + '<br>';
-        }
-
-        function openQRScanner() {
-            log('Attempting to open QR scanner...');
-
-            if (typeof tg.showScanQrPopup !== 'function') {
-                log('ERROR: showScanQrPopup is not a function');
-                return;
-            }
-
-            tg.showScanQrPopup({
-                text: "Scan a QR code"
-            }, function (qrCode) {
-                log('Scan callback triggered');
+        function scanQR() {
+            tg.showScanQrPopup({ text: "Scan a QR code" }, function (qrCode) {
                 if (qrCode) {
-                    log('Scanned QR code: ' + qrCode);
+                    document.getElementById('result').textContent = "Scanned: " + qrCode;
                 } else {
-                    log('No QR code scanned or scanning cancelled');
+                    document.getElementById('result').textContent = "Scanning cancelled or failed";
                 }
             });
         }
-
-        tg.expand();
-        tg.MainButton.text = "Scan QR Code";
-        tg.MainButton.onClick(openQRScanner);
-        tg.MainButton.show();
-
-        log('TMA initialized. Telegram WebApp version: ' + tg.version);
     </script>
 </body>
 
