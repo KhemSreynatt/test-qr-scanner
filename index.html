@@ -8,56 +8,85 @@
 
 <body>
     <div id="result">Tap the button below to scan attendance QR code</div>
+    <div id="debug"></div>
     <script>
         let tg = window.Telegram.WebApp;
 
+        function log(message) {
+            console.log(message);
+            document.getElementById('debug').innerHTML += message + '<br>';
+        }
+
         function openQRScanner() {
+            log('Opening QR Scanner...');
             navigator.geolocation.getCurrentPosition(function (position) {
                 let latitude = position.coords.latitude;
                 let longitude = position.coords.longitude;
+                log(`Got location: ${latitude}, ${longitude}`);
 
                 tg.showScanQrPopup({
                     text: "Scan attendance QR code"
                 }, function (qrCode) {
+                    log('QR Scan result received');
+                    log('Raw QR data: ' + qrCode);
+
                     if (qrCode) {
-                        let scannedData = JSON.parse(qrCode);
-                        let now = new Date().toISOString();
+                        try {
+                            let scannedData = JSON.parse(qrCode);
+                            log('Parsed QR data: ' + JSON.stringify(scannedData));
 
-                        let attendanceData = {
-                            ...scannedData,
-                            scan_time: now,
-                            latitude: latitude,
-                            longitude: longitude,
-                            user_name: tg.initDataUnsafe.user.first_name + " " + tg.initDataUnsafe.user.last_name
-                        };
+                            let now = new Date().toISOString();
+                            let attendanceData = {
+                                ...scannedData,
+                                scan_time: now,
+                                latitude: latitude,
+                                longitude: longitude,
+                                user_name: tg.initDataUnsafe.user ?
+                                    tg.initDataUnsafe.user.first_name + " " + (tg.initDataUnsafe.user.last_name || "") :
+                                    "Unknown User"
+                            };
 
-                        document.getElementById('result').textContent = "Processing...";
+                            log('Attendance data: ' + JSON.stringify(attendanceData));
+                            document.getElementById('result').textContent = "Processing...";
 
-                        // Send to Django backend
-                        fetch('/api/process-attendance/', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(attendanceData),
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                document.getElementById('result').textContent = data.message;
-                            });
+                            // Send to Django backend
+                            fetch('/api/process-attendance/', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(attendanceData),
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    log('Server response: ' + JSON.stringify(data));
+                                    document.getElementById('result').textContent = data.message;
+                                })
+                                .catch(error => {
+                                    log('Fetch error: ' + error.message);
+                                    document.getElementById('result').textContent = "Error processing attendance: " + error.message;
+                                });
+                        } catch (error) {
+                            log('Error parsing QR code: ' + error.message);
+                            document.getElementById('result').textContent = "Error parsing QR code: " + error.message;
+                        }
                     } else {
+                        log('No QR code scanned');
                         document.getElementById('result').textContent = "Scanning cancelled or failed";
                     }
                 });
             }, function (error) {
-                console.error("Error getting location:", error);
+                log("Error getting location: " + error.message);
                 document.getElementById('result').textContent = "Error getting location. Please enable location services.";
             });
         }
 
+        tg.expand();
         tg.MainButton.text = "Scan Attendance QR";
         tg.MainButton.onClick(openQRScanner);
         tg.MainButton.show();
+
+        log('TMA initialized');
     </script>
 </body>
 

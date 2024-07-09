@@ -28,13 +28,13 @@ def generate_qr(request, employee_id):
     
     # Create QR code data
     qr_data = json.dumps({
-        "event_id": event_id,
+        # "event_id": event_id,
         "employee_id": employee_id,
-        "timestamp": timezone.now().isoformat()
+        # "timestamp": timezone.now().isoformat()
     })
     
     # Generate QR code
-    img = qrcode.make(qr_data)
+    img = qrcode.make(employee_id)
     
     # Create a response
     response = HttpResponse(content_type="image/png")
@@ -60,8 +60,6 @@ def process_attendance(request):
         location = geolocator.reverse(f"{data['latitude']}, {data['longitude']}")
         address = location.address if location else "Unknown"
 
-        # Determine if it's check-in or check-out based on timestamp
-        # This is a simple example; you might want to implement more sophisticated logic
         is_check_in = True  # Implement your logic here
 
         message = f"{'Check-in' if is_check_in else 'Check-out'} recorded:\n" \
