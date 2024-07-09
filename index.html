@@ -36,15 +36,22 @@
         let tg = window.Telegram.WebApp;
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
-        const AREA_SIDE = 10; // ~50m² square side in meters
+        const MAX_DISTANCE = 8.92; // Radius of a circle with area 250m²
 
-        function metersToLatLon(meters, latitude) {
-            const earthRadius = 6371000; // Earth's radius in meters
-            const latChange = (meters / earthRadius) * (180 / Math.PI);
-            const lonChange = (meters / earthRadius) * (180 / Math.PI) / Math.cos(latitude * Math.PI / 180);
-            return { latChange, lonChange };
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3; // Earth's radius in meters
+            const φ1 = lat1 * Math.PI / 180;
+            const φ2 = lat2 * Math.PI / 180;
+            const Δφ = (lat2 - lat1) * Math.PI / 180;
+            const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+            const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                Math.cos(φ1) * Math.cos(φ2) *
+                Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            return R * c; // Distance in meters
         }
-
         function checkLocationPermission(callback) {
             if ('geolocation' in navigator) {
                 navigator.geolocation.getCurrentPosition(
@@ -52,17 +59,12 @@
                         const userLat = position.coords.latitude;
                         const userLon = position.coords.longitude;
 
-                        const { latChange, lonChange } = metersToLatLon(AREA_SIDE / 2, CENTER_LAT);
+                        const distance = calculateDistance(CENTER_LAT, CENTER_LON, userLat, userLon);
 
-                        const minLat = CENTER_LAT - latChange;
-                        const maxLat = CENTER_LAT + latChange;
-                        const minLon = CENTER_LON - lonChange;
-                        const maxLon = CENTER_LON + lonChange;
-
-                        if (userLat >= minLat && userLat <= maxLat && userLon >= minLon && userLon <= maxLon) {
+                        if (distance <= MAX_DISTANCE) {
                             callback(true);
                         } else {
-                            document.getElementById('result').textContent = "You're outside the designated scanning area.";
+                            document.getElementById('result').textContent = `You're outside the designated scanning area. Distance: ${distance.toFixed(2)}m`;
                             callback(false);
                         }
                     },
@@ -77,7 +79,6 @@
                 callback(false);
             }
         }
-
         function scanQRCode() {
             console.log("Checking location permission...");
             checkLocationPermission((isPermitted) => {
