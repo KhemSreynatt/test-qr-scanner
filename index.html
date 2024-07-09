@@ -7,26 +7,41 @@
 </head>
 
 <body>
-    <button id="scanButton">Scan QR Code</button>
-    <div id="result"></div>
+    <div id="result">Tap the button below to scan a QR code</div>
     <script>
         let tg = window.Telegram.WebApp;
 
-        document.getElementById('scanButton').addEventListener('click', function () {
+        function openQRScanner() {
             tg.showScanQrPopup({
                 text: "Please scan a QR code"
             }, function (qrCode) {
-                document.getElementById('result').textContent = "Scanned: " + qrCode;
+                if (qrCode) {
+                    document.getElementById('result').textContent = "Scanned: " + qrCode;
 
-                // Send result to your Django backend
-                fetch('/api/qr-result/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ result: qrCode }),
-                });
+                    // Send result to your Django backend
+                    fetch('/api/qr-result/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ result: qrCode }),
+                    });
+                } else {
+                    document.getElementById('result').textContent = "Scanning cancelled or failed";
+                }
             });
+        }
+
+        // Set up the main button
+        tg.MainButton.text = "Scan QR Code";
+        tg.MainButton.onClick(openQRScanner);
+        tg.MainButton.show();
+
+        // Ensure the button is visible when the app is expanded
+        tg.onEvent('viewportChanged', function () {
+            if (tg.isExpanded) {
+                tg.MainButton.show();
+            }
         });
     </script>
 </body>
