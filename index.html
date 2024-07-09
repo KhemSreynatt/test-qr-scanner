@@ -55,7 +55,7 @@
                     if (qrCode) {
                         document.getElementById('result').textContent = "Scanned: " + qrCode;
                         alert("Scanned: " + qrCode);
-                        tg.close();
+                        tg.stop();
                     } else {
                         document.getElementById('result').textContent = "Scanning cancelled or failed";
                     }
