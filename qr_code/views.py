@@ -21,7 +21,8 @@ from django.http import HttpResponse
 from django.utils import timezone
 import json
 from io import BytesIO
-# @api_view(['POST'])
+
+
 def generate_qr(request, employee_id):
     # Create a unique identifier for this check-in/out event
     event_id = f"{employee_id}_{timezone.now().strftime('%Y%m%d%H%M%S')}"
@@ -74,6 +75,3 @@ def process_attendance(request):
 
         return JsonResponse({'status': 'success', 'message': 'Attendance recorded successfully'})
     return JsonResponse({'status': 'error'}, status=400)
-
-
-# TG BOT
