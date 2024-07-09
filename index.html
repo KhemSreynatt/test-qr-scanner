@@ -85,7 +85,7 @@
                 setTimeout(() => {
                     // Replace this with actual logic to check user authorization
                     const authorizedPhones = ['081976999'];
-                    resolve(authorizedPhones.includes(phoneNumber));
+                    resolve(authorizedPhones.includes(phoneNumber.trim()));
                 }, 1000);
             });
         }
