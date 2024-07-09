@@ -47,7 +47,8 @@
                     console.log("Scan result:", qrCode);
                     if (qrCode) {
                         document.getElementById('result').textContent = "Scanned: " + qrCode;
-                        alert("Scanned: " + qrCode);
+                        // alert("Scanned: " + qrCode);
+                        tg.closeScanQrPopup();
                     } else {
                         document.getElementById('result').textContent = "Scanning cancelled or failed";
                     }
