@@ -102,11 +102,11 @@
         document.getElementById('scanButton').addEventListener('click', scanQRCode);
 
         // If in Telegram Web App environment, use MainButton
-        if (tg.MainButton) {
-            tg.MainButton.setText("Scan QR Code");
-            tg.MainButton.onClick(scanQRCode);
-            tg.MainButton.show();
-        }
+
+        tg.MainButton.setText("Scan QR Code");
+        tg.MainButton.onClick(scanQRCode);
+        tg.MainButton.show();
+
 
         // Expand the Web App to full screen
         tg.expand();
