@@ -17,6 +17,7 @@
             }, function (qrCode) {
                 console.log("Scanned QR Code:", qrCode); // Debug log
                 if (qrCode) {
+                    alert("Scanned QR Code: " + result);
                     document.getElementById('result').textContent = "Scanned: " + qrCode;
                     console.log("Processing QR code locally:", qrCode);
                     // Further processing...
