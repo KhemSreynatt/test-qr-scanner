@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>QR Scanner Mini App</title>
+    <script src="https://unpkg.com/qr-scanner/qr-scanner.umd.min.js"></script>
+</head>
+
+<body>
+    <video id="qr-video"></video>
+    <div id="result"></div>
+    <script>
+        const video = document.getElementById('qr-video');
+        const resultElement = document.getElementById('result');
+
+        QrScanner.hasCamera().then(hasCamera => {
+            if (hasCamera) {
+                const qrScanner = new QrScanner(video, result => {
+                    resultElement.textContent = result;
+                    // Send result to your Django backend
+                    fetch('/api/qr-result/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ result: result }),
+                    });
+                });
+                qrScanner.start();
+            }
+        });
+    </script>
+</body>
+
+</html>
