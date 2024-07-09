@@ -74,3 +74,6 @@ def process_attendance(request):
 
         return JsonResponse({'status': 'success', 'message': 'Attendance recorded successfully'})
     return JsonResponse({'status': 'error'}, status=400)
+
+
+# TG BOT

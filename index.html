@@ -1,4 +1,94 @@
 <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
+    <style>
+        #qr-reader {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        #qr-reader-results {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="qr-reader"></div>
+    <div id="qr-reader-results"></div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        let resultContainer = document.getElementById('qr-reader-results');
+
+        function displayResult(result) {
+            resultContainer.textContent = 'Scanned QR Code: ' + result;
+        }
+
+        function scanQRCode() {
+            if (typeof tg.showScanQrPopup === 'function') {
+                // Use Telegram's built-in QR scanner
+                tg.showScanQrPopup({ text: "Scan a QR Code" }, function (qrCode) {
+                    if (qrCode) {
+                        displayResult(qrCode);
+                    } else {
+                        resultContainer.textContent = 'Scanning cancelled or failed';
+                    }
+                });
+            } else {
+                // Fallback to ZXing library
+                const codeReader = new ZXing.BrowserQRCodeReader();
+                codeReader.getVideoInputDevices()
+                    .then((videoInputDevices) => {
+                        if (videoInputDevices.length > 0) {
+                            codeReader.decodeFromVideoDevice(videoInputDevices[0].deviceId, 'qr-reader', (result, err) => {
+                                if (result) {
+                                    displayResult(result.text);
+                                    codeReader.reset();
+                                }
+                                if (err && !(err instanceof ZXing.NotFoundException)) {
+                                    console.error(err);
+                                    resultContainer.textContent = 'Error: ' + err;
+                                }
+                            });
+                        } else {
+                            resultContainer.textContent = 'No camera found';
+                        }
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                        resultContainer.textContent = 'Error accessing camera: ' + err;
+                    });
+            }
+        }
+
+        // Initialize
+        tg.expand();
+        if (tg.MainButton) {
+            tg.MainButton.text = "Scan QR Code";
+            tg.MainButton.onClick(scanQRCode);
+            tg.MainButton.show();
+        } else {
+            // If MainButton is not available, create a regular button
+            let scanButton = document.createElement('button');
+            scanButton.textContent = 'Scan QR Code';
+            scanButton.onclick = scanQRCode;
+            document.body.insertBefore(scanButton, document.body.firstChild);
+        }
+    </script>
+</body>
+
+</html>
+
+
+
+<!-- <!DOCTYPE html>
 <html>
 
 <head>
@@ -7,21 +97,39 @@
 </head>
 
 <body>
-    <button onclick="scanQR()">Scan QR Code</button>
-    <div id="result"></div>
+    <div id="result">Tap the button to scan QR code</div>
+    <div id="debug"></div>
     <script>
         let tg = window.Telegram.WebApp;
 
-        function scanQR() {
-            tg.showScanQrPopup({ text: "Scan a QR code" }, function (qrCode) {
+        function log(message) {
+            console.log(message);
+            document.getElementById('debug').innerHTML += message + '<br>';
+        }
+
+        function openQRScanner() {
+            log('Opening QR Scanner...');
+            tg.showScanQrPopup({
+                text: "Scan any QR code"
+            }, function (qrCode) {
+                log('Scan completed');
                 if (qrCode) {
+                    log('Raw QR data: ' + qrCode);
                     document.getElementById('result').textContent = "Scanned: " + qrCode;
                 } else {
+                    log('No QR code scanned');
                     document.getElementById('result').textContent = "Scanning cancelled or failed";
                 }
             });
         }
+
+        tg.expand();
+        tg.MainButton.text = "Scan QR Code";
+        tg.MainButton.onClick(openQRScanner);
+        tg.MainButton.show();
+
+        log('TMA initialized');
     </script>
 </body>
 
-</html>
+</html> -->
