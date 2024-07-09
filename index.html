@@ -77,6 +77,92 @@
                 callback(false);
             }
         }
+
+        function checkUserAuthorization(phoneNumber) {
+            return new Promise((resolve, reject) => {
+                // Simulating an API call
+                setTimeout(() => {
+                    // Replace this with actual logic to check user authorization
+                    const authorizedPhones = ['081976999'];
+                    resolve(authorizedPhones.includes(phoneNumber));
+                }, 1000);
+            });
+        }
+        function checkPermissions(callback) {
+            if (!tg.initDataUnsafe || !tg.initDataUnsafe.user) {
+                document.getElementById('result').textContent = "Unable to get user data. Please ensure you're using the Telegram app.";
+                callback(false);
+                return;
+            }
+
+            const userId = tg.initDataUnsafe.user.id;
+
+            // Request the user's phone number
+            tg.CloudStorage.getItem('phoneNumber', (error, phoneNumber) => {
+                if (error || !phoneNumber) {
+                    tg.showPopup({
+                        title: 'Phone Number Required',
+                        message: 'We need your phone number to verify your permission.',
+                        buttons: [{
+                            id: 'request_phone',
+                            type: 'default',
+                            text: 'Share Phone Number'
+                        }]
+                    }, (buttonId) => {
+                        if (buttonId === 'request_phone') {
+                            tg.requestContact((result) => {
+                                if (result) {
+                                    const userPhoneNumber = result.phone_number;
+                                    tg.CloudStorage.setItem('phoneNumber', userPhoneNumber);
+                                    verifyAndCheckLocation(userPhoneNumber, callback);
+                                } else {
+                                    document.getElementById('result').textContent = "Phone number is required for verification.";
+                                    callback(false);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    verifyAndCheckLocation(phoneNumber, callback);
+                }
+            });
+        }
+
+        function verifyAndCheckLocation(phoneNumber, callback) {
+            checkUserAuthorization(phoneNumber).then(isAuthorized => {
+                if (!isAuthorized) {
+                    document.getElementById('result').textContent = "You are not authorized to scan QR codes";
+                    callback(false);
+                    return;
+                }
+
+                if ('geolocation' in navigator) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const userLat = position.coords.latitude;
+                            const userLon = position.coords.longitude;
+
+                            const distance = calculateDistance(CENTER_LAT, CENTER_LON, userLat, userLon);
+
+                            if (distance <= MAX_DISTANCE) {
+                                callback(true);
+                            } else {
+                                document.getElementById('result').textContent = `You're outside the designated scanning area. Distance: ${distance.toFixed(2)}m`;
+                                callback(false);
+                            }
+                        },
+                        (error) => {
+                            console.error("Error getting location:", error);
+                            document.getElementById('result').textContent = "Unable to get your location. Please enable location services.";
+                            callback(false);
+                        }
+                    );
+                } else {
+                    document.getElementById('result').textContent = "Geolocation is not supported by your browser.";
+                    callback(false);
+                }
+            });
+        }
         function scanQRCode() {
             console.log("Checking location permission...");
             checkLocationPermission((isPermitted) => {
@@ -91,8 +177,6 @@
                             if (qrCode) {
                                 sendToTelegramGroup(qrCode);
                                 tg.closeScanQrPopup();
-                                // tg.MainButton.hide();
-                                // tg.expand();
                             } else {
                                 document.getElementById('result').textContent = "Scanning cancelled or failed";
                             }
