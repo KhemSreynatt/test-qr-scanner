@@ -31,12 +31,9 @@
 
 <body>
     <h1>QR Code Scanner</h1>
-    <!-- <button id="scanButton">Scan QR Code</button> -->
     <div id="result">Scan result will appear here</div>
-
     <script>
         let tg = window.Telegram.WebApp;
-
         function scanQRCode() {
             console.log("Attempting to open QR scanner...");
             if (typeof tg.showScanQrPopup === 'function') {
@@ -47,17 +44,42 @@
                     console.log("Scan result:", qrCode);
                     if (qrCode) {
                         document.getElementById('result').textContent = "Scanned: " + qrCode;
-                        // alert("Scanned: " + qrCode);
+                        sendToTelegramGroup(qrCode);
                         tg.closeScanQrPopup();
                     } else {
                         document.getElementById('result').textContent = "Scanning cancelled or failed";
                     }
                 });
             } else {
-                console.log("Telegram QR scanner not available, using fallback...");
-                document.getElementById('fallback').textContent = " using fallback...";
-                fallbackScan();
+                alert("Invalid Scanning!");
             }
+        }
+        function sendToTelegramGroup(qrCode) {
+            const botToken = '7485708002:AAEy-gCr1lG9ZX6AXxpJdbo6GjA6xtJ5L5U';
+            const chatId = -4218196722;
+            const message = `New QR Code scanned: ${qrCode}`;
+
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: message,
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Message sent to group:', data);
+                    document.getElementById('result').textContent = `Scanned and sent to group: ${qrCode}`;
+                })
+                .catch(error => {
+                    console.error('Error sending message:', error);
+                    document.getElementById('result').textContent = `Scanned: ${qrCode}. Error sending to group.`;
+                });
         }
         tg.MainButton.setText("Scan QR Code");
         tg.MainButton.onClick(scanQRCode);
