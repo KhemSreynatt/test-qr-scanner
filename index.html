@@ -18,6 +18,7 @@
                 console.log("Scanned QR Code:", qrCode); // Debug log
                 if (qrCode) {
                     document.getElementById('result').textContent = "Scanned: " + qrCode;
+                    console.log("Processing QR code locally:", qrCode);
                     // Further processing...
                 } else {
                     console.log("QR scanning failed or was cancelled"); // Debug log
