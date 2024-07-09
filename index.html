@@ -34,26 +34,80 @@
     <div id="result">Scan result will appear here</div>
     <script>
         let tg = window.Telegram.WebApp;
-        function scanQRCode() {
-            console.log("Attempting to open QR scanner...");
-            if (typeof tg.showScanQrPopup === 'function') {
-                tg.showScanQrPopup({
-                    text: "Please scan a QR code"
-                }, function (qrCode) {
-                    console.log("Scan callback triggered");
-                    console.log("Scan result:", qrCode);
-                    if (qrCode) {
-                        document.getElementById('result').textContent = "Scanned: " + qrCode;
-                        sendToTelegramGroup(qrCode);
-                        tg.closeScanQrPopup();
-                    } else {
-                        document.getElementById('result').textContent = "Scanning cancelled or failed";
+        const CENTER_LAT = 11.55613804408328;
+        const CENTER_LON = 104.9218005731158;
+        const AREA_SIDE = 7.07; // ~50m² square side in meters
+
+        function metersToLatLon(meters, latitude) {
+            const earthRadius = 6371000; // Earth's radius in meters
+            const latChange = (meters / earthRadius) * (180 / Math.PI);
+            const lonChange = (meters / earthRadius) * (180 / Math.PI) / Math.cos(latitude * Math.PI / 180);
+            return { latChange, lonChange };
+        }
+
+        function checkLocationPermission(callback) {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const userLat = position.coords.latitude;
+                        const userLon = position.coords.longitude;
+
+                        const { latChange, lonChange } = metersToLatLon(AREA_SIDE / 2, CENTER_LAT);
+
+                        const minLat = CENTER_LAT - latChange;
+                        const maxLat = CENTER_LAT + latChange;
+                        const minLon = CENTER_LON - lonChange;
+                        const maxLon = CENTER_LON + lonChange;
+
+                        if (userLat >= minLat && userLat <= maxLat && userLon >= minLon && userLon <= maxLon) {
+                            callback(true);
+                        } else {
+                            document.getElementById('result').textContent = "You're outside the designated scanning area.";
+                            callback(false);
+                        }
+                    },
+                    (error) => {
+                        console.error("Error getting location:", error);
+                        document.getElementById('result').textContent = "Unable to get your location. Please enable location services.";
+                        callback(false);
                     }
-                });
+                );
             } else {
-                alert("Invalid Scanning!");
+                document.getElementById('result').textContent = "Geolocation is not supported by your browser.";
+                callback(false);
             }
         }
+
+        function scanQRCode() {
+            console.log("Checking location permission...");
+            checkLocationPermission((isPermitted) => {
+                if (isPermitted) {
+                    console.log("Location permitted. Attempting to open QR scanner...");
+                    if (typeof tg.showScanQrPopup === 'function') {
+                        tg.showScanQrPopup({
+                            text: "Please scan a QR code"
+                        }, function (qrCode) {
+                            console.log("Scan callback triggered");
+                            console.log("Scan result:", qrCode);
+                            if (qrCode) {
+                                sendToTelegramGroup(qrCode);
+                                tg.closeScanQrPopup();
+                                // tg.MainButton.hide();
+                                // tg.expand();
+                            } else {
+                                document.getElementById('result').textContent = "Scanning cancelled or failed";
+                            }
+                        });
+                    } else {
+                        console.log("Telegram QR scanner not available");
+                        document.getElementById('result').textContent = "QR scanner not available";
+                    }
+                } else {
+                    console.log("Location not permitted");
+                }
+            });
+        }
+
         function sendToTelegramGroup(qrCode) {
             const botToken = '7485708002:AAEy-gCr1lG9ZX6AXxpJdbo6GjA6xtJ5L5U';
             const chatId = -4218196722;
