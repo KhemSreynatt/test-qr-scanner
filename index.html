@@ -37,7 +37,7 @@
 
 <body>
     <h1>QR Code Scanner</h1>
-    <button id="scanButton">Scan QR Code</button>
+    <!-- <button id="scanButton">Scan QR Code</button> -->
     <div id="result">Scan result will appear here</div>
     <video id="video"></video>
 
@@ -73,7 +73,7 @@
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
                 .then(function (stream) {
                     video.srcObject = stream;
-                    video.setAttribute("playsinline", true);
+                    video.setAttribute("playsinline", true)
                     video.play();
                     requestAnimationFrame(tick);
                 });
@@ -92,13 +92,13 @@
                         document.getElementById('result').textContent = "Scanned: " + code.data;
                         video.style.display = 'none';
                         video.srcObject.getTracks().forEach(track => track.stop());
+                        alert("Success: Scanned QR Code!");
                         return;
                     }
                 }
                 requestAnimationFrame(tick);
             }
         }
-
         document.getElementById('scanButton').addEventListener('click', scanQRCode);
 
         // If in Telegram Web App environment, use MainButton
