@@ -69,16 +69,30 @@
             video.style.display = 'block';
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
+            let scanning = true; // A flag to indicate if scanning is in progress
 
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
                 .then(function (stream) {
+                    if (!scanning) {
+                        // If scanning was somehow already stopped, we stop the stream immediately
+                        stopStream(stream);
+                        return;
+                    }
                     video.srcObject = stream;
-                    video.setAttribute("playsinline", true)
+                    video.setAttribute("playsinline", true); // ensures the video plays inline on iPhone rather than fullscreen
                     video.play();
                     requestAnimationFrame(tick);
+                })
+                .catch(function (error) {
+                    console.error("Error accessing the camera", error);
+                    alert("Error accessing the camera");
                 });
 
             function tick() {
+                if (!scanning) {
+                    // If scanning was stopped, we don't continue to scan
+                    return;
+                }
                 if (video.readyState === video.HAVE_ENOUGH_DATA) {
                     canvas.height = video.videoHeight;
                     canvas.width = video.videoWidth;
@@ -90,18 +104,26 @@
                     if (code) {
                         console.log("Found QR code", code.data);
                         document.getElementById('result').textContent = "Scanned: " + code.data;
-                        video.style.display = 'none';
-                        video.srcObject.getTracks().forEach(track => track.stop());
-                        alert("Success: Scanned QR Code!");
-                        return;
+                        scanning = false; // Stop scanning
+                        stopStream(video.srcObject);
+                        alert("Success: Scanned QR Code!"); // Show an alert to the user
+                        // You can also call tg.close() if you want to close the Telegram Web App
                     }
                 }
-                requestAnimationFrame(tick);
+                if (scanning) {
+                    requestAnimationFrame(tick);
+                }
+            }
+
+            function stopStream(stream) {
+                video.style.display = 'none';
+                if (stream && stream.getTracks) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
             }
         }
-        // document.getElementById('scanButton').addEventListener('click', scanQRCode);
 
-        // If in Telegram Web App environment, use MainButton
+
 
         tg.MainButton.setText("Scan QR Code");
         tg.MainButton.onClick(scanQRCode);
