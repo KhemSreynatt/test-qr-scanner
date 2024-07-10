@@ -37,7 +37,6 @@
     <div id="address">address</div>
     <div id="name">name</div>
     <div id="IP">IP:</div>
-    <div id="network-status">Clien: </div>
 
 
     <script>
@@ -54,29 +53,25 @@
             '10.0.0.',     // Allows any IP starting with 10.0.0.
             '172.16.0.100' // Allows this specific IP
         ];
-        // Function to check if the IP is allowed
+
         function isIPAllowed(ip) {
             document.getElementById('IP').textContent = ip;
             return allowedIPs.some(allowedIP => ip.startsWith(allowedIP));
         }
-
-        // Function to get the user's IP address
         function getUserIP(callback) {
             fetch('https://api.ipify.org?format=json')
                 .then(response => response.json())
                 .then(data => callback(data.ip))
                 .catch(() => callback(null));
         }
-        function checkAccess() {
+        function checkAccess(callback) {
             getUserIP((ip) => {
                 if (ip && isIPAllowed(ip)) {
-                    console.log('Access granted');
-                    // Allow access to your app
-                    document.getElementById('app').style.display = 'block';
+                    callback(true);
                 } else {
+                    callback(false);
                     console.log('Access denied');
-                    // Show an error message
-                    document.getElementById('error-message').style.display = 'block';
+                    document.getElementById('result').textContent = 'Your network is not allow!';
                 }
             });
         }
@@ -180,30 +175,31 @@
         }
 
         function scanQRCode() {
-            checkAccess();
-            checkUserPermission((isPermittedUser) => {
-                if (isPermittedUser) {
-                    checkLocationPermission((isPermitted) => {
-                        if (isPermitted) {
-                            if (typeof tg.showScanQrPopup === 'function') {
-                                tg.showScanQrPopup({
-                                    text: "Please scan a QR code"
-                                }, function (qrCode) {
-                                    if (qrCode) {
-                                        collectUserInfo(qrCode);
-                                        tg.closeScanQrPopup();
-                                    } else {
-                                        document.getElementById('result').textContent = "Scanning cancelled or failed";
-                                    }
-                                });
+            checkAccess((isAllowedIP) => {
+                checkUserPermission((isPermittedUser) => {
+                    if (isPermittedUser) {
+                        checkLocationPermission((isPermitted) => {
+                            if (isPermitted) {
+                                if (typeof tg.showScanQrPopup === 'function') {
+                                    tg.showScanQrPopup({
+                                        text: "Please scan a QR code"
+                                    }, function (qrCode) {
+                                        if (qrCode) {
+                                            collectUserInfo(qrCode);
+                                            tg.closeScanQrPopup();
+                                        } else {
+                                            document.getElementById('result').textContent = "Scanning cancelled or failed";
+                                        }
+                                    });
+                                } else {
+                                    document.getElementById('result').textContent = "QR scanner not available";
+                                }
                             } else {
-                                document.getElementById('result').textContent = "QR scanner not available";
                             }
-                        } else {
-                        }
-                    });
-                }
-            })
+                        });
+                    }
+                })
+            });
 
         }
 
