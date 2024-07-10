@@ -32,6 +32,9 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
+    <div id="lat">Lat</div>
+    <div id="lng">Lng</div>
+
     <script>
         let tg = window.Telegram.WebApp;
         const CENTER_LAT = 11.55613804408328;
@@ -109,6 +112,8 @@
                 (position) => {
                     const latitude = position.coords.latitude;
                     const longitude = position.coords.longitude;
+                    document.getElementById('lat').textContent = latitude;
+                    document.getElementById('lng').textContent = longitude;
 
                     // Get address from coordinates (reverse geocoding)
                     getAddressFromCoordinates(latitude, longitude, (address) => {
@@ -119,7 +124,6 @@
                             address: address,
                             qrCode: qrCode
                         };
-
                         sendToTelegramGroup(userInfo);
                     });
                 },
