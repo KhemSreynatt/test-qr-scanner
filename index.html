@@ -172,7 +172,6 @@
                             console.log("Permissions not granted");
                         }
                     });
-
                 }
             })
         }
@@ -191,12 +190,12 @@
                 minute: '2-digit'
             });
             const message = `
-New QR Code scanned:
-Name: ${userInfo.name}
-GPS: ${userInfo.gps}
-Address: ${userInfo.address}
-Date: ${dateString}
-Time : ${timeString}
+*Attendance scanned:*
+*Name :* ${userInfo.name}
+*GPS :* ${userInfo.gps}
+*Address :* ${userInfo.address}
+*Date :* ${dateString}
+*Time :* ${timeString}
     `;
             const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
 
