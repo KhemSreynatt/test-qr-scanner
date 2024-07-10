@@ -48,10 +48,7 @@
             987654321,
         ];
         const allowedIPs = [
-            '192.168.1.',  // Allows any IP starting with 192.168.1.
-            '10.0.0.',     // Allows any IP starting with 10.0.0.
-            '172.16.0.100' // Allows this specific IP
-            // '203.217.168.61'
+            '203.217.168.61',
         ];
 
         function isIPAllowed(ip) {
@@ -102,18 +99,21 @@
                         if (distance <= MAX_DISTANCE) {
                             callback(true, distance);
                         } else {
-                            document.getElementById('result').textContent = `You're outside the designated scanning area. Distance: ${distance.toFixed(2)}m`;
+                            document.getElementById('result').textContent = `You're outside the designated scanning area.`;
+                            document.getElementById('result').style.color = '#ff0000'
                             callback(false, distance);
                         }
                     },
                     (error) => {
 
                         document.getElementById('result').textContent = "Unable to get your location. Please enable location services.";
+                        document.getElementById('result').style.color = '#ff0000'
                         callback(false, null);
                     }
                 );
             } else {
                 document.getElementById('result').textContent = "Geolocation is not supported by your browser.";
+                document.getElementById('result').style.color = '#ff0000'
                 callback(false, null);
             }
         }
@@ -154,6 +154,7 @@
                 (error) => {
                     console.error("Error getting location:", error);
                     document.getElementById('result').textContent = "Unable to get your location.";
+                    document.getElementById('result').style.color = '#ff0000'
 
                 }
             );
@@ -163,6 +164,7 @@
             const userId = tg.initDataUnsafe?.user?.id;
             if (!userId) {
                 document.getElementById('result').textContent = `Unable to get user ID`;
+                document.getElementById('result').style.color = '#ff0000'
                 callback(false);
                 return;
             }
@@ -170,6 +172,7 @@
                 callback(true);
             } else {
                 document.getElementById('result').textContent = `You don't have permission to scan. Please contact the administrator.`;
+                document.getElementById('result').style.color = '#ff0000'
                 callback(false);
             }
         }
@@ -190,10 +193,12 @@
                                                 tg.closeScanQrPopup();
                                             } else {
                                                 document.getElementById('result').textContent = "Scanning cancelled or failed";
+                                                document.getElementById('result').style.color = '#ff0000'
                                             }
                                         });
                                     } else {
                                         document.getElementById('result').textContent = "QR scanner not available";
+                                        document.getElementById('result').style.color = '#ff0000'
                                     }
                                 } else {
                                 }
