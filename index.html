@@ -152,16 +152,22 @@
         function sendToTelegramGroup(qrCode) {
             const botToken = '7485708002:AAEy-gCr1lG9ZX6AXxpJdbo6GjA6xtJ5L5U';
             const chatId = -4218196722;
-            const username = tg.initDataUnsafe?.user?.first_name;
+            const user = tg.initDataUnsafe?.user;
+            const name = user?.first_name + ' ' + (user?.last_name || '');
             const phoneNumber = tg.initDataUnsafe?.user?.phoneNumber;
+            const address = tg.initDataUnsafe?.user?.address;
+            const lat = tg.initDataUnsafe?.user?.latitude;
+            const lng = tg.initDataUnsafe?.user?.longitude;
             // const phone = tg.initDataUnsafe?.phoneNumber;
             // const name = user?.first_name + ' ' + (user?.last_name || '');
             // const latitude = tg.initDataUnsafe?.position.latitude;
             // const longitude = tg.initDataUnsafe?.position.longitude;
             // const address = tg.initDataUnsafe?.address
             const message = `Attendance Scanned: 
-Name : ${username}
+Name : ${name}
 Phone Number : ${phoneNumber}
+GPS : ${lat, lng}
+Address : ${address}
             ${qrCode}`
             //             const message = `
             // Attendance scanned:
