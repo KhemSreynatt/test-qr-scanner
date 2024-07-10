@@ -36,7 +36,7 @@
     <div id="lng">Lng</div>
     <div id="address">address</div>
     <div id="name">name</div>
-    <div id="IP">name</div>
+    <div id="IP">IP:</div>
     <div id="network-status">Clien: </div>
 
 
@@ -49,6 +49,37 @@
             6957049018, //user IDs in telegram
             987654321,
         ];
+        const allowedIPs = [
+            '192.168.1.',  // Allows any IP starting with 192.168.1.
+            '10.0.0.',     // Allows any IP starting with 10.0.0.
+            '172.16.0.100' // Allows this specific IP
+        ];
+        // Function to check if the IP is allowed
+        function isIPAllowed(ip) {
+            return allowedIPs.some(allowedIP => ip.startsWith(allowedIP));
+        }
+
+        // Function to get the user's IP address
+        function getUserIP(callback) {
+            fetch('https://api.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => callback(data.ip))
+                .catch(() => callback(null));
+        }
+        function checkAccess() {
+            getUserIP((ip) => {
+                document.getElementById('IP').style.display = ip;
+                if (ip && isIPAllowed(ip)) {
+                    console.log('Access granted');
+                    // Allow access to your app
+                    document.getElementById('app').style.display = 'block';
+                } else {
+                    console.log('Access denied');
+                    // Show an error message
+                    document.getElementById('error-message').style.display = 'block';
+                }
+            });
+        }
 
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -158,6 +189,7 @@
                                     text: "Please scan a QR code"
                                 }, function (qrCode) {
                                     if (qrCode) {
+                                        checkAccess();
                                         collectUserInfo(qrCode);
                                         tg.closeScanQrPopup();
                                     } else {
