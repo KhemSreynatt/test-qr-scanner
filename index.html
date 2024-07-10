@@ -26,22 +26,12 @@
             border-radius: 5px;
             background-color: white;
         }
-
-        #error {
-            margin-top: 0px;
-            padding: 0px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            color: #ff0000;
-            background-color: white;
-        }
     </style>
 </head>
 
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
-    <div id="error"></div>
     <div id="name"></div>
     <div id="lat"></div>
     <div id="lng"></div>
@@ -80,9 +70,8 @@
                 } else {
                     callback(false);
                     console.log('Access denied');
-                    document.getElementById('error').textContent = 'Your network is not allow!';
-                    document.getElementById('error').style.marginTop = '20px'
-                    document.getElementById('error').style.padding = '20px'
+                    document.getElementById('result').textContent = 'Your network is not allow!';
+                    document.getElementById('result').style.color = '#ff0000'
                 }
             });
         }
