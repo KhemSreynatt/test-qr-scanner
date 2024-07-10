@@ -119,7 +119,6 @@
                     getAddressFromCoordinates(latitude, longitude, (address) => {
                         const userInfo = {
                             name: name,
-                            username: username,
                             gps: `${latitude}, ${longitude}`,
                             address: address,
                             qrCode: qrCode
@@ -131,16 +130,6 @@
                     console.error("Error getting location:", error);
                     document.getElementById('result').textContent = "Unable to get your location.";
 
-                    // Even if location fails, send available info
-                    const userInfo = {
-                        name: name,
-                        username: username,
-                        gps: 'Not available',
-                        address: 'Not available',
-                        qrCode: qrCode
-                    };
-
-                    sendToTelegramGroup(userInfo);
                 }
             );
         }
