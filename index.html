@@ -79,32 +79,58 @@
             }
         }
 
+        const authorizedUsers = [
+            81976999, // Replace with actual user IDs
+            987654321,
+            // ... add more user IDs as needed
+        ];
+
+        function checkUserPermission(callback) {
+            const userId = tg.initDataUnsafe?.user?.id;
+            if (!userId) {
+                document.getElementById('result').textContent = `Unable to get user ID ${userId}`;
+                callback(false);
+                return;
+            }
+
+            if (authorizedUsers.includes(userId)) {
+                callback(true);
+            } else {
+                document.getElementById('result').textContent = `You don't have permission to scan. Please contact the administrator.${userId}`;
+                callback(false);
+            }
+        }
         function scanQRCode() {
             console.log("Checking permissions...");
-            checkLocationPermission((isPermitted) => {
-                if (isPermitted) {
-                    console.log("Permissions granted. Attempting to open QR scanner...");
-                    if (typeof tg.showScanQrPopup === 'function') {
-                        tg.showScanQrPopup({
-                            text: "Please scan a QR code"
-                        }, function (qrCode) {
-                            console.log("Scan callback triggered");
-                            console.log("Scan result:", qrCode);
-                            if (qrCode) {
-                                sendToTelegramGroup(qrCode);
-                                tg.closeScanQrPopup();
+            checkUserPermission((isPermittedUser) => {
+                if (isPermittedUser) {
+                    checkLocationPermission((isPermitted) => {
+                        if (isPermitted) {
+                            console.log("Permissions granted. Attempting to open QR scanner...");
+                            if (typeof tg.showScanQrPopup === 'function') {
+                                tg.showScanQrPopup({
+                                    text: "Please scan a QR code"
+                                }, function (qrCode) {
+                                    console.log("Scan callback triggered");
+                                    console.log("Scan result:", qrCode);
+                                    if (qrCode) {
+                                        sendToTelegramGroup(qrCode);
+                                        tg.closeScanQrPopup();
+                                    } else {
+                                        document.getElementById('result').textContent = "Scanning cancelled or failed";
+                                    }
+                                });
                             } else {
-                                document.getElementById('result').textContent = "Scanning cancelled or failed";
+                                console.log("Telegram QR scanner not available");
+                                document.getElementById('result').textContent = "QR scanner not available";
                             }
-                        });
-                    } else {
-                        console.log("Telegram QR scanner not available");
-                        document.getElementById('result').textContent = "QR scanner not available";
-                    }
-                } else {
-                    console.log("Permissions not granted");
+                        } else {
+                            console.log("Permissions not granted");
+                        }
+                    });
+
                 }
-            });
+            })
         }
 
         function sendToTelegramGroup(qrCode) {
