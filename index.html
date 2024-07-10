@@ -26,17 +26,26 @@
             border-radius: 5px;
             background-color: white;
         }
+
+        #error {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            color: #ff0000;
+            background-color: white;
+        }
     </style>
 </head>
 
 <body>
     <h1>QR Code Scanner</h1>
-    <div id="result">Scan result will appear here</div>
+    <div id="result"></div>
+    <div id="error"></div>
+    <div id="name"></div>
     <div id="lat"></div>
     <div id="lng"></div>
     <div id="address"></div>
-    <div id="name"></div>
-    <div id="IP"></div>
 
 
     <script>
@@ -52,10 +61,10 @@
             '192.168.1.',  // Allows any IP starting with 192.168.1.
             '10.0.0.',     // Allows any IP starting with 10.0.0.
             '172.16.0.100' // Allows this specific IP
+            // '203.217.168.61'
         ];
 
         function isIPAllowed(ip) {
-            document.getElementById('IP').textContent = ip;
             return allowedIPs.some(allowedIP => ip.startsWith(allowedIP));
         }
         function getUserIP(callback) {
@@ -71,7 +80,7 @@
                 } else {
                     callback(false);
                     console.log('Access denied');
-                    document.getElementById('result').textContent = 'Your network is not allow!';
+                    document.getElementById('error').textContent = 'Your network is not allow!';
                 }
             });
         }
