@@ -36,6 +36,9 @@
     <div id="lng">Lng</div>
     <div id="address">address</div>
     <div id="name">name</div>
+    <div id="IP">name</div>
+    <div id="network-status">Clien: </div>
+
 
     <script>
         let tg = window.Telegram.WebApp;
@@ -168,7 +171,9 @@
         function scanQRCode() {
             getUserIP(function (ip) {
                 const isAllowed = isOnAllowedNetwork(ip);
+                document.getElementById('IP').textContent = `: ${ip}`;
                 if (isAllowed) {
+                    document.getElementById('network-status').textContent = 'Connected to allowed network';
                     checkUserPermission((isPermittedUser) => {
                         if (isPermittedUser) {
                             checkLocationPermission((isPermitted) => {
@@ -193,6 +198,8 @@
                         }
                     })
 
+                } else {
+                    document.getElementById('network-status').textContent = 'Access denied: You are not on an allowed network';
                 }
             });
         }
