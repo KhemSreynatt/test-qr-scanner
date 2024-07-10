@@ -68,7 +68,7 @@
         }
         function checkAccess() {
             getUserIP((ip) => {
-                document.getElementById('IP').style.display = ip;
+                document.getElementById('IP').textContent = ip;
                 if (ip && isIPAllowed(ip)) {
                     console.log('Access granted');
                     // Allow access to your app
@@ -180,6 +180,7 @@
         }
 
         function scanQRCode() {
+            checkAccess();
             checkUserPermission((isPermittedUser) => {
                 if (isPermittedUser) {
                     checkLocationPermission((isPermitted) => {
@@ -189,7 +190,6 @@
                                     text: "Please scan a QR code"
                                 }, function (qrCode) {
                                     if (qrCode) {
-                                        checkAccess();
                                         collectUserInfo(qrCode);
                                         tg.closeScanQrPopup();
                                     } else {
