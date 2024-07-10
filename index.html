@@ -115,18 +115,15 @@
                     const longitude = position.coords.longitude;
                     document.getElementById('lat').textContent = latitude;
                     document.getElementById('lng').textContent = longitude;
+                    document.getElementById('address').textContent = position.coords.address;
+                    document.getElementById('name').textContent = name;
+                    const userInfo = {
+                        name: name,
+                        gps: `${latitude}, ${longitude}`,
+                        address: position.coords.address,
+                    };
+                    sendToTelegramGroup(userInfo);
 
-                    // Get address from coordinates (reverse geocoding)
-                    getAddressFromCoordinates(latitude, longitude, (address) => {
-                        const userInfo = {
-                            name: name,
-                            gps: `${latitude}, ${longitude}`,
-                            address: address,
-                        };
-                        document.getElementById('address').textContent = position.coords.address;
-                        document.getElementById('name').textContent = name;
-                        sendToTelegramGroup(userInfo);
-                    });
                 },
                 (error) => {
                     console.error("Error getting location:", error);
