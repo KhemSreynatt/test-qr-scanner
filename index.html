@@ -89,7 +89,7 @@
 
         ];
 
-        function getAddressFromCoordinates(latitude, longitude, callback) {
+        function getAddressFromCoordinates(latitude, longitude) {
             const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
 
             fetch(url)
@@ -118,7 +118,7 @@
                     document.getElementById('lng').textContent = longitude;
                     // document.getElementById('address').textContent = position.coords.address;
                     document.getElementById('name').textContent = name;
-                    getAddressFromCoordinates()
+                    getAddressFromCoordinates(latitude, longitude);
                     const userInfo = {
                         name: name,
                         gps: `${latitude}, ${longitude}`,
