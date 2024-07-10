@@ -99,7 +99,44 @@
                 });
         }
 
+        function collectUserInfo(qrCode) {
+            const user = tg.initDataUnsafe?.user;
+            const name = user?.first_name + ' ' + (user?.last_name || '');
 
+            // Request user's phone number
+            tg.requestContact((result) => {
+                if (result) {
+                    const phoneNumber = result.phone_number;
+
+                    // Get GPS location
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const latitude = position.coords.latitude;
+                            const longitude = position.coords.longitude;
+
+                            // Get address from coordinates (reverse geocoding)
+                            getAddressFromCoordinates(latitude, longitude, (address) => {
+                                const userInfo = {
+                                    name: name,
+                                    phone: phoneNumber,
+                                    gps: `${latitude}, ${longitude}`,
+                                    address: address,
+                                    qrCode: qrCode
+                                };
+
+                                sendToTelegramGroup(userInfo);
+                            });
+                        },
+                        (error) => {
+                            console.error("Error getting location:", error);
+                            document.getElementById('result').textContent = "Unable to get your location.";
+                        }
+                    );
+                } else {
+                    document.getElementById('result').textContent = "Failed to get phone number.";
+                }
+            });
+        }
 
         function checkUserPermission(callback) {
             const userId = tg.initDataUnsafe?.user?.id;
@@ -130,7 +167,7 @@
                                     console.log("Scan callback triggered");
                                     console.log("Scan result:", qrCode);
                                     if (qrCode) {
-                                        sendToTelegramGroup(qrCode);
+                                        collectUserInfo(qrCode);
                                         tg.closeScanQrPopup();
                                     } else {
                                         document.getElementById('result').textContent = "Scanning cancelled or failed";
@@ -149,33 +186,19 @@
             })
         }
 
-        function sendToTelegramGroup(qrCode) {
+        function sendToTelegramGroup() {
             const botToken = '7485708002:AAEy-gCr1lG9ZX6AXxpJdbo6GjA6xtJ5L5U';
             const chatId = -4218196722;
-            const user = tg.initDataUnsafe?.user;
-            const name = user?.first_name + ' ' + (user?.last_name || '');
-            const phoneNumber = tg.initDataUnsafe?.user?.phoneNumber;
-            const address = tg.initDataUnsafe?.user?.address;
-            const lat = tg.initDataUnsafe?.user?.latitude;
-            const lng = tg.initDataUnsafe?.user?.longitude;
-            // const phone = tg.initDataUnsafe?.phoneNumber;
-            // const name = user?.first_name + ' ' + (user?.last_name || '');
-            // const latitude = tg.initDataUnsafe?.position.latitude;
-            // const longitude = tg.initDataUnsafe?.position.longitude;
-            // const address = tg.initDataUnsafe?.address
-            const message = `Attendance Scanned: 
-Name : ${name}
-Phone Number : ${phoneNumber}
-GPS : ${lat, lng}
-Address : ${address}
-            ${qrCode}`
-            //             const message = `
-            // Attendance scanned:
-            // Name: ${user}
-            // Phone: ${phone}
-            // GPS: ${latitude, longitude}
-            // Address: ${address}
-            //     `;;
+            const message = `
+New QR Code scanned:
+Name: ${userInfo.name}
+Phone: ${userInfo.phone}
+GPS: ${userInfo.gps}
+Address: ${userInfo.address}
+QR Code: ${userInfo.qrCode}
+    `;
+
+
 
             const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
 
