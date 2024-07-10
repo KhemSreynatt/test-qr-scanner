@@ -82,13 +82,13 @@
         const authorizedUsers = [
             6957049018, // Replace with actual user IDs
             987654321,
-            // ... add more user IDs as needed
+
         ];
 
         function checkUserPermission(callback) {
             const userId = tg.initDataUnsafe?.user?.id;
             if (!userId) {
-                document.getElementById('result').textContent = `Unable to get user ID ${userId}`;
+                document.getElementById('result').textContent = `Unable to get user ID`;
                 callback(false);
                 return;
             }
@@ -96,7 +96,7 @@
             if (authorizedUsers.includes(userId)) {
                 callback(true);
             } else {
-                document.getElementById('result').textContent = `You don't have permission to scan. Please contact the administrator.${userId}`;
+                document.getElementById('result').textContent = `You don't have permission to scan. Please contact the administrator.`;
                 callback(false);
             }
         }
