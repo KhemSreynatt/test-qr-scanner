@@ -101,43 +101,45 @@
 
         function collectUserInfo(qrCode) {
             const user = tg.initDataUnsafe?.user;
-            const name = user?.first_name + ' ' + (user?.last_name || '');
+            const name = user ? `${user.first_name} ${user.last_name || ''}` : 'Unknown';
+            const username = user?.username || 'Not provided';
 
-            // Request user's phone number
-            tg.requestContact((result) => {
-                if (result) {
-                    const phoneNumber = result.phone_number;
+            // Get GPS location
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
 
-                    // Get GPS location
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            const latitude = position.coords.latitude;
-                            const longitude = position.coords.longitude;
+                    // Get address from coordinates (reverse geocoding)
+                    getAddressFromCoordinates(latitude, longitude, (address) => {
+                        const userInfo = {
+                            name: name,
+                            username: username,
+                            gps: `${latitude}, ${longitude}`,
+                            address: address,
+                            qrCode: qrCode
+                        };
 
-                            // Get address from coordinates (reverse geocoding)
-                            getAddressFromCoordinates(latitude, longitude, (address) => {
-                                const userInfo = {
-                                    name: name,
-                                    phone: phoneNumber,
-                                    gps: `${latitude}, ${longitude}`,
-                                    address: address,
-                                    qrCode: qrCode
-                                };
+                        sendToTelegramGroup(userInfo);
+                    });
+                },
+                (error) => {
+                    console.error("Error getting location:", error);
+                    document.getElementById('result').textContent = "Unable to get your location.";
 
-                                sendToTelegramGroup(userInfo);
-                            });
-                        },
-                        (error) => {
-                            console.error("Error getting location:", error);
-                            document.getElementById('result').textContent = "Unable to get your location.";
-                        }
-                    );
-                } else {
-                    document.getElementById('result').textContent = "Failed to get phone number.";
+                    // Even if location fails, send available info
+                    const userInfo = {
+                        name: name,
+                        username: username,
+                        gps: 'Not available',
+                        address: 'Not available',
+                        qrCode: qrCode
+                    };
+
+                    sendToTelegramGroup(userInfo);
                 }
-            });
+            );
         }
-
         function checkUserPermission(callback) {
             const userId = tg.initDataUnsafe?.user?.id;
             if (!userId) {
@@ -192,7 +194,6 @@
             const message = `
 New QR Code scanned:
 Name: ${userInfo.name}
-Phone: ${userInfo.phone}
 GPS: ${userInfo.gps}
 Address: ${userInfo.address}
 QR Code: ${userInfo.qrCode}
