@@ -158,13 +158,14 @@
             const latitude = tg.initDataUnsafe?.position.latitude;
             const longitude = tg.initDataUnsafe?.position.longitude;
             const address = tg.initDataUnsafe?.address
-            const message = `
-Attendance scanned:
-Name: ${user}
-Phone: ${phone}
-GPS: ${latitude, longitude}
-Address: ${address}
-    `;;
+            const message = `Attendance Scanned: ${qrCode}`
+            //             const message = `
+            // Attendance scanned:
+            // Name: ${user}
+            // Phone: ${phone}
+            // GPS: ${latitude, longitude}
+            // Address: ${address}
+            //     `;;
 
             const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
 
