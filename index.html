@@ -99,38 +99,7 @@
                 });
         }
 
-        function collectUserInfo(qrCode) {
-            const user = tg.initDataUnsafe?.user;
-            const name = user?.first_name + ' ' + (user?.last_name || '');
-            tg.requestContact((result) => {
-                if (result) {
-                    const phoneNumber = result.phone_number;
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            const latitude = position.coords.latitude;
-                            const longitude = position.coords.longitude;
-                            getAddressFromCoordinates(latitude, longitude, (address) => {
-                                const userInfo = {
-                                    name: name,
-                                    phone: phoneNumber,
-                                    gps: `${latitude}, ${longitude}`,
-                                    address: address,
-                                    qrCode: qrCode
-                                };
 
-                                sendToTelegramGroup(userInfo);
-                            });
-                        },
-                        (error) => {
-                            console.error("Error getting location:", error);
-                            document.getElementById('result').textContent = "Unable to get your location.";
-                        }
-                    );
-                } else {
-                    document.getElementById('result').textContent = "Failed to get phone number.";
-                }
-            });
-        }
 
         function checkUserPermission(callback) {
             const userId = tg.initDataUnsafe?.user?.id;
@@ -161,7 +130,7 @@
                                     console.log("Scan callback triggered");
                                     console.log("Scan result:", qrCode);
                                     if (qrCode) {
-                                        collectUserInfo(qrCode);
+                                        sendToTelegramGroup(qrCode);
                                         tg.closeScanQrPopup();
                                     } else {
                                         document.getElementById('result').textContent = "Scanning cancelled or failed";
@@ -183,13 +152,18 @@
         function sendToTelegramGroup(qrCode) {
             const botToken = '7485708002:AAEy-gCr1lG9ZX6AXxpJdbo6GjA6xtJ5L5U';
             const chatId = -4218196722;
+            const user = tg.initDataUnsafe?.user;
+            const phone = tg.initDataUnsafe?.phoneNumber;
+            const name = user?.first_name + ' ' + (user?.last_name || '');
+            const latitude = tg.initDataUnsafe?.position.latitude;
+            const longitude = tg.initDataUnsafe?.position.longitude;
+            const address = tg.initDataUnsafe?.address
             const message = `
 Attendance scanned:
-Name: ${userInfo.name}
-Phone: ${userInfo.phone}
-GPS: ${userInfo.gps}
-Address: ${userInfo.address}
-QR Code: ${userInfo.qrCode}
+Name: ${user}
+Phone: ${phone}
+GPS: ${latitude, longitude}
+Address: ${address}
     `;;
 
             const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
