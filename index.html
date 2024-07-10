@@ -56,6 +56,7 @@
         ];
         // Function to check if the IP is allowed
         function isIPAllowed(ip) {
+            document.getElementById('IP').textContent = ip;
             return allowedIPs.some(allowedIP => ip.startsWith(allowedIP));
         }
 
@@ -68,7 +69,6 @@
         }
         function checkAccess() {
             getUserIP((ip) => {
-                document.getElementById('IP').textContent = ip;
                 if (ip && isIPAllowed(ip)) {
                     console.log('Access granted');
                     // Allow access to your app
