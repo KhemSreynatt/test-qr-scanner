@@ -91,12 +91,20 @@
 
         function getAddressFromCoordinates(latitude, longitude) {
             const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
-
+            const user = tg.initDataUnsafe?.user;
+            const name = user ? `${user.first_name} ${user.last_name || ''}` : 'Unknown';
+            document.getElementById('name').textContent = name;
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
                     const address = data.display_name || "Address not found";
                     document.getElementById('address').textContent = data.display_name;
+                    const userInfo = {
+                        name: name,
+                        gps: `${latitude}, ${longitude}`,
+                        address: data.display_name,
+                    };
+                    sendToTelegramGroup(userInfo);
                     callback(address);
                 })
                 .catch(error => {
@@ -106,25 +114,24 @@
         }
 
         function collectUserInfo(qrCode) {
-            const user = tg.initDataUnsafe?.user;
-            const name = user ? `${user.first_name} ${user.last_name || ''}` : 'Unknown';
+            // const user = tg.initDataUnsafe?.user;
+            // const name = user ? `${user.first_name} ${user.last_name || ''}` : 'Unknown';
 
-            // Get GPS location
+            // // Get GPS location
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const latitude = position.coords.latitude;
                     const longitude = position.coords.longitude;
                     document.getElementById('lat').textContent = latitude;
                     document.getElementById('lng').textContent = longitude;
-                    // document.getElementById('address').textContent = position.coords.address;
-                    document.getElementById('name').textContent = name;
+
                     getAddressFromCoordinates(latitude, longitude);
-                    const userInfo = {
-                        name: name,
-                        gps: `${latitude}, ${longitude}`,
-                        address: document.getElementById('address').value,
-                    };
-                    sendToTelegramGroup(userInfo);
+                    // const userInfo = {
+                    //     name: name,
+                    //     gps: `${latitude}, ${longitude}`,
+                    //     address: document.getElementById('address').value,
+                    // };
+                    // sendToTelegramGroup(userInfo);
                 },
                 (error) => {
                     console.error("Error getting location:", error);
