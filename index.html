@@ -56,11 +56,6 @@
         function checkPermissionUser(callback) {
             const userId = tg.initDataUnsafe?.user?.id;
             document.getElementById('telegram').textContent = userId;
-            const phoneByuser = document.getElementById('phone');
-            const branchUser = document.getElementById('branch');
-            const nameUser = document.getElementById('nameUser');
-            const employeeId = document.getElementById('employee_id');
-
             fetch('assets/user.xlsx')
                 .then(response => response.arrayBuffer())
                 .then(data => {
@@ -69,14 +64,9 @@
                     const sheet = workbook.Sheets[sheetName];
                     const jsonData = XLSX.utils.sheet_to_json(sheet);
                     const filteredUsers = jsonData.filter(user => user.Telegram_id === userId);
+
                     if (filteredUsers.length > 0) {
-                        filteredUsers.forEach(user => {
-                            phoneByuser.textContent = user.Phone;
-                            branchUser.textContent = user.Branch;
-                            nameUser.textContent = user.Name;
-                            employeeId.textContent = user.ID;
-                            callback(true);
-                        });
+                        callback(true);
                     } else {
                         callback(false);
                         document.getElementById('result').textContent = `You don't have permission to scan. Please contact the administrator.`;
@@ -154,11 +144,8 @@
             }
         }
 
-        function getAddressFromCoordinates(latitude, longitude) {
+        function getAddressFromCoordinates(latitude, longitude, name, phone, employeeId, branch) {
             const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
-            const user = tg.initDataUnsafe?.user;
-            const name = user ? `${user.first_name} ${user.last_name || ''}` : 'Unknown';
-            document.getElementById('name').textContent = name;
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
@@ -166,6 +153,9 @@
                     document.getElementById('address').textContent = data.display_name;
                     const userInfo = {
                         name: name,
+                        phone: phone,
+                        employeeId: employeeId,
+                        branch: branch,
                         gps: `${latitude}, ${longitude}`,
                         address: data.display_name,
 
@@ -178,22 +168,42 @@
                     callback("Unable to get address");
                 });
         }
-
         function collectUserInfo(qrCode) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const latitude = position.coords.latitude;
-                    const longitude = position.coords.longitude;
-                    document.getElementById('lat').textContent = latitude;
-                    document.getElementById('lng').textContent = longitude;
-                    getAddressFromCoordinates(latitude, longitude);
-                },
-                (error) => {
-                    console.error("Error getting location:", error);
-                    document.getElementById('result').textContent = "Unable to get your location.";
-                    document.getElementById('result').style.color = '#ff0000'
-                }
-            );
+            const userId = tg.initDataUnsafe?.user?.id;
+            const phoneByuser = document.getElementById('phone');
+            const branchUser = document.getElementById('branch');
+            const nameUser = document.getElementById('nameUser');
+            const employeeId = document.getElementById('employee_id');
+
+            fetch('assets/user.xlsx')
+                .then(response => response.arrayBuffer())
+                .then(data => {
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(sheet);
+                    const filteredUsers = jsonData.filter(user => user.Telegram_id === userId);
+                    filteredUsers.forEach(user => {
+                        phoneByuser.textContent = user.Phone;
+                        branchUser.textContent = user.Branch;
+                        nameUser.textContent = user.Name;
+                        employeeId.textContent = user.ID;
+                        navigator.geolocation.getCurrentPosition(
+                            (position) => {
+                                const latitude = position.coords.latitude;
+                                const longitude = position.coords.longitude;
+                                document.getElementById('lat').textContent = latitude;
+                                document.getElementById('lng').textContent = longitude;
+                                getAddressFromCoordinates(latitude, longitude, nameUser, phoneByuser, employeeId, branchUser);
+                            },
+                            (error) => {
+                                console.error("Error getting location:", error);
+                                document.getElementById('result').textContent = "Unable to get your location.";
+                                document.getElementById('result').style.color = '#ff0000'
+                            }
+                        );
+                    });
+                })
         }
 
         function checkUserPermission(callback) {
@@ -264,9 +274,12 @@
             });
             const message = `
 *Attendance scanned:*
-*Name :* ${nameUser}
+*Name :* ${userInfo.name}
+*Employee ID :* ${userInfo.employeeId}
+*Phone Number :* ${userInfo.phone}
 *GPS :* ${userInfo.gps}
 *Address :* ${userInfo.address}
+*Branch:* ${userInfo.branch}
 *Date :* ${dateString}
 *Time :* ${timeString}
 
