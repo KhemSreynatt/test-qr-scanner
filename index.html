@@ -229,10 +229,14 @@
         function checkValidQR(qrCode) {
             const resultQR = valueQRCode.includes(qrCode);
             if (!resultQR) {
+                tg.closeScanQrPopup();
+                tg.showAlert("Invalid your QR code!");
                 document.getElementById('result').textContent = 'Invalid your QR code!'
                 document.getElementById('result').style.color = '#ff0000'
             } else {
-                document.getElementById('result').textContent = resultQR;
+                collectUserInfo(qrCode);
+                tg.closeScanQrPopup();
+                tg.showAlert("Scan Done!");
                 return resultQR
             }
 
@@ -254,9 +258,7 @@
                                 }, function (qrCode) {
                                     if (qrCode) {
                                         checkValidQR(qrCode);
-                                        // collectUserInfo(qrCode);
-                                        // tg.closeScanQrPopup();
-                                        // tg.showAlert("Scan Done!");
+
                                     } else {
                                         document.getElementById('result').textContent = "Scanning cancelled or failed";
                                         document.getElementById('result').style.color = '#ff0000'
