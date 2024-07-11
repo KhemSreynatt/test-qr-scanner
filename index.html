@@ -57,7 +57,7 @@
             // document.getElementById('phoneInput').value;
             const phoneByuser = document.getElementById('phone');
             // const telegramPhone = document.getElementById('telegram');
-            document.getElementById('telegram').textContent = userInfoTG.phone_number;
+            document.getElementById('telegram').textContent = `Phone TG: ${userInfoTG.phone_number || 'Not available'}`;
 
             // Fetch the local Excel file
             fetch('assets/user.xlsx')
