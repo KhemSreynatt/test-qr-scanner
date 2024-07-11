@@ -44,8 +44,6 @@
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 20;
-        Telegram.WebApp.ready();
-        const userInfoTG = Telegram.WebApp.initDataUnsafe.user;
         const authorizedUsers = [
             6957049018, //user IDs in telegram
         ];
@@ -53,11 +51,13 @@
             '203.217.168.61',
         ];
         function filterUsers() {
+            Telegram.WebApp.ready();
+            const userInfoTG = Telegram.WebApp.initDataUnsafe.user;
             const phoneInput = 81976999;
             // document.getElementById('phoneInput').value;
             const phoneByuser = document.getElementById('phone');
-            const telegramPhone = document.getElementById('telegram');
-            telegramPhone.textContent = userInfoTG.phone_number;
+            // const telegramPhone = document.getElementById('telegram');
+            document.getElementById('telegram').textContent = userInfoTG.phone_number;
 
             // Fetch the local Excel file
             fetch('assets/user.xlsx')
