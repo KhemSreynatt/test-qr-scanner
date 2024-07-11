@@ -62,9 +62,7 @@
                     const sheetName = workbook.SheetNames[0];
                     const sheet = workbook.Sheets[sheetName];
                     const jsonData = XLSX.utils.sheet_to_json(sheet);
-
-                    const filteredUsers = jsonData.filter(user => user.phone === phoneInput);
-
+                    const filteredUsers = jsonData.filter(user => user.Phone === phoneInput);
                     phone.textContent = JSON.stringify(filteredUsers, null, 2);
                 })
                 .catch(error => {
