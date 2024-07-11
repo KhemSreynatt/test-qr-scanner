@@ -23,21 +23,12 @@ import json
 from io import BytesIO
 
 
-def generate_qr(request, employee_id):
-    # Create a unique identifier for this check-in/out event
-    event_id = f"{employee_id}_{timezone.now().strftime('%Y%m%d%H%M%S')}"
-    
-    # Create QR code data
+def generate_qr(request, qrcodes):
+    event_id = f"{qrcodes}_{timezone.now().strftime('%Y%m%d%H%M%S')}"
     qr_data = json.dumps({
-        # "event_id": event_id,
-        "employee_id": employee_id,
-        # "timestamp": timezone.now().isoformat()
+        "qrcodes": qrcodes,
     })
-    
-    # Generate QR code
-    img = qrcode.make(employee_id)
-    
-    # Create a response
+    img = qrcode.make(qrcodes)
     response = HttpResponse(content_type="image/png")
     buffer = BytesIO()
     img.save(buffer, "PNG")

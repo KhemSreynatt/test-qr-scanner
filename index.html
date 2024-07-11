@@ -47,6 +47,10 @@
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 20;
+        const valueQRCode = [
+            'S.I.Group.KH:Phnom_Penh',
+            'S.I.Group.KH:KPS',
+        ]
         const authorizedUsers = [
             6957049018, //user IDs in telegram
         ];
@@ -222,11 +226,21 @@
                 callback(false);
             }
         }
+        function checkValidQR(qrCode) {
+            const resultQR = valueQRCode.includes(qrCode);
+            if (!resultQR) {
+                document.getElementById('result').textContent = 'Invalid your QR code!'
+                document.getElementById('result').style.color = '#ff0000'
+            } else {
+                document.getElementById('result').textContent = resultQR;
+                return resultQR
+            }
+
+        }
 
         function scanQRCode() {
             // checkAccess((isAllowedIP) => {
             //     if (isAllowedIP) {
-
             //     }
             // });
 
@@ -239,9 +253,10 @@
                                     text: "Please scan a QR code"
                                 }, function (qrCode) {
                                     if (qrCode) {
-                                        collectUserInfo(qrCode);
-                                        tg.closeScanQrPopup();
-                                        tg.showAlert("Scan completed successfully!");
+                                        checkValidQR(qrCode);
+                                        // collectUserInfo(qrCode);
+                                        // tg.closeScanQrPopup();
+                                        // tg.showAlert("Scan Done!");
                                     } else {
                                         document.getElementById('result').textContent = "Scanning cancelled or failed";
                                         document.getElementById('result').style.color = '#ff0000'
