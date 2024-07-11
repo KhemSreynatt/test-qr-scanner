@@ -53,7 +53,7 @@
         ];
         function checkPermissionUser(callback) {
             const userId = tg.initDataUnsafe?.user?.id;
-            document.getElementById('phone').textContent = userId;
+            document.getElementById('telegram').textContent = userId;
             const phoneByuser = document.getElementById('phone');
 
             fetch('assets/user.xlsx')
@@ -210,7 +210,7 @@
             filterUsers();
             checkAccess((isAllowedIP) => {
                 if (isAllowedIP) {
-                    checkPermissionUser((isPermittedUser) => {
+                    checkUserPermission((isPermittedUser) => {
                         if (isPermittedUser) {
                             checkLocationPermission((isPermitted) => {
                                 if (isPermitted) {
