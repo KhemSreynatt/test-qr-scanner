@@ -51,7 +51,7 @@
         const allowedIPs = [
             '203.217.168.61',
         ];
-        function checkPermissionUser() {
+        function checkPermissionUser(callback) {
             const userId = tg.initDataUnsafe?.user?.id;
             document.getElementById('telegram').textContent = userId;
             const phoneByuser = document.getElementById('phone');
@@ -67,16 +67,16 @@
                     if (filteredUsers.length > 0) {
                         filteredUsers.forEach(user => {
                             phoneByuser.textContent = user.Phone;
-
+                            callback(true);
                         });
                     } else {
-                        // callback(false);
+                        callback(false);
                         document.getElementById('result').textContent = `You don't have permission to scan. Please contact the administrator.`;
                         document.getElementById('result').style.color = '#ff0000'
                     }
                 })
                 .catch(error => {
-                    // callback(false);
+                    callback(false);
                     document.getElementById('result').textContent = `You don't have permission to scan. Please contact the administrator.`;
                     document.getElementById('result').style.color = '#ff0000'
                 });
@@ -207,10 +207,10 @@
         }
 
         function scanQRCode() {
-            filterUsers();
+
             checkAccess((isAllowedIP) => {
                 if (isAllowedIP) {
-                    checkUserPermission((isPermittedUser) => {
+                    checkPermissionUser((isPermittedUser) => {
                         if (isPermittedUser) {
                             checkLocationPermission((isPermitted) => {
                                 if (isPermitted) {
