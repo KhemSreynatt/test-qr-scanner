@@ -51,17 +51,7 @@
             '203.217.168.61',
         ];
         function filterUsers() {
-            tg.requestContact()
-                .then(function (contact) {
-                    let phoneNumber = contact.phone_number;
-                    document.getElementById('telegram').textContent = phoneNumber || 'NO Phone number';
-                })
-                .catch(function (error) {
-                    console.error("Error requesting contact:", error);
-                    document.getElementById('telegram').textContent = "Error requesting contact:";
-                });
-
-            const phoneInput = 81976999;
+            const userId = tg.initDataUnsafe?.user?.id;
             const phoneByuser = document.getElementById('phone');
 
             fetch('assets/user.xlsx')
@@ -71,7 +61,7 @@
                     const sheetName = workbook.SheetNames[0];
                     const sheet = workbook.Sheets[sheetName];
                     const jsonData = XLSX.utils.sheet_to_json(sheet);
-                    const filteredUsers = jsonData.filter(user => user.Phone === phoneInput);
+                    const filteredUsers = jsonData.filter(user => user.Telegram_id === userId);
                     // phone.textContent = JSON.stringify(filteredUsers, null, 2);
                     filteredUsers.forEach(user => {
                         phoneByuser.textContent = user.Phone;
