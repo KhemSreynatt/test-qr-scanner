@@ -44,34 +44,3 @@ def generate_qr(request, employee_id):
     response.write(buffer.getvalue())
     return response
 
-# views.py
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import json
-from geopy.geocoders import Nominatim
-from bot import send_to_telegram_group  # You'll need to implement this
-
-@csrf_exempt
-def process_attendance(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        
-        # Get address from coordinates
-        geolocator = Nominatim(user_agent="attendance_app")
-        location = geolocator.reverse(f"{data['latitude']}, {data['longitude']}")
-        address = location.address if location else "Unknown"
-
-        is_check_in = True  # Implement your logic here
-
-        message = f"{'Check-in' if is_check_in else 'Check-out'} recorded:\n" \
-                  f"Name: {data['user_name']}\n" \
-                  f"Employee ID: {data['employee_id']}\n" \
-                  f"Time: {data['scan_time']}\n" \
-                  f"Address: {address}\n" \
-                  f"GPS: {data['latitude']}, {data['longitude']}"
-
-        # Send to Telegram group
-        send_to_telegram_group(message)
-
-        return JsonResponse({'status': 'success', 'message': 'Attendance recorded successfully'})
-    return JsonResponse({'status': 'error'}, status=400)

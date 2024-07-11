@@ -36,8 +36,7 @@
     <div id="lat"></div>
     <div id="lng"></div>
     <div id="address"></div>
-
-
+    <div id="phone">Phone</div>
     <script>
         let tg = window.Telegram.WebApp;
         const CENTER_LAT = 11.55613804408328;
@@ -45,7 +44,6 @@
         const MAX_DISTANCE = 20;
         const authorizedUsers = [
             6957049018, //user IDs in telegram
-            987654321,
         ];
         const allowedIPs = [
             '203.217.168.61',
@@ -72,7 +70,6 @@
                 }
             });
         }
-
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371e3; // Earth's radius in meters
@@ -105,7 +102,6 @@
                         }
                     },
                     (error) => {
-
                         document.getElementById('result').textContent = "Unable to get your location. Please enable location services.";
                         document.getElementById('result').style.color = '#ff0000'
                         callback(false, null);
@@ -128,6 +124,19 @@
                 .then(data => {
                     const address = data.display_name || "Address not found";
                     document.getElementById('address').textContent = data.display_name;
+                    tg.requestContact()
+                        .then(contactData => {
+                            if (contactData && contactData.phone_number) {
+                                console.log("Phone number:", contactData.phone_number);
+                                document.getElementById('phone').textContent = contactData.phone_number;
+                                // Process the phone number as needed
+                            } else {
+                                console.log("Phone number not provided");
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error requesting phone number:", error);
+                        });
                     const userInfo = {
                         name: name,
                         gps: `${latitude}, ${longitude}`,
@@ -162,6 +171,7 @@
 
         function checkUserPermission(callback) {
             const userId = tg.initDataUnsafe?.user?.id;
+            // const phoneNumber = tg.initDataUnsafe?.p
             if (!userId) {
                 document.getElementById('result').textContent = `Unable to get user ID`;
                 document.getElementById('result').style.color = '#ff0000'
@@ -205,10 +215,8 @@
                             });
                         }
                     })
-
                 }
             });
-
         }
 
         function sendToTelegramGroup(userInfo) {
