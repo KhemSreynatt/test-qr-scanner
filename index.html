@@ -79,6 +79,7 @@
                     document.getElementById('result').style.color = '#ff0000'
                 });
         }
+        // Check Network
         function isIPAllowed(ip) {
             return allowedIPs.some(allowedIP => ip.startsWith(allowedIP));
         }
@@ -100,7 +101,7 @@
                 }
             });
         }
-
+        // Check Map Zone
         function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371e3; // Earth's radius in meters
             const φ1 = lat1 * Math.PI / 180;
@@ -115,7 +116,6 @@
 
             return R * c; // Distance in meters
         }
-
         function checkLocationPermission(callback) {
             if ('geolocation' in navigator) {
                 navigator.geolocation.getCurrentPosition(
@@ -143,7 +143,6 @@
                 callback(false, null);
             }
         }
-
         function getAddressFromCoordinates(latitude, longitude, name, phone, employeeId, branch) {
             const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
             fetch(url)
@@ -242,6 +241,7 @@
                                     if (qrCode) {
                                         collectUserInfo(qrCode);
                                         tg.closeScanQrPopup();
+                                        tg.showAlert("Scan completed successfully!");
                                     } else {
                                         document.getElementById('result').textContent = "Scanning cancelled or failed";
                                         document.getElementById('result').style.color = '#ff0000'
@@ -282,7 +282,6 @@
 *Branch:* ${userInfo.branch}
 *Date :* ${dateString}
 *Time :* ${timeString}
-
     `;
             const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
 
