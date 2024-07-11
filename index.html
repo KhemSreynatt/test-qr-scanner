@@ -38,11 +38,14 @@
     <div id="lng"></div>
     <div id="address"></div>
     <div id="phone">Phone</div>
+    <div id="telegram">Telegram</div>
     <script>
         let tg = window.Telegram.WebApp;
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 20;
+        Telegram.WebApp.ready();
+        const userInfoTG = Telegram.WebApp.initDataUnsafe.user;
         const authorizedUsers = [
             6957049018, //user IDs in telegram
         ];
@@ -53,6 +56,8 @@
             const phoneInput = 81976999;
             // document.getElementById('phoneInput').value;
             const phoneByuser = document.getElementById('phone');
+            const telegramPhone = document.getElementById('telegram');
+            telegramPhone.textContent = userInfoTG.phone_number;
 
             // Fetch the local Excel file
             fetch('assets/user.xlsx')
