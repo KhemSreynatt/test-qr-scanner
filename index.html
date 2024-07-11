@@ -39,6 +39,7 @@
     <div id="address"></div>
     <div id="phone">Phone</div>
     <div id="telegram">Telegram</div>
+
     <script>
         let tg = window.Telegram.WebApp;
         const CENTER_LAT = 11.55613804408328;
@@ -52,6 +53,7 @@
         ];
         function checkPermissionUser(callback) {
             const userId = tg.initDataUnsafe?.user?.id;
+            document.getElementById('phone').textContent = userId;
             const phoneByuser = document.getElementById('phone');
 
             fetch('assets/user.xlsx')
@@ -62,9 +64,8 @@
                     const sheet = workbook.Sheets[sheetName];
                     const jsonData = XLSX.utils.sheet_to_json(sheet);
                     const filteredUsers = jsonData.filter(user => user.Telegram_id === userId);
-
                     if (filteredUsers.length > 0) {
-                        Each(user => {
+                        filteredUsers.forEach(user => {
                             phoneByuser.textContent = user.Phone;
                             callback(true);
                         });
