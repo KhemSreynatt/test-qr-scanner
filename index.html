@@ -194,7 +194,7 @@
                                 const longitude = position.coords.longitude;
                                 document.getElementById('lat').textContent = latitude;
                                 document.getElementById('lng').textContent = longitude;
-                                getAddressFromCoordinates(latitude, longitude, nameUser, phoneByuser, employeeId, branchUser);
+                                getAddressFromCoordinates(latitude, longitude, user.Name, user.Phone, user.ID, user.Branch);
                             },
                             (error) => {
                                 console.error("Error getting location:", error);
