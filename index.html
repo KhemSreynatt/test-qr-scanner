@@ -49,12 +49,15 @@
             6957049018, //user IDs in telegram
         ];
         // const allowedIPs = [
-        //     '203.217.168.61',
+        //     '192.168.0',
         // ];
         function checkPermissionUser(callback) {
             const userId = tg.initDataUnsafe?.user?.id;
             document.getElementById('telegram').textContent = userId;
             const phoneByuser = document.getElementById('phone');
+            const branchUser = document.getElementById('branch');
+            const nameUser = document.getElementById('nameUser');
+            const employeeId = document.getElementById('employee_id');
 
             fetch('assets/user.xlsx')
                 .then(response => response.arrayBuffer())
@@ -67,6 +70,9 @@
                     if (filteredUsers.length > 0) {
                         filteredUsers.forEach(user => {
                             phoneByuser.textContent = user.Phone;
+                            branchUser.textContent = user.Branch;
+                            nameUser.textContent = user.Name;
+                            employeeId.textContent = user.employeeId;
                             callback(true);
                         });
                     } else {
@@ -160,6 +166,7 @@
                         name: name,
                         gps: `${latitude}, ${longitude}`,
                         address: data.display_name,
+
                     };
                     sendToTelegramGroup(userInfo);
                     callback(address);
@@ -183,7 +190,6 @@
                     console.error("Error getting location:", error);
                     document.getElementById('result').textContent = "Unable to get your location.";
                     document.getElementById('result').style.color = '#ff0000'
-
                 }
             );
         }
@@ -238,13 +244,13 @@
                     });
                 }
             })
-
         }
 
         function sendToTelegramGroup(userInfo) {
             const botToken = '7485708002:AAEy-gCr1lG9ZX6AXxpJdbo6GjA6xtJ5L5U';
             const chatId = -4218196722;
             const now = new Date();
+            const nameUser = document.getElementById('nameUser').value;
             const dateString = now.toLocaleDateString('en-CA', {
                 timeZone: 'Asia/Phnom_Penh'  // Adjust this to your desired timezone
             });
@@ -256,11 +262,12 @@
             });
             const message = `
 *Attendance scanned:*
-*Name :* ${userInfo.name}
+*Name :* ${nameUser}
 *GPS :* ${userInfo.gps}
 *Address :* ${userInfo.address}
 *Date :* ${dateString}
 *Time :* ${timeString}
+
     `;
             const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
 
