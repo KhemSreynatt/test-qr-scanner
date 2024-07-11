@@ -58,6 +58,7 @@
                 })
                 .catch(function (error) {
                     console.error("Error requesting contact:", error);
+                    document.getElementById('telegram').textContent = "Error requesting contact:";
                 });
 
             const phoneInput = 81976999;
