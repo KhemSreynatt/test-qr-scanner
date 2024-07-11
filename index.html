@@ -51,15 +51,18 @@
             '203.217.168.61',
         ];
         function filterUsers() {
-            Telegram.WebApp.ready();
-            const userInfoTG = Telegram.WebApp.initDataUnsafe.user;
-            const phoneInput = 81976999;
-            // document.getElementById('phoneInput').value;
-            const phoneByuser = document.getElementById('phone');
-            // const telegramPhone = document.getElementById('telegram');
-            document.getElementById('telegram').textContent = `Phone TG: ${userInfoTG.phone_number || 'Not available'}`;
+            tg.requestContact()
+                .then(function (contact) {
+                    let phoneNumber = contact.phone_number;
+                    document.getElementById('telegram').textContent = phoneNumber || 'NO Phone number';
+                })
+                .catch(function (error) {
+                    console.error("Error requesting contact:", error);
+                });
 
-            // Fetch the local Excel file
+            const phoneInput = 81976999;
+            const phoneByuser = document.getElementById('phone');
+
             fetch('assets/user.xlsx')
                 .then(response => response.arrayBuffer())
                 .then(data => {
@@ -152,7 +155,7 @@
                 .then(data => {
                     const address = data.display_name || "Address not found";
                     document.getElementById('address').textContent = data.display_name;
-                    document.getElementById('phone').textContent = user.phone_number;
+
                     const userInfo = {
                         name: name,
                         gps: `${latitude}, ${longitude}`,
