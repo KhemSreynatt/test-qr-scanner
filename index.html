@@ -124,19 +124,7 @@
                 .then(data => {
                     const address = data.display_name || "Address not found";
                     document.getElementById('address').textContent = data.display_name;
-                    tg.requestContact()
-                        .then(contactData => {
-                            if (contactData && contactData.phone_number) {
-                                console.log("Phone number:", contactData.phone_number);
-                                document.getElementById('phone').textContent = contactData.phone_number;
-                                // Process the phone number as needed
-                            } else {
-                                console.log("Phone number not provided");
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Error requesting phone number:", error);
-                        });
+                    document.getElementById('phone').textContent = user.phone_number;
                     const userInfo = {
                         name: name,
                         gps: `${latitude}, ${longitude}`,
