@@ -52,7 +52,7 @@
         function filterUsers() {
             const phoneInput = 81976999;
             // document.getElementById('phoneInput').value;
-            const phone = document.getElementById('phone');
+            const phoneByuser = document.getElementById('phone');
 
             // Fetch the local Excel file
             fetch('assets/user.xlsx')
@@ -63,7 +63,10 @@
                     const sheet = workbook.Sheets[sheetName];
                     const jsonData = XLSX.utils.sheet_to_json(sheet);
                     const filteredUsers = jsonData.filter(user => user.Phone === phoneInput);
-                    phone.textContent = JSON.stringify(filteredUsers, null, 2);
+                    // phone.textContent = JSON.stringify(filteredUsers, null, 2);
+                    filteredUsers.forEach(user => {
+                        phoneByuser.textContent = user.Phone;
+                    });
                 })
                 .catch(error => {
                     console.error('Error fetching or processing the file:', error);
