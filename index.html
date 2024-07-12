@@ -33,14 +33,14 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
-    <div id="nameUser">Name</div>
+    <!-- <div id="nameUser">Name</div>
     <div id="lat"></div>
     <div id="lng"></div>
     <div id="address"></div>
     <div id="phone">Phone</div>
     <div id="telegram">Telegram</div>
     <div id="employee_id">ID</div>
-    <div id="branch">branch</div>
+    <div id="branch">branch</div> -->
 
     <script>
         let tg = window.Telegram.WebApp;
@@ -51,44 +51,50 @@
             'S.I.Group.KH:Phnom_Penh',
             'S.I.Group.KH:KPS',
         ]
-        function sendScanData(data) {
-            fetch('/handle_scan/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        alert('Data successfully added to Excel file');
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                    alert('An error occurred');
-                });
-        }
-        function simulateScan() {
-            // In a real TMA, this data would come from the scan
-            const scanData = {
-                name: "John Doe",
-                id: "12345",
-                address: "123 Main St"
-            };
+        let data = [["Name", "ID", "Address"]];
+        function addData() {
+            const name = document.getElementById("name").value;
+            const id = document.getElementById("id").value;
+            const address = document.getElementById("address").value;
 
-            sendScanData(scanData);
+            if (name && id && address) {
+                data.push([name, id, address]);
+                updateTable();
+                clearInputs();
+            } else {
+                alert("Please fill all fields");
+            }
+        }
+        function updateTable() {
+            const table = document.getElementById("dataTable");
+            const newRow = table.insertRow(-1);
+            const lastData = data[data.length - 1];
+
+            for (let i = 0; i < 3; i++) {
+                const cell = newRow.insertCell(i);
+                cell.textContent = lastData[i];
+            }
+        }
+
+        function clearInputs() {
+            document.getElementById("name").value = "";
+            document.getElementById("id").value = "";
+            document.getElementById("address").value = "";
+        }
+
+        function downloadExcel() {
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Data");
+            XLSX.writeFile(wb, "data.xlsx");
         }
         // const authorizedUsers = [
         //     6957049018, //user IDs in telegram
         // ];
 
-        // const allowedIPs = [
-        //     '192.168.0',
-        // ];
+        const allowedIPs = [
+            '**',
+        ];
         function checkPermissionUser(callback) {
             const userId = tg.initDataUnsafe?.user?.id;
             document.getElementById('telegram').textContent = userId;
@@ -100,7 +106,6 @@
                     const sheet = workbook.Sheets[sheetName];
                     const jsonData = XLSX.utils.sheet_to_json(sheet);
                     const filteredUsers = jsonData.filter(user => user.Telegram_id === userId);
-
                     if (filteredUsers.length > 0) {
                         callback(true);
                     } else {
@@ -139,7 +144,7 @@
         }
         // Check Map Zone
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3; // Earth's radius in meters
+            const R = 6371e3;
             const φ1 = lat1 * Math.PI / 180;
             const φ2 = lat2 * Math.PI / 180;
             const Δφ = (lat2 - lat1) * Math.PI / 180;
@@ -150,7 +155,7 @@
                 Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-            return R * c; // Distance in meters
+            return R * c;
         }
         function checkLocationPermission(callback) {
             if ('geolocation' in navigator) {
@@ -243,7 +248,6 @@
 
         function checkUserPermission(callback) {
             const userId = tg.initDataUnsafe?.user?.id;
-            // const phoneNumber = tg.initDataUnsafe?.p
             if (!userId) {
                 document.getElementById('result').textContent = `Unable to get user ID`;
                 document.getElementById('result').style.color = '#ff0000'
@@ -275,7 +279,6 @@
         }
 
         function scanQRCode() {
-            simulateScan();
             // checkAccess((isAllowedIP) => {
             //     if (isAllowedIP) {
             //     }
