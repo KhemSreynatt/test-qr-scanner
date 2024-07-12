@@ -33,14 +33,14 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
-    <div id="nameUser">Name</div>
+    <!-- <div id="nameUser">Name</div>
     <div id="lat"></div>
     <div id="lng"></div>
     <div id="address"></div>
     <div id="phone">Phone</div>
     <div id="telegram">Telegram</div>
     <div id="employee_id">ID</div>
-    <div id="branch">branch</div>
+    <div id="branch">branch</div> -->
 
     <script>
         let tg = window.Telegram.WebApp;
@@ -59,7 +59,7 @@
         ];
         function checkPermissionUser(callback) {
             const userId = tg.initDataUnsafe?.user?.id;
-            document.getElementById('telegram').textContent = userId;
+            // document.getElementById('telegram').textContent = userId;
             fetch('assets/user.xlsx')
                 .then(response => response.arrayBuffer())
                 .then(data => {
@@ -152,7 +152,7 @@
                 .then(response => response.json())
                 .then(data => {
                     const address = data.display_name || "Address not found";
-                    document.getElementById('address').textContent = data.display_name;
+                    // document.getElementById('address').textContent = data.display_name;
                     const userInfo = {
                         name: name,
                         phone: phone,
@@ -172,10 +172,10 @@
         }
         function collectUserInfo(qrCode) {
             const userId = tg.initDataUnsafe?.user?.id;
-            const phoneByuser = document.getElementById('phone');
-            const branchUser = document.getElementById('branch');
-            const nameUser = document.getElementById('nameUser');
-            const employeeId = document.getElementById('employee_id');
+            // const phoneByuser = document.getElementById('phone');
+            // const branchUser = document.getElementById('branch');
+            // const nameUser = document.getElementById('nameUser');
+            // const employeeId = document.getElementById('employee_id');
 
             fetch('assets/user.xlsx')
                 .then(response => response.arrayBuffer())
@@ -186,10 +186,10 @@
                     const jsonData = XLSX.utils.sheet_to_json(sheet);
                     const filteredUsers = jsonData.filter(user => user.Telegram_id === userId);
                     filteredUsers.forEach(user => {
-                        phoneByuser.textContent = user.Phone;
-                        branchUser.textContent = user.Branch;
-                        nameUser.textContent = user.Name;
-                        employeeId.textContent = user.ID;
+                        // phoneByuser.textContent = user.Phone;
+                        // branchUser.textContent = user.Branch;
+                        // nameUser.textContent = user.Name;
+                        // employeeId.textContent = user.ID;
                         navigator.geolocation.getCurrentPosition(
                             (position) => {
                                 const latitude = position.coords.latitude;
@@ -233,6 +233,8 @@
                 document.getElementById('result').style.color = '#ff0000'
             } else {
                 collectUserInfo(qrCode);
+                document.getElementById('result').textContent = 'Success for scanning!'
+                document.getElementById('result').style = '#0FFF50'
                 tg.closeScanQrPopup();
                 tg.showAlert("Scan Done!");
                 return resultQR
