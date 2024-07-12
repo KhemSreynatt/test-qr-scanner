@@ -51,28 +51,41 @@
             'S.I.Group.KH:Phnom_Penh',
             'S.I.Group.KH:KPS',
         ]
-        const authorizedUsers = [
-            6957049018, //user IDs in telegram
-        ];
-
-        function insertDataToExcel(name, id, address) {
-            const XLSX = require('xlsx');
-            // Load the existing Excel file
-            const workbook = XLSX.readFile('assets/data_attendance.xlsx');
-            const worksheet = workbook.Sheets['Sheet1'];
-
-            // Get the last row number
-            let lastRow = 2;
-            while (worksheet[`A${lastRow}`]) {
-                lastRow++;
-            }
-            // Insert the new data
-            worksheet[`A${lastRow}`] = { value: id };
-            worksheet[`B${lastRow}`] = { value: name };
-            worksheet[`C${lastRow}`] = { value: address };
-            // Save the updated workbook
-            XLSX.writeFile(workbook, 'assets/data_attendance.xlsx');
+        function sendScanData(data) {
+            fetch('/handle_scan/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('Data successfully added to Excel file');
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    alert('An error occurred');
+                });
         }
+        function simulateScan() {
+            // In a real TMA, this data would come from the scan
+            const scanData = {
+                name: "John Doe",
+                id: "12345",
+                address: "123 Main St"
+            };
+
+            sendScanData(scanData);
+        }
+        // const authorizedUsers = [
+        //     6957049018, //user IDs in telegram
+        // ];
+
         // const allowedIPs = [
         //     '192.168.0',
         // ];
@@ -262,11 +275,11 @@
         }
 
         function scanQRCode() {
+            simulateScan();
             // checkAccess((isAllowedIP) => {
             //     if (isAllowedIP) {
             //     }
             // });
-            insertDataToExcel('John Doe', '12345', '123 Main St, Anytown USA');
             checkPermissionUser((isPermittedUser) => {
                 if (isPermittedUser) {
                     checkLocationPermission((isPermitted) => {
