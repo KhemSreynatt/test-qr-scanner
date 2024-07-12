@@ -54,41 +54,26 @@
         const authorizedUsers = [
             6957049018, //user IDs in telegram
         ];
-        let workbook;
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const data = new Uint8Array(e.target.result);
-                workbook = XLSX.read(data, { type: 'array' });
-            };
-            reader.readAsArrayBuffer(file);
-        }
-        function handleScan() {
-            // Simulate a QR scan result
-            const qrData = { name: "John Doe", id: "12345", address: "123 Main St" };
+        const fs = require('fs');
+        const XLSX = require('xlsx');
+        function insertDataToExcel(name, id, address) {
+            // Load the existing Excel file
+            const workbook = XLSX.readFile('data.xlsx');
+            const worksheet = workbook.Sheets['Sheet1'];
 
-            if (!workbook) {
-                alert('Please upload an Excel file first.');
-                return;
+            // Get the last row number
+            let lastRow = 2;
+            while (worksheet[`A${lastRow}`]) {
+                lastRow++;
             }
 
-            const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
+            // Insert the new data
+            worksheet[`A${lastRow}`] = { value: id };
+            worksheet[`B${lastRow}`] = { value: name };
+            worksheet[`C${lastRow}`] = { value: address };
 
-            // Assuming data starts at A2, B2, C2, etc. Adjust as needed.
-            const ref = worksheet['!ref'];
-            const range = XLSX.utils.decode_range(ref);
-            const newRow = range.e.r + 1; // Add new row after the last existing row
-
-            // Update the data in the next row
-            XLSX.utils.sheet_add_aoa(worksheet, [[qrData.name, qrData.id, qrData.address]], { origin: -1 });
-
-            // Update the worksheet range to include the new row
-            worksheet['!ref'] = XLSX.utils.encode_range(range.s, { r: newRow, c: range.e.c });
-
-            // Generate the updated workbook
-            XLSX.writeFile(workbook, 'assets/data_attendance.xlsx');
+            // Save the updated workbook
+            XLSX.writeFile(workbook, 'data.xlsx');
         }
         // const allowedIPs = [
         //     '192.168.0',
@@ -283,7 +268,7 @@
             //     if (isAllowedIP) {
             //     }
             // });
-            handleScan();
+            insertDataToExcel('John Doe', '12345', '123 Main St, Anytown USA');
             checkPermissionUser((isPermittedUser) => {
                 if (isPermittedUser) {
                     checkLocationPermission((isPermitted) => {

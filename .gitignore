@@ -1,2 +1,3 @@
 core/settings.py
 venv/
+node_modules/
