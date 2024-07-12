@@ -51,47 +51,9 @@
             'S.I.Group.KH:Phnom_Penh',
             'S.I.Group.KH:KPS',
         ]
-        let data = [["Name", "ID", "Address"]];
-        function addData() {
-            const name = document.getElementById("name").value;
-            const id = document.getElementById("id").value;
-            const address = document.getElementById("address").value;
-
-            if (name && id && address) {
-                data.push([name, id, address]);
-                updateTable();
-                clearInputs();
-            } else {
-                alert("Please fill all fields");
-            }
-        }
-        function updateTable() {
-            const table = document.getElementById("dataTable");
-            const newRow = table.insertRow(-1);
-            const lastData = data[data.length - 1];
-
-            for (let i = 0; i < 3; i++) {
-                const cell = newRow.insertCell(i);
-                cell.textContent = lastData[i];
-            }
-        }
-
-        function clearInputs() {
-            document.getElementById("name").value = "";
-            document.getElementById("id").value = "";
-            document.getElementById("address").value = "";
-        }
-
-        function downloadExcel() {
-            const ws = XLSX.utils.aoa_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Data");
-            XLSX.writeFile(wb, "data.xlsx");
-        }
         // const authorizedUsers = [
         //     6957049018, //user IDs in telegram
         // ];
-
         const allowedIPs = [
             '**',
         ];
