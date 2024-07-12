@@ -54,60 +54,42 @@
         const authorizedUsers = [
             6957049018, //user IDs in telegram
         ];
+        let workbook;
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const data = new Uint8Array(e.target.result);
+                workbook = XLSX.read(data, { type: 'array' });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+        function handleScan() {
+            // Simulate a QR scan result
+            const qrData = { name: "John Doe", id: "12345", address: "123 Main St" };
 
-        function insertDataIntoExcel(name, id, address) {
-            // Load the XLSX library (make sure it's included in your HTML)
-            if (typeof XLSX === 'undefined') {
-                console.error('XLSX library is not loaded');
+            if (!workbook) {
+                alert('Please upload an Excel file first.');
                 return;
             }
-            // Create a new workbook
-            const workbook = XLSX.utils.book_new();
-            // Try to load existing data from localStorage
-            let data = [];
-            try {
-                const storedData = localStorage.getItem('excelData');
-                if (storedData) {
-                    data = JSON.parse(storedData);
-                }
-            } catch (error) {
-                console.error('Error loading existing data:', error);
-            }
-            // Add the new row
-            data.push({ Name: name, ID: id, Address: address });
 
-            // Save the updated data back to localStorage
-            localStorage.setItem('excelData', JSON.stringify(data));
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
 
-            // Convert the data to a worksheet
-            const worksheet = XLSX.utils.json_to_sheet(data);
+            // Assuming data starts at A2, B2, C2, etc. Adjust as needed.
+            const ref = worksheet['!ref'];
+            const range = XLSX.utils.decode_range(ref);
+            const newRow = range.e.r + 1; // Add new row after the last existing row
 
-            // Add the worksheet to the workbook
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+            // Update the data in the next row
+            XLSX.utils.sheet_add_aoa(worksheet, [[qrData.name, qrData.id, qrData.address]], { origin: -1 });
 
-            // Generate Excel file
-            const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+            // Update the worksheet range to include the new row
+            worksheet['!ref'] = XLSX.utils.encode_range(range.s, { r: newRow, c: range.e.c });
 
-            // Convert buffer to Blob
-            const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-
-            // Create download link
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'assets/data_attendance.xlsx';
-            a.click();
-
-            // Clean up
-            window.URL.revokeObjectURL(url);
+            // Generate the updated workbook
+            XLSX.writeFile(workbook, 'assets/data_attendance.xlsx');
         }
-
-        // Usage in your QR code scanning success callback:
-        function insertData(decodedText, decodedResult) {
-            const [name, id, address] = decodedText.split(',');
-            insertDataIntoExcel('nat', 123, 'pp');
-        }
-
         // const allowedIPs = [
         //     '192.168.0',
         // ];
@@ -301,7 +283,7 @@
             //     if (isAllowedIP) {
             //     }
             // });
-            insertDataIntoExcel('nat', 123, 'pp');
+            handleScan();
             checkPermissionUser((isPermittedUser) => {
                 if (isPermittedUser) {
                     checkLocationPermission((isPermitted) => {
