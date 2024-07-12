@@ -54,11 +54,11 @@
         const authorizedUsers = [
             6957049018, //user IDs in telegram
         ];
-        const fs = require('fs');
-        const XLSX = require('xlsx');
+
         function insertDataToExcel(name, id, address) {
+            const XLSX = require('xlsx');
             // Load the existing Excel file
-            const workbook = XLSX.readFile('data.xlsx');
+            const workbook = XLSX.readFile('assets/data_attendance.xlsx');
             const worksheet = workbook.Sheets['Sheet1'];
 
             // Get the last row number
@@ -66,14 +66,12 @@
             while (worksheet[`A${lastRow}`]) {
                 lastRow++;
             }
-
             // Insert the new data
             worksheet[`A${lastRow}`] = { value: id };
             worksheet[`B${lastRow}`] = { value: name };
             worksheet[`C${lastRow}`] = { value: address };
-
             // Save the updated workbook
-            XLSX.writeFile(workbook, 'data.xlsx');
+            XLSX.writeFile(workbook, 'assets/data_attendance.xlsx');
         }
         // const allowedIPs = [
         //     '192.168.0',
