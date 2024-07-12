@@ -194,8 +194,8 @@
                             (position) => {
                                 const latitude = position.coords.latitude;
                                 const longitude = position.coords.longitude;
-                                document.getElementById('lat').textContent = latitude;
-                                document.getElementById('lng').textContent = longitude;
+                                // document.getElementById('lat').textContent = latitude;
+                                // document.getElementById('lng').textContent = longitude;
                                 getAddressFromCoordinates(latitude, longitude, user.Name, user.Phone, user.ID, user.Branch);
                             },
                             (error) => {
