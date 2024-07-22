@@ -228,7 +228,7 @@
             const resultQR = valueQRCode.includes(qrCode);
             if (!resultQR) {
                 tg.closeScanQrPopup();
-                tg.showAlert("Invalid your QR code!");
+                tg.showAlert(`Invalid your QR code! ${qrCode}`);
                 document.getElementById('result').textContent = 'Invalid your QR code!'
                 document.getElementById('result').style.color = '#ff0000'
             } else {
