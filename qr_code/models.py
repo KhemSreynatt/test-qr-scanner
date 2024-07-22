@@ -8,7 +8,7 @@ class NetworkGPS(models.Model):
        return self.name
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'network_gps'
 
 
@@ -31,5 +31,5 @@ class Attendances(models.Model):
        return self.name
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'attendances'

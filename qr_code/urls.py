@@ -7,7 +7,7 @@ router= routers.DefaultRouter()
 router.register(r'qr_code',views.NetworkGPSCreateView)
 
 urlpatterns = [
-    path('api/qr-result/', qr_result, name='qr_result'),
+    path('api/qr-result/', views.qr_result, name='qr_result'),
     path('generate-qr/<str:qrcodes>', views.generate_qr, name='generate_qr'),
     # network
     path('api/network-gps/get', NetworkGPSCreateView.as_view(), name='get_network-gps'),

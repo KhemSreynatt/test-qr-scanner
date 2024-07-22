@@ -46,18 +46,15 @@ def update_network_gps(request, id):
 @api_view(['DELETE'])
 def delete_networkGps(request, id):
     try:
-        # Filter attendances by employee_id
+     
         attendances = NetworkGPS.objects.filter(id=id)
         if not attendances.exists():
             return Response({"detail": "No attendance records found for this user."}, status=status.HTTP_404_NOT_FOUND)
-        # Delete the records
         attendances.delete()
         return Response({"detail": "Attendance records deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
 
     except Exception as e:
         return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
 
 # Attendance Record
 class AttendanceCreateView(ListAPIView):
@@ -118,13 +115,14 @@ def delete_attendance_by_user(request, id):
         return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # qr code
-@csrf_exempt
+@api_view(['POST'])
 def qr_result(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         result = data.get('result')
         return JsonResponse({'status': 'success', 'message': f'Processed QR: {result}'})
     return JsonResponse({'status': 'error'}, status=400)
+
 
 def generate_qr(request, qrcodes):
     event_id = f"{qrcodes}_{timezone.now().strftime('%Y%m%d%H%M%S')}"
