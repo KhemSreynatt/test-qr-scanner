@@ -55,20 +55,23 @@
             'S.I.Group.KH:KPS',
         ]
         function getWifiInfo() {
-            if (navigator.connection) {
-                const { type, effectiveType, rtt, downlink, downlinkMax, saveData } = navigator.connection;
+            // Check if navigator.connection is available
+            if (navigator.connection && navigator.connection.type) {
+                const { type } = navigator.connection;
+
                 document.getElementById('type').textContent = type;
+
                 if (type === 'wifi') {
+                    // Check for additional properties if available
                     const wifiInfo = {
-                        ssid: navigator.connection.ssid,
-                        bssid: navigator.connection.bssid,
-                        frequency: navigator.connection.frequency,
-                        signalStrength: navigator.connection.signalStrength
+                        ssid: navigator.connection.ssid || 'SSID not available',
+                        bssid: navigator.connection.bssid || 'BSSID not available',
+                        frequency: navigator.connection.frequency || 'Frequency not available',
+                        signalStrength: navigator.connection.signalStrength || 'Signal strength not available'
                     };
 
-                    // console.log('WiFi Info:', wifiInfo);
-                    document.getElementById('wifiInfo').textContent = wifiInfo;
-
+                    // Display WiFi info
+                    document.getElementById('wifiInfo').textContent = JSON.stringify(wifiInfo, null, 2);
 
                     // Send the WiFi info to the Telegram bot
                     Telegram.WebApp.sendData(JSON.stringify(wifiInfo));
@@ -80,6 +83,7 @@
             } else {
                 console.log('navigator.connection is not available');
                 alert('navigator.connection is not available');
+                document.getElementById('type').textContent = 'Connection information is not available';
             }
         }
         // const authorizedUsers = [
