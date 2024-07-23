@@ -18,7 +18,7 @@ from rest_framework.decorators import api_view
 class NetworkGPSCreateView(ListAPIView):
     queryset = NetworkGPS.objects.all()
     serializer_class= NetworkGPSSerailizer
-
+# dfdf
 @api_view(['POST'])
 def post_networkGps(request):
     if request.method=="POST":

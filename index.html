@@ -33,6 +33,7 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
+    <button onclick="getWifiInfo()">Get WiFi Info</button>
     <!-- <div id="nameUser">Name</div>
     <div id="lat"></div>
     <div id="lng"></div>
@@ -46,13 +47,41 @@
         let tg = window.Telegram.WebApp;
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
-        const MAX_DISTANCE = 20;
+        const MAX_DISTANCE = 80;
         const valueQRCode = [
             'S.I.Group.KH:Phnom_Penh',
             'S.I.Group.KH:KPS',
         ]
+        function getWifiInfo() {
+            if (navigator.connection) {
+                const { type, effectiveType, rtt, downlink, downlinkMax, saveData } = navigator.connection;
+                document.getElementById('type').textContent = type;
+                if (type === 'wifi') {
+                    const wifiInfo = {
+                        ssid: navigator.connection.ssid,
+                        bssid: navigator.connection.bssid,
+                        frequency: navigator.connection.frequency,
+                        signalStrength: navigator.connection.signalStrength
+                    };
+
+                    // console.log('WiFi Info:', wifiInfo);
+                    document.getElementById('wifiInfo').textContent = wifiInfo;
+
+
+                    // Send the WiFi info to the Telegram bot
+                    Telegram.WebApp.sendData(JSON.stringify(wifiInfo));
+                } else {
+                    console.log('Not connected to WiFi');
+                    alert('Not connected to WiFi');
+                    document.getElementById('type').textContent = 'Not connected to WiFi';
+                }
+            } else {
+                console.log('navigator.connection is not available');
+                alert('navigator.connection is not available');
+            }
+        }
         // const authorizedUsers = [
-        //     6957049018, //user IDs in telegram
+        // 6957049018, //user IDs in telegram
         // ];
         const allowedIPs = [
             '203.217.168.61'
@@ -126,15 +155,11 @@
                         const userLat = position.coords.latitude;
                         const userLon = position.coords.longitude;
                         const distance = calculateDistance(CENTER_LAT, CENTER_LON, userLat, userLon);
-                        if (distance <= MAX_DISTANCE) {
-                            callback(true, distance);
-                        } else {
+                        if (distance <= MAX_DISTANCE) { callback(true, distance); } else {
                             document.getElementById('result').textContent = `You're outside the designated scanning area.`;
-                            document.getElementById('result').style.color = '#ff0000'
-                            callback(false, distance);
+                            document.getElementById('result').style.color = '#ff0000'; callback(false, distance);
                         }
-                    },
-                    (error) => {
+                    }, (error) => {
                         document.getElementById('result').textContent = "Unable to get your location. Please enable location services.";
                         document.getElementById('result').style.color = '#ff0000'
                         callback(false, null);
@@ -287,16 +312,16 @@
                 minute: '2-digit'
             });
             const message = `
-*Attendance scanned:*
-*Name :* ${userInfo.name}
-*Employee ID :* ${userInfo.employeeId}
-*Phone Number :* ${userInfo.phone}
-*GPS :* ${userInfo.gps}
-*Address :* ${userInfo.address}
-*Branch:* ${userInfo.branch}
-*Date :* ${dateString}
-*Time :* ${timeString}
-    `;
+        *Attendance scanned:*
+        *Name :* ${userInfo.name}
+        *Employee ID :* ${userInfo.employeeId}
+        *Phone Number :* ${userInfo.phone}
+        *GPS :* ${userInfo.gps}
+        *Address :* ${userInfo.address}
+        *Branch:* ${userInfo.branch}
+        *Date :* ${dateString}
+        *Time :* ${timeString}
+        `;
             const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
 
             fetch(url, {
