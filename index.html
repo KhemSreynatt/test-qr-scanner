@@ -38,8 +38,10 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
-    <div id="root"></div>
-    <button onclick="getWifiInfo()">Get WiFi Info</button>
+    <h1>Wi-Fi Information</h1>
+    <p id="ssid">SSID: </p>
+    <p id="bssid">BSSID: </p>
+    <script src="index.js"></script>
     <!-- <div id="nameUser">Name</div>
     <div id="lat"></div>
     <div id="lng"></div>
@@ -48,56 +50,7 @@
     <div id="telegram">Telegram</div>
     <div id="employee_id">ID</div>
     <div id="branch">branch</div> -->
-    <script type="text/babel">
-        const { useState, useEffect } = React;
 
-        const WifiInfo = () => {
-            const [wifiInfo, setWifiInfo] = useState(null);
-            const [connectionType, setConnectionType] = useState('');
-
-            useEffect(() => {
-                getWifiInfo();
-            }, []);
-
-            const getWifiInfo = () => {
-                if (navigator.connection) {
-                    const { type } = navigator.connection;
-                    setConnectionType(type);
-                    if (type === 'wifi') {
-                        const wifiInfo = {
-                            ssid: navigator.connection.ssid,
-                            bssid: navigator.connection.bssid,
-                            frequency: navigator.connection.frequency,
-                            signalStrength: navigator.connection.signalStrength
-                        };
-
-                        setWifiInfo(wifiInfo);
-                        Telegram.WebApp.sendData(JSON.stringify(wifiInfo));
-                    } else {
-                        console.log('Not connected to WiFi');
-                        alert('Not connected to WiFi');
-                    }
-                } else {
-                    console.log('navigator.connection is not available');
-                    alert('navigator.connection is not available');
-                }
-            };
-
-            return (
-                <div>
-                    <h1>Wi-Fi Information</h1>
-                    <p>Connection Type: {connectionType}</p>
-                    {wifiInfo ? (
-                        <pre>{JSON.stringify(wifiInfo, null, 2)}</pre>
-                    ) : (
-                        <p>No Wi-Fi information available</p>
-                    )}
-                </div>
-            );
-        };
-
-        ReactDOM.render(<WifiInfo />, document.getElementById('root'));
-    </script>
     <script>
         let tg = window.Telegram.WebApp;
         const CENTER_LAT = 11.55613804408328;
