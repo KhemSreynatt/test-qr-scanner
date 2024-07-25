@@ -1,65 +1,55 @@
-// // index.js
-// document.addEventListener('DOMContentLoaded', () => {
-//     const ssidElement = document.getElementById('ssid');
-//     const bssidElement = document.getElementById('bssid');
-//     const ipElement = document.getElementById('ip');
-
-//     // Simulate receiving Wi-Fi information
-//     const simulatedWiFiInfo = {
-//         ssid: 'ExampleSSID',
-//         bssid: '00:11:22:33:44:55',
-//         ip: '192.168.1.100'
-//     };
-
-//     // Display the simulated Wi-Fi information
-//     ssidElement.textContent = `SSID: ${simulatedWiFiInfo.ssid}`;
-//     bssidElement.textContent = `BSSID: ${simulatedWiFiInfo.bssid}`;
-//     ipElement.textContent = `IP Address: ${simulatedWiFiInfo.ip}`;
-
-//     // Listen for messages from a native app or other source
-//     window.addEventListener('message', (event) => {
-//         try {
-//             const wifiInfo = JSON.parse(event.data);
-//             ssidElement.textContent = `SSID: ${wifiInfo.ssid}`;
-//             bssidElement.textContent = `BSSID: ${wifiInfo.bssid}`;
-//             ipElement.textContent = `IP Address: ${wifiInfo.ip}`;
-//         } catch (error) {
-//             console.error('Error parsing Wi-Fi info:', error);
-//         }
-//     });
-// });
-
-function getWiFiInfo() {
+async function getWiFiInfo() {
     let wifiInfo = {
         ssid: 'Not available',
         bssid: 'Not available',
         ip: 'Not available',
-        name: 'Not available'
+        localIP: 'Not available',
+        networkType: 'Not available',
+        effectiveType: 'Not available',
+        downlink: 'Not available',
+        rtt: 'Not available'
     };
 
-    // Get IP address
-    fetch('https://api.ipify.org?format=json')
-        .then(response => response.json())
-        .then(data => {
-            wifiInfo.ip = data.ip;
-            updateDisplay(wifiInfo);
-        })
-        .catch(error => console.error('Error fetching IP:', error));
-
-    // Try to get network information if available
-    if ('connection' in navigator && 'type' in navigator.connection) {
-        wifiInfo.name = navigator.connection.type;
+    // Get public IP address
+    try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        wifiInfo.ip = data.ip;
+    } catch (error) {
+        console.error('Error fetching IP:', error);
     }
 
-    // Update display with available information
+    // Try to get local IP
+    try {
+        wifiInfo.localIP = await getLocalIP();
+    } catch (error) {
+        console.error('Error getting local IP:', error);
+    }
+
+    // Get network information
+    if ('connection' in navigator) {
+        const connection = navigator.connection;
+        wifiInfo.networkType = connection.type;
+        wifiInfo.effectiveType = connection.effectiveType;
+        wifiInfo.downlink = `${connection.downlink} Mbps`;
+        wifiInfo.rtt = `${connection.rtt} ms`;
+    }
+
+    // Update display
     updateDisplay(wifiInfo);
+
+    // Get geolocation (requires user permission)
+    getGeolocation();
 }
 
+// ... (include getLocalIP and getGeolocation functions from above) ...
+
 function updateDisplay(info) {
-    document.getElementById('ssid').textContent = info.ssid;
-    document.getElementById('bssid').textContent = info.bssid;
-    document.getElementById('ip').textContent = info.ip;
-    document.getElementById('name').textContent = info.name;
+    for (let key in info) {
+        if (document.getElementById(key)) {
+            document.getElementById(key).textContent = info[key];
+        }
+    }
 }
 
 // Call the function when the page loads

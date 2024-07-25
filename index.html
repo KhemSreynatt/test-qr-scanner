@@ -38,10 +38,14 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
-
-
     <h1>Wi-Fi Information</h1>
-    <button onclick="wifi_toggle()">Wifi</button>
+    <p>Public IP: <span id="ip"></span></p>
+    <p>Local IP: <span id="localIP"></span></p>
+    <p>Network Type: <span id="networkType"></span></p>
+    <p>Effective Type: <span id="effectiveType"></span></p>
+    <p>Downlink Speed: <span id="downlink"></span></p>
+    <p>Round-trip Time: <span id="rtt"></span></p>
+    <script src="index.js"></script>
     <script>
         let tg = window.Telegram.WebApp;
         const CENTER_LAT = 11.55613804408328;
@@ -51,21 +55,7 @@
             'S.I.Group.KH:Phnom_Penh',
             'S.I.Group.KH:KPS',
         ]
-        function wifi_toggle() {
 
-            var lock = navigator.mozSettings.createLock();
-
-            var setting = lock.get('wifi.enabled');
-
-            setting.onsuccess = function () {
-                alert('wifi.enabled: ' + setting.result);
-            }
-
-            setting.onerror = function () {
-                alert('An error occured: ' + setting.error);
-            }
-
-        }
         // const authorizedUsers = [
         // 6957049018, //user IDs in telegram
         // ];
