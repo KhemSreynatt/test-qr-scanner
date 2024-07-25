@@ -39,13 +39,23 @@
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
     <h1>Wi-Fi Information</h1>
-    <p>Public IP: <span id="ip"></span></p>
-    <p>Local IP: <span id="localIP"></span></p>
-    <p>Network Type: <span id="networkType"></span></p>
-    <p>Effective Type: <span id="effectiveType"></span></p>
-    <p>Downlink Speed: <span id="downlink"></span></p>
-    <p>Round-trip Time: <span id="rtt"></span></p>
+    <div id="wifiInfo">wifi</div>
     <script src="index.js"></script>
+    <script>
+        getWiFiInfo().then(info => {
+            const wifiInfoDiv = document.getElementById('wifiInfo');
+            wifiInfoDiv.innerHTML = `
+                <p>Connection Type: ${info.connection}</p>
+                <p>Effective Type: ${info.effectiveType}</p>
+                <p>Downlink Speed: ${info.downlink}</p>
+                <p>Round Trip Time: ${info.rtt}</p>
+                <p>Public IP: ${info.publicIP}</p>
+                <p>Local IP: ${info.localIP}</p>
+            `;
+        }).catch(error => {
+            alert('Error:', error);
+        });
+    </script>
     <script>
         let tg = window.Telegram.WebApp;
         const CENTER_LAT = 11.55613804408328;
