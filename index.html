@@ -38,74 +38,90 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
-    <div id="wifi-status">Checking WiFi status...</div>
-    <div id="wifi-info"></div>
+    <div>Checking WiFi status...</div>
+    <div id="output"></div>
     <script>
+        const output = document.getElementById('output');
+
+        function log(message) {
+            output.innerHTML += message + '<br>';
+            console.log(message);
+        }
+
+        // 1. Network Information API
         function getNetworkInfo() {
             if ('connection' in navigator) {
                 const connection = navigator.connection;
-                return {
-                    type: connection.type,
-                    effectiveType: connection.effectiveType,
-                    downlinkMax: connection.downlinkMax
-                };
-            }
-            return null;
-        }
-
-        function isConnectedToWifi() {
-            const networkInfo = getNetworkInfo();
-            return networkInfo && networkInfo.type === 'wifi';
-        }
-
-        function getWifiSignalStrength() {
-            return new Promise((resolve, reject) => {
-                if ('getBattery' in navigator) {
-                    navigator.getBattery().then(battery => {
-                        resolve(battery.dischargingTime);
-                    });
-                } else {
-                    reject('Battery API not supported');
-                }
-            });
-        }
-
-        function updateWifiStatus() {
-            const statusElement = document.getElementById('wifi-status');
-            const infoElement = document.getElementById('wifi-info');
-
-            const isWifi = isConnectedToWifi();
-            if (isWifi) {
-                statusElement.textContent = 'Connected to WiFi';
-                statusElement.style.color = 'green';
-
-                getWifiSignalStrength().then(strength => {
-                    const networkInfo = getNetworkInfo();
-                    infoElement.innerHTML = `
-                        <p>Connection Type: ${networkInfo.type}</p>
-                        <p>Effective Type: ${networkInfo.effectiveType}</p>
-                        <p>Max Downlink Speed: ${networkInfo.downlinkMax} Mbps</p>
-                        <p>Estimated Signal Strength: ${strength}</p>
-                    `;
-                }).catch(error => {
-                    infoElement.textContent = `Error getting WiFi information: ${error}`;
-                });
+                log(`Effective Type: ${connection.effectiveType}`);
+                log(`Downlink: ${connection.downlink} Mbps`);
+                log(`Round-trip time: ${connection.rtt} ms`);
+                log(`Save Data: ${connection.saveData}`);
             } else {
-                statusElement.textContent = 'Not connected to WiFi';
-                statusElement.style.color = 'red';
-                infoElement.textContent = 'No WiFi information available';
+                log('Network Information API not supported');
             }
         }
 
-        function monitorWifiStatus(interval = 5000) {
-            updateWifiStatus(); // Initial update
-            setInterval(updateWifiStatus, interval);
+        // 2. Public IP Address
+        function getPublicIP() {
+            fetch('https://api.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => log(`Public IP: ${data.ip}`))
+                .catch(error => log(`Error getting public IP: ${error}`));
         }
 
-        // Start monitoring when the page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            monitorWifiStatus();
-        });
+        // 3. Geolocation API
+        function getGeolocation() {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        log(`Latitude: ${position.coords.latitude}`);
+                        log(`Longitude: ${position.coords.longitude}`);
+                    },
+                    error => log(`Geolocation error: ${error.message}`)
+                );
+            } else {
+                log('Geolocation API not supported');
+            }
+        }
+
+        // 4. WebRTC (for local IP)
+        function getLocalIP() {
+            const RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+
+            if (!RTCPeerConnection) {
+                log('RTCPeerConnection not supported');
+                return;
+            }
+
+            const pc = new RTCPeerConnection({ iceServers: [] });
+            pc.createDataChannel('');
+            pc.createOffer().then(offer => pc.setLocalDescription(offer));
+
+            pc.onicecandidate = (ice) => {
+                if (!ice || !ice.candidate || !ice.candidate.candidate) return;
+
+                const localIP = /([0-9]{1,3}(\.[0-9]{1,3}){3})/.exec(ice.candidate.candidate)[1];
+                log(`Local IP: ${localIP}`);
+                pc.onicecandidate = null;
+                pc.close();
+            };
+        }
+
+        // Run all functions
+        function gatherAllInfo() {
+            log('Gathering network information...');
+            log('---');
+            getNetworkInfo();
+            log('---');
+            getPublicIP();
+            log('---');
+            getGeolocation();
+            log('---');
+            getLocalIP();
+        }
+
+        // Run when the page loads
+        window.onload = gatherAllInfo;
     </script>
     <script>
         getWiFiInfo().then(info => {
