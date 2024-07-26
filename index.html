@@ -69,6 +69,7 @@
                 return navigator.connection.type === 'wifi';
             } else {
                 console.log('Network Information API not available');
+                document.getElementById('result').textContent = 'Network Information API not available';
                 return false;
             }
         }
