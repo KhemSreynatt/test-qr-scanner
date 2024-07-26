@@ -49,7 +49,7 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
-    <button onclick="checkConnectionType()"></button>
+    <button onclick="checkConnectionType()">check wifi</button>
 
 
     <script>
@@ -62,7 +62,7 @@
             'S.I.Group.KH:KPS',
         ]
         function checkConnectionType() {
-            if ('connection' in navigator && 'type' in navigator.connection) {
+            if ('connection' in navigator || 'type' in navigator.connection) {
                 console.log('Connection type:', navigator.connection.type);
                 // 'wifi' doesn't guarantee it's your company's WiFi
                 document.getElementById('result').textContent = navigator.connection.type;
