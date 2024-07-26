@@ -32,112 +32,26 @@
             border-radius: 5px;
             background-color: white;
         }
+
+        button {
+            height: 40px;
+            width: 100px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            margin-top: 20px;
+            padding: 10px;
+
+        }
     </style>
 </head>
 
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
-    <div>Checking WiFi status...</div>
-    <div id="output"></div>
-    <script>
-        const output = document.getElementById('output');
+    <button onclick="checkConnectionType()"></button>
 
-        function log(message) {
-            output.innerHTML += message + '<br>';
-            console.log(message);
-        }
 
-        // 1. Network Information API
-        function getNetworkInfo() {
-            if ('connection' in navigator) {
-                const connection = navigator.connection;
-                log(`Effective Type: ${connection.effectiveType}`);
-                log(`Downlink: ${connection.downlink} Mbps`);
-                log(`Round-trip time: ${connection.rtt} ms`);
-                log(`Save Data: ${connection.saveData}`);
-            } else {
-                log('Network Information API not supported');
-            }
-        }
-
-        // 2. Public IP Address
-        function getPublicIP() {
-            fetch('https://api.ipify.org?format=json')
-                .then(response => response.json())
-                .then(data => log(`Public IP: ${data.ip}`))
-                .catch(error => log(`Error getting public IP: ${error}`));
-        }
-
-        // 3. Geolocation API
-        function getGeolocation() {
-            if ('geolocation' in navigator) {
-                navigator.geolocation.getCurrentPosition(
-                    position => {
-                        log(`Latitude: ${position.coords.latitude}`);
-                        log(`Longitude: ${position.coords.longitude}`);
-                    },
-                    error => log(`Geolocation error: ${error.message}`)
-                );
-            } else {
-                log('Geolocation API not supported');
-            }
-        }
-
-        // 4. WebRTC (for local IP)
-        function getLocalIP() {
-            const RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
-
-            if (!RTCPeerConnection) {
-                log('RTCPeerConnection not supported');
-                return;
-            }
-
-            const pc = new RTCPeerConnection({ iceServers: [] });
-            pc.createDataChannel('');
-            pc.createOffer().then(offer => pc.setLocalDescription(offer));
-
-            pc.onicecandidate = (ice) => {
-                if (!ice || !ice.candidate || !ice.candidate.candidate) return;
-
-                const localIP = /([0-9]{1,3}(\.[0-9]{1,3}){3})/.exec(ice.candidate.candidate)[1];
-                log(`Local IP: ${localIP}`);
-                pc.onicecandidate = null;
-                pc.close();
-            };
-        }
-
-        // Run all functions
-        function gatherAllInfo() {
-            log('Gathering network information...');
-            log('---');
-            getNetworkInfo();
-            log('---');
-            getPublicIP();
-            log('---');
-            getGeolocation();
-            log('---');
-            getLocalIP();
-        }
-
-        // Run when the page loads
-        window.onload = gatherAllInfo;
-    </script>
-    <script>
-        getWiFiInfo().then(info => {
-            const wifiInfoDiv = document.getElementById('wifiInfo');
-            wifiInfoDiv.innerHTML = `
-                <p>Connection Type: ${info.connection}</p>
-                <p>Effective Type: ${info.effectiveType}</p>
-                <p>Downlink Speed: ${info.downlink}</p>
-                <p>Round Trip Time: ${info.rtt}</p>
-                <p>Public IP: ${info.publicIP}</p>
-                <p>Local IP: ${info.localIP}</p>
-            `;
-        }).catch(error => {
-            alert('Error:', error);
-        });
-    </script>
     <script>
         let tg = window.Telegram.WebApp;
         const CENTER_LAT = 11.55613804408328;
@@ -147,7 +61,17 @@
             'S.I.Group.KH:Phnom_Penh',
             'S.I.Group.KH:KPS',
         ]
-
+        function checkConnectionType() {
+            if ('connection' in navigator && 'type' in navigator.connection) {
+                console.log('Connection type:', navigator.connection.type);
+                // 'wifi' doesn't guarantee it's your company's WiFi
+                document.getElementById('result').textContent = navigator.connection.type;
+                return navigator.connection.type === 'wifi';
+            } else {
+                console.log('Network Information API not available');
+                return false;
+            }
+        }
         // const authorizedUsers = [
         // 6957049018, //user IDs in telegram
         // ];
