@@ -20,12 +20,15 @@ document.getElementById('startButton').addEventListener('click', () => {
 });
 
 function parseWifiConfig(qrResult) {
+    console.log('Parsing QR Code:', qrResult); // Debugging line
     const wifiRegex = /^WIFI:S:([^;]+);T:WPA;P:([^;]+);;$/;
     const match = qrResult.match(wifiRegex);
     if (match) {
+        console.log('Parsed SSID:', match[1]); // Debugging line
+        console.log('Parsed Password:', match[2]); // Debugging line
         return {
-            ssid: match[2],
-            password: match[3]
+            ssid: match[1],
+            password: match[2]
         };
     }
     console.log('Failed to parse QR Code:', qrResult); // Debugging line
