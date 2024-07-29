@@ -4,15 +4,15 @@ document.getElementById('startButton').addEventListener('click', () => {
 
     codeReader.decodeFromVideoDevice(null, previewElem, (result, err) => {
         if (result) {
+            console.log('QR Code result:', result.text); // Debugging line
             const wifiCredentials = parseWifiConfig(result.text);
             if (wifiCredentials) {
                 document.getElementById('wifiCredentials').innerText = `SSID: ${wifiCredentials.ssid}, Password: ${wifiCredentials.password}`;
-                connectToWifi(wifiCredentials.ssid, wifiCredentials.password);
+                // Here you can add additional logic to handle the Wi-Fi connection
             } else {
                 document.getElementById('wifiCredentials').innerText = 'Invalid Wi-Fi QR code.';
             }
-        }
-        if (err && !(err instanceof ZXing.NotFoundException)) {
+        } else if (err && !(err instanceof ZXing.NotFoundException)) {
             console.error(err);
             document.getElementById('wifiCredentials').innerText = 'Error reading QR code.';
         }
@@ -20,17 +20,14 @@ document.getElementById('startButton').addEventListener('click', () => {
 });
 
 function parseWifiConfig(qrResult) {
-    const match = qrResult.match(/WIFI:T:(WPA|WEP|nopass);S:([^;]+);P:([^;]*);H:(true|false);?/);
+    const wifiRegex = /^WIFI:T:(WPA|WEP|nopass);S:([^;]+);P:([^;]*);H:(true|false)?;?$/;
+    const match = qrResult.match(wifiRegex);
     if (match) {
         return {
             ssid: match[2],
             password: match[3]
         };
     }
+    console.log('Failed to parse QR Code:', qrResult); // Debugging line
     return null;
-}
-
-function connectToWifi(ssid, password) {
-    // This function is a placeholder. Connecting to Wi-Fi via JavaScript is not possible due to security reasons.
-    console.log(`Connecting to Wi-Fi network: SSID: ${ssid}, Password: ${password}`);
 }
