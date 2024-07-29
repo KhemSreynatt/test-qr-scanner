@@ -20,7 +20,7 @@ document.getElementById('startButton').addEventListener('click', () => {
 });
 
 function parseWifiConfig(qrResult) {
-    const wifiRegex = /^WIFI:T:(WPA|WEP|nopass);S:([^;]+);P:([^;]*);H:(true|false)?;?$/;
+    const wifiRegex = /^WIFI:S:([^;]+);T:WPA;P:([^;]+);;$/;
     const match = qrResult.match(wifiRegex);
     if (match) {
         return {
