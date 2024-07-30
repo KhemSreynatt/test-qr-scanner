@@ -123,7 +123,7 @@
 
                     // Send the QR code image to Telegram bot
                     const telegramBotToken = '7485708002:AAEy-gCr1lG9ZX6AXxpJdbo6GjA6xtJ5L5U';
-                    const chatId = 7485708002;
+                    const chatId = '7485708002';
                     const formData = new FormData();
                     formData.append('chat_id', chatId);
                     formData.append('photo', dataURLToBlob(qrImage), 'wifi_qr_code.png');
@@ -138,12 +138,12 @@
                         if (result.ok) {
                             alert('QR code sent to Telegram bot successfully!');
                         } else {
-                            console.error('Error sending QR code to Telegram:', result);
-                            alert('Failed to send QR code to Telegram bot. Check console for details.');
+                            console.error('Error response from Telegram:', result);
+                            alert('Failed to send QR code to Telegram bot. Check console for details.', result);
                         }
                     } catch (error) {
-                        console.error('Network error:', error);
-                        alert('Network error. Failed to send QR code to Telegram bot.');
+                        console.error('Network error or other issue:', error);
+                        alert('Network error. Failed to send QR code to Telegram bot.', error);
                     }
                 } else {
                     console.error('QR code canvas not found.');
