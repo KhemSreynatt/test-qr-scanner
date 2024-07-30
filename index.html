@@ -100,29 +100,23 @@
         </div>
     </div>
     <script>
-        function dataURLToBlob(dataURL) {
-            const byteString = atob(dataURL.split(',')[1]);
-            const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
-            const ab = new ArrayBuffer(byteString.length);
-            const ia = new Uint8Array(ab);
-            for (let i = 0; i < byteString.length; i++) {
-                ia[i] = byteString.charCodeAt(i);
-            }
-            return new Blob([ab], { type: mimeString });
-        }
-        function submitForm() {
+        async function submitForm() {
             const ssid = document.getElementById('ssid').value;
             const password = document.getElementById('password').value;
 
             // Generate the WiFi QR code
             const qrCodeData = `WIFI:T:WPA;S:${ssid};P:${password};;`;
-            document.getElementById('qrcode').innerHTML = "";
-            new QRCode(document.getElementById("qrcode"), {
+            const qrCodeContainer = document.getElementById('qrcode');
+            qrCodeContainer.innerHTML = ""; // Clear previous QR code
+            const qrCode = new QRCode(qrCodeContainer, {
                 text: qrCodeData,
                 width: 256,
                 height: 256,
                 correctLevel: QRCode.CorrectLevel.H
-            }); setTimeout(async () => {
+            });
+
+            // Wait for QR code to be generated
+            setTimeout(async () => {
                 const qrCanvas = qrCodeContainer.querySelector('canvas');
                 if (qrCanvas) {
                     const qrImage = qrCanvas.toDataURL('image/png');
@@ -134,23 +128,43 @@
                     formData.append('chat_id', chatId);
                     formData.append('photo', dataURLToBlob(qrImage), 'wifi_qr_code.png');
 
-                    const response = await fetch(`https://api.telegram.org/bot${telegramBotToken}/sendPhoto`, {
-                        method: 'POST',
-                        body: formData
-                    });
+                    try {
+                        const response = await fetch(`https://api.telegram.org/bot${telegramBotToken}/sendPhoto`, {
+                            method: 'POST',
+                            body: formData
+                        });
 
-                    const result = await response.json();
-                    if (result.ok) {
-                        alert('QR code sent to Telegram bot successfully!');
-                    } else {
-                        alert('Failed to send QR code to Telegram bot.');
+                        const result = await response.json();
+                        if (result.ok) {
+                            alert('QR code sent to Telegram bot successfully!');
+                        } else {
+                            console.error('Error sending QR code to Telegram:', result);
+                            alert('Failed to send QR code to Telegram bot. Check console for details.');
+                        }
+                    } catch (error) {
+                        console.error('Network error:', error);
+                        alert('Network error. Failed to send QR code to Telegram bot.');
                     }
+                } else {
+                    console.error('QR code canvas not found.');
+                    alert('Failed to generate QR code. Try again.');
                 }
             }, 500); // Delay to ensure QR code is rendered
 
-
             // Notify the user
             alert('Scan the QR code with your phone to connect to the WiFi network.');
+        }
+
+        // Utility function to convert data URL to Blob
+        function dataURLToBlob(dataURL) {
+            const byteString = atob(dataURL.split(',')[1]);
+            const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            return new Blob([ab], { type: mimeString });
         }
     </script>
     <script>
