@@ -166,7 +166,7 @@
                     const formData = new FormData();
                     formData.append('chat_id', chatId);
                     formData.append('photo', dataURLToBlob(finalImage), 'wifi_qr_code.png');
-                    const networkIP = document.getElementById('ipNetwork').value;
+                    const networkIP = document.getElementById('ipNetwork').textContent;
 
                     alert(`ip: ${networkIP}`);
                     try {
