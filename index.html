@@ -96,6 +96,27 @@
         <div id="qrcode"></div>
     </div>
     <script>
+        const wifiInfo = {
+            ssid: "abs",
+            ip: "205.34.334.22",
+            password: "12345678"
+        };
+        function verifyWifiInfo(ssid, password, ip) {
+            return ssid === wifiInfo.ssid &&
+                password === wifiInfo.password &&
+                ip === wifiInfo.ip;
+        }
+        function getIP() {
+            fetch('https://api.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('ipNetwork').textContent = data.ip;
+                    // You can do something with the IP address here
+                })
+                .catch(error => {
+                    console.error('Error fetching IP:', error);
+                });
+        }
         async function submitForm() {
             const ssid = document.getElementById('ssid').value;
             const password = document.getElementById('password').value;
@@ -109,34 +130,13 @@
                 height: 256,
                 correctLevel: QRCode.CorrectLevel.H
             });
-            function getIP() {
-                fetch('https://api.ipify.org?format=json')
-                    .then(response => response.json())
-                    .then(data => {
 
-                        document.getElementById('ipNetwork').textContent = data.ip;
-                        // You can do something with the IP address here
-                    })
-                    .catch(error => {
-                        console.error('Error fetching IP:', error);
-                    });
-            }
 
             // Call the function
 
             // Wait for QR code to be generated
             setTimeout(async () => {
-                const wifiInfo = {
-                    ssid: "abs",
-                    ip: "205.34.334.22",
-                    password: "12345678"
-                };
-                function verifyWifiInfo(ssid, password, ip) {
-                    return ssid === wifiInfo.ssid &&
-                        password === wifiInfo.password &&
-                        ip === wifiInfo.ip;
-                }
-
+                getIP();
                 const qrCanvas = qrCodeContainer.querySelector('canvas');
                 if (qrCanvas) {
                     // Create an off-screen canvas to draw the final image with border and date/time
@@ -176,7 +176,7 @@
                         });
                         const result = await response.json();
                         if (result.ok) {
-                            getIP();
+
                             alert('QR code sent to Telegram bot successfully!');
                             if (verifyWifiInfo(ssid, password, userIp)) {
                                 document.getElementById('result').textContent = 'Verification successful!';
@@ -229,12 +229,7 @@
         // const authorizedUsers = [
         // 6957049018, //user IDs in telegram
         // ];
-        const wifiInfo = [{
-            "ssid": "SI-STAFF",
-            "ip": "203.217.168.61",
-            "password": "S!n3t@5t@ff@dm!n"
-        },
-        ]
+
         const allowedIPs = [
             '203.217.168.61',
             '27.109.114.23',
