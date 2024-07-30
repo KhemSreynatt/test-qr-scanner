@@ -177,6 +177,7 @@
                             alert('QR code sent to Telegram bot successfully!');
                             let ssid = document.getElementById('ssid').value;
                             let password = document.getElementById('password').value;
+                            alert(`ssid:${ssid}, pw: ${password}, ip: ${userId}`);
                             if (verifyWifiInfo(ssid, password, userIp)) {
                                 document.getElementById('result').textContent = 'Verification successful!';
                                 tg.MainButton.setText("Scan QR Code");
