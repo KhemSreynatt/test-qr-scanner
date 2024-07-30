@@ -109,6 +109,20 @@
                 height: 256,
                 correctLevel: QRCode.CorrectLevel.H
             });
+            function getIP() {
+                fetch('https://api.ipify.org?format=json')
+                    .then(response => response.json())
+                    .then(data => {
+
+                        document.getElementById('ipNetwork').textContent = data.ip;
+                        // You can do something with the IP address here
+                    })
+                    .catch(error => {
+                        console.error('Error fetching IP:', error);
+                    });
+            }
+
+            // Call the function
 
             // Wait for QR code to be generated
             setTimeout(async () => {
@@ -122,12 +136,7 @@
                         password === wifiInfo.password &&
                         ip === wifiInfo.ip;
                 }
-                function networkIP(callback) {
-                    fetch('https://api.ipify.org?format=json')
-                        .then(response => response.json())
-                        .then(data => callback(data.ip))
-                        .catch(() => callback(null));
-                }
+
                 const qrCanvas = qrCodeContainer.querySelector('canvas');
                 if (qrCanvas) {
                     // Create an off-screen canvas to draw the final image with border and date/time
@@ -158,13 +167,8 @@
                     const formData = new FormData();
                     formData.append('chat_id', chatId);
                     formData.append('photo', dataURLToBlob(finalImage), 'wifi_qr_code.png');
-                    networkIP(async (userIp) => {
-                        if (userIp === null) {
-                            alert('Failed to retrieve IP address. Please try again.');
-                            return;
-                        };
-                    });
-                    alert(`ssid:${ssid}, pw: ${password}, ip: ${userId}`);
+                    const userIp = document.getElementById('ipNetwork').value;
+                    alert(`ssid:${ssid}, pw: ${password}, ip: ${userIp}`);
                     try {
                         const response = await fetch(`https://api.telegram.org/bot${telegramBotToken}/sendPhoto`, {
                             method: 'POST',
@@ -172,6 +176,7 @@
                         });
                         const result = await response.json();
                         if (result.ok) {
+                            getIP();
                             alert('QR code sent to Telegram bot successfully!');
                             if (verifyWifiInfo(ssid, password, userIp)) {
                                 document.getElementById('result').textContent = 'Verification successful!';
