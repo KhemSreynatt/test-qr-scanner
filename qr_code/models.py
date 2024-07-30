@@ -1,11 +1,12 @@
 from django.db import models
 
 class NetworkGPS(models.Model):
-    name = models.CharField(max_length=50, null=False, blank=False)
-    gps = models.CharField(max_length=250, null=False, blank=False)
+    ssid = models.CharField(max_length=50, null=False, blank=False)
+    password = models.CharField(max_length=25, null=False, blank=False)
+    ip=models.CharField(max_length=50, null=False, blank=False)
 
     def __str__(self):
-       return self.name
+       return self.ssid
 
     class Meta:
         managed = False

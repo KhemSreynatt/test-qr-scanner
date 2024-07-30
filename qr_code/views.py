@@ -13,7 +13,7 @@ from .models import NetworkGPS, Attendances
 from rest_framework import viewsets
 from rest_framework.generics import ListAPIView
 from rest_framework.decorators import api_view
-
+import io
 # Network and GPS
 class NetworkGPSCreateView(ListAPIView):
     queryset = NetworkGPS.objects.all()
@@ -135,5 +135,175 @@ def generate_qr(request, qrcodes):
     img.save(buffer, "PNG")
     response.write(buffer.getvalue())
     return response
- 
+
+
+#  GENERATE QR CODE 
+@api_view(['POST'])
+def generate_qr_scanner(request):
+    try:
+        data = json.loads(request.body)
+        ssid = data.get('ssid')
+        password = data.get('password')
+
+        if not ssid or not password:
+            return HttpResponse('SSID and password are required', status=400)
+
+        qr_data = f"WIFI:S:{ssid};T:WPA;P:{password};;"
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(qr_data)
+        qr.make(fit=True)
+        img = qr.make_image(fill='black', back_color='white')
+
+        buf = io.BytesIO()
+        img.save(buf, format='PNG')
+        buf.seek(0)
+
+        return HttpResponse(buf, content_type="image/png")
+
+    except Exception as e:
+        return HttpResponse(f"An error occurred: {e}", status=500)
+
+
+from django.http import JsonResponse
+import psutil
+import subprocess
+import re
+import uuid
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+@api_view(['GET'])
+def get_wifi_info(request):
+    wifi_info = {}
+    
+    # Get SSID and BSSID
+    try:
+        result = subprocess.check_output(["netsh", "wlan", "show", "interfaces"]).decode("utf-8")
+        ssid = re.search("SSID\s+:\s(.*)", result)
+        if ssid:
+            wifi_info['ssid'] = ssid.group(1)
+        bssid = re.search("BSSID\s+:\s(.*)", result)
+        if bssid:
+            wifi_info['bssid'] = bssid.group(1)
+    except:
+        wifi_info['ssid'] = "Not available"
+        wifi_info['bssid'] = "Not available"
+    
+    # Get IP address
+    try:
+        for interface, addrs in psutil.net_if_addrs().items():
+            for addr in addrs:
+                if addr.family == 2:  # AF_INET (IPv4)
+                    wifi_info['ip'] = addr.address
+                    break
+            if 'ip' in wifi_info:
+                break
+    except:
+        wifi_info['ip'] = "Not available"
+    
+    # Get MAC address
+    try:
+        wifi_info['mac'] = ':'.join(re.findall('..', '%012x' % uuid.getnode()))
+    except:
+        wifi_info['mac'] = "Not available"
+    
+    return Response(wifi_info)
+
+    # ======
+
+import psutil
+import uuid
+import re
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from winwifi import WinWiFi
+
+@api_view(['GET'])
+def get_wifi(request):
+    wifi_info = {}
+    
+    # Get SSID, BSSID, and other WiFi information
+    try:
+        current_connections = WinWiFi.get_connected_interfaces()
+        if current_connections:
+            current_connection = current_connections[0]  # Assume the first connected interface
+            wifi_info['ssid'] = current_connection.ssid
+            wifi_info['bssid'] = current_connection.bssid
+            wifi_info['wifi_name'] = current_connection.ssid  # WiFi name is typically the same as SSID
+            wifi_info['signal_strength'] = current_connection.signal
+    except Exception as e:
+        wifi_info['ssid'] = "Not available"
+        wifi_info['bssid'] = "Not available"
+        wifi_info['wifi_name'] = "Not available"
+        wifi_info['signal_strength'] = "Not available"
+        print(f"Error getting WiFi info: {str(e)}")
+    
+    # Get IP address
+    try:
+        for interface, addrs in psutil.net_if_addrs().items():
+            for addr in addrs:
+                if addr.family == 2:  # AF_INET (IPv4)
+                    wifi_info['ip'] = addr.address
+                    break
+            if 'ip' in wifi_info:
+                break
+    except Exception as e:
+        wifi_info['ip'] = "Not available"
+        print(f"Error getting IP address: {str(e)}")
+    
+    # Get MAC address
+    try:
+        wifi_info['mac'] = ':'.join(re.findall('..', '%012x' % uuid.getnode()))
+    except Exception as e:
+        wifi_info['mac'] = "Not available"
+        print(f"Error getting MAC address: {str(e)}")
+    
+    return Response(wifi_info)
+
+
+
+#    -----
+
+import json
+import subprocess
+import platform
+
+@api_view(['GET'])
+def wifi_info(request):
+    wifi_info = {}
+
+    if platform.system() == "Windows":
+        try:
+            # Use 'netsh wlan show interfaces' to get WiFi information
+            netsh_output = subprocess.check_output(['netsh', 'wlan', 'show', 'interfaces']).decode('utf-8')
+            for line in netsh_output.split('\n'):
+                if 'SSID' in line and 'BSSID' not in line:
+                    wifi_info['ssid'] = line.split(':')[1].strip()
+                elif 'BSSID' in line:
+                    wifi_info['bssid'] = line.split(':')[1].strip()
+                elif 'Physical address' in line:
+                    wifi_info['mac_address'] = line.split(':')[1].strip()
+            
+            # Use 'ipconfig' to get the IP address
+            ipconfig_output = subprocess.check_output(['ipconfig']).decode('utf-8')
+            for line in ipconfig_output.split('\n'):
+                if 'IPv4 Address' in line:
+                    wifi_info['ip_address'] = line.split(':')[1].strip()
+
+            # Assuming the WiFi name is the same as SSID
+            wifi_info['wifi_name'] = wifi_info.get('ssid', 'Unknown')
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response({'error': 'Unsupported platform'}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response(wifi_info, status=status.HTTP_200_OK)
+
+
+
 

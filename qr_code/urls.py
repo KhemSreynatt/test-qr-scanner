@@ -1,12 +1,13 @@
 from django.urls import path
-from .views import qr_result
 from . import views
 from rest_framework import routers
-from .views import NetworkGPSCreateView, AttendanceCreateView
+from .views import  NetworkGPSCreateView, AttendanceCreateView
 router= routers.DefaultRouter()
 router.register(r'qr_code',views.NetworkGPSCreateView)
 
 urlpatterns = [
+    path('api/wifi_scanner', views.generate_qr_scanner,name='wifi_scanner'),
+    path('api/wifi-info/', views.get_wifi, name='wifi_info_api'),
     path('api/qr-result/', views.qr_result, name='qr_result'),
     path('generate-qr/<str:qrcodes>', views.generate_qr, name='generate_qr'),
     # network
