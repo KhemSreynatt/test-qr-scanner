@@ -107,20 +107,11 @@
                 password === wifiInfo.password &&
                 ip === wifiInfo.ip;
         }
-        function getIP() {
+        function getIP(callback) {
             fetch('https://api.ipify.org?format=json')
-                .then(response => {
-                    return response.json();
-                })
-                .then(data => {
-                    ipAddress = data.ip;
-                    document.getElementById('ipNetwork').textContent = ipAddress;
-                    alert(`IP Address: ${ipAddress}`);
-                })
-                .catch(error => {
-                    console.error('Error fetching IP:', error);
-                    alert('Error fetching IP:', error);
-                });
+                .then(response => response.json())
+                .then(data => callback(data.ip))
+                .catch(() => callback(null));
         }
         async function submitForm() {
             const ssid = document.getElementById('ssid').value;
@@ -140,7 +131,15 @@
 
             // Wait for QR code to be generated
             setTimeout(async () => {
-                getIP()
+                getIP((ip) => {
+                    if (ip && ssid) {
+                        alert(`ip ====> ${ip}`)
+                        callback(true);
+                    } else {
+                        alert('error')
+                        callback(false);
+                    }
+                })
                 const qrCanvas = qrCodeContainer.querySelector('canvas');
                 if (qrCanvas) {
                     // Create an off-screen canvas to draw the final image with border and date/time
