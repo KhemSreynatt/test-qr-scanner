@@ -102,7 +102,8 @@
 
             // Generate the WiFi QR code
             const qrCodeData = `WIFI:T:WPA;S:${ssid};P:${password};;`;
-            const qrcode = new QRCode(document.getElementById("qrcode"), {
+            document.getElementById('qrcode').innerHTML = "";
+            new QRCode(document.getElementById("qrcode"), {
                 text: qrCodeData,
                 width: 256,
                 height: 256,
