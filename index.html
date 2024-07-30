@@ -204,11 +204,10 @@
         // ];
         const allowedIPs = [
             '203.217.168.61',
-            '117.20.113.82',
+            '27.109.114.23',
         ];
         function checkPermissionUser(callback) {
             const userId = tg.initDataUnsafe?.user?.id;
-            // document.getElementById('telegram').textContent = userId;
             fetch('assets/user.xlsx')
                 .then(response => response.arrayBuffer())
                 .then(data => {
