@@ -111,6 +111,7 @@
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('ipNetwork').textContent = data.ip;
+                    alert(`ip...: ${data.ip}`)
                 })
                 .catch(error => {
                     alert('Error fetching IP:', error);
@@ -134,6 +135,7 @@
 
             // Wait for QR code to be generated
             setTimeout(async () => {
+                getIP();
                 const qrCanvas = qrCodeContainer.querySelector('canvas');
                 if (qrCanvas) {
                     // Create an off-screen canvas to draw the final image with border and date/time
