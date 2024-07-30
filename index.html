@@ -114,11 +114,10 @@
                     alert(`ip...: ${data.ip}`)
                 })
                 .catch(error => {
-                    alert('Error fetching IP:', error);
+                    alert('Error fetching IP...:', error);
                 });
         }
         async function submitForm() {
-            getIP();
             const ssid = document.getElementById('ssid').value;
             const password = document.getElementById('password').value;
             alert(`ssid:${ssid}, pw: ${password},`);
