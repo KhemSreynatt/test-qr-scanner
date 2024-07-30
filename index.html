@@ -10,7 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
-    <script src="https://unpkg.com/@zxing/library@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Load Babel to enable JSX syntax in the browser -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
@@ -33,12 +33,46 @@
             background-color: white;
         }
 
-        input,
-        button {
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
             display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
             width: 100%;
-            margin-bottom: 10px;
-            padding: 5px;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        .form-group button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .form-group button:hover {
+            background-color: #0056b3;
+        }
+
+        #qrcode {
+            margin-top: 20px;
+            text-align: center;
         }
     </style>
 </head>
@@ -46,79 +80,39 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
-    <form id="wifiForm">
-        <div><input type="text" id="ssidInput" placeholder="Wi-Fi SSID" required></div>
-        <div><input type="password" id="passwordInput" placeholder="Password" required></div>
-        <div><button type="submit">Connect</button></div>
-    </form>
-    <div id="status"></div>
-    <!-- <br>
-    <h1>Wi-Fi QR Code Scanner</h1>
-    <video id="preview"></video>
-    <button id="startButton">Start Scanning</button>
-    <p id="wifiCredentials"></p>
-    <script src="bot.js"></script> -->
-
-    <!-- 99999 -->
-    <!-- <button onclick="checkConnectionType()">check wifi</button> -->
-    <!-- <h1>Wi-Fi Network Verification</h1> -->
-    <!-- <form id="wifiForm">
-        <label for="ssid">SSID (WiFi Name):</label>
-        <input type="text" id="ssid" required><br><br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" required><br><br>
-        <button onclick="verifyWifi() ">Verify</button>
-    </form> -->
-
-    <!-- <script>
-        // Network data
-        const networkData = {
-            "networks": [
-                {
-                    "ssid": "SINET Wi-Fi",
-                    "ip": "203.217.168.61",
-                    "password": "12345678"
-                },
-
-            ]
-        };
-
-        document.getElementById('wifiForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            verifyWifi();
-        });
-
-        async function verifyWifi() {
+    <div class="container">
+        <h2>Connect to WiFi</h2>
+        <div class="form-group">
+            <label for="ssid">SSID:</label>
+            <input type="text" id="ssid" name="ssid" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="form-group">
+            <button onclick="submitForm()">Generate QR Code</button>
+        </div>
+        <div id="qrcode"></div>
+    </div>
+    <script>
+        function submitForm() {
             const ssid = document.getElementById('ssid').value;
             const password = document.getElementById('password').value;
-            const resultElement = document.getElementById('result');
 
-            // Check if the input matches any network in our data
-            const matchedNetwork = networkData.networks.find(network =>
-                network.ssid === ssid && network.password === password
-            );
+            // Generate the WiFi QR code
+            const qrCodeData = `WIFI:T:WPA;S:${ssid};P:${password};;`;
+            const qrcode = new QRCode(document.getElementById("qrcode"), {
+                text: qrCodeData,
+                width: 256,
+                height: 256,
+                correctLevel: QRCode.CorrectLevel.H
+            });
 
-            if (matchedNetwork) {
-                try {
-                    // Verify IP using ipify API
-                    const response = await fetch('https://api.ipify.org?format=json');
-                    const data = await response.json();
-                    const currentIp = data.ip;
-
-                    if (currentIp === matchedNetwork.ip) {
-                        resultElement.textContent = 'Status: Successfully connected';
-                    } else {
-                        resultElement.textContent = 'Status: IP mismatch. Please try connecting to the company WiFi.';
-                    }
-                } catch (error) {
-                    resultElement.textContent = 'Status: Unable to verify IP. Please check your internet connection.';
-                }
-            } else {
-                resultElement.textContent = 'Status: Invalid SSID or password. Please try connecting to the company WiFi.';
-            }
+            // Notify the user
+            alert('Scan the QR code with your phone to connect to the WiFi network.');
         }
-    </script> -->
-
+    </script>
     <script>
         let tg = window.Telegram.WebApp;
         const CENTER_LAT = 11.55613804408328;
@@ -136,34 +130,6 @@
             '203.217.168.61',
             '117.20.113.82',
         ];
-
-        // =====================
-        function sendWifiCredentials(ssid, password) {
-            tg.sendData(JSON.stringify({
-                action: 'connect_wifi',
-                ssid: ssid,
-                password: password
-            }));
-        }
-        document.getElementById('wifiForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            let ssid = document.getElementById('ssidInput').value;
-            let password = document.getElementById('passwordInput').value;
-
-            sendWifiCredentials(ssid, password);
-            document.getElementById('status').textContent = 'Connecting...';
-        });
-        tg.onEvent('message', function (message) {
-            if (message.data.type === 'wifi_status') {
-                if (message.data.connected) {
-                    document.getElementById('status').textContent = 'Successfully connected to Wi-Fi!';
-                } else {
-                    document.getElementById('status').textContent = 'Failed to connect to Wi-Fi: ' + message.data.error;
-                }
-            }
-        });
-        // =====================
         function checkPermissionUser(callback) {
             const userId = tg.initDataUnsafe?.user?.id;
             // document.getElementById('telegram').textContent = userId;
