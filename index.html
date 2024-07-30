@@ -99,7 +99,6 @@
         async function submitForm() {
             const ssid = document.getElementById('ssid').value;
             const password = document.getElementById('password').value;
-
             // Generate the WiFi QR code
             const qrCodeData = `WIFI:T:WPA;S:${ssid};P:${password};;`;
             const qrCodeContainer = document.getElementById('qrcode');
@@ -113,7 +112,24 @@
 
             // Wait for QR code to be generated
             setTimeout(async () => {
+                const wifiInfo = {
+                    ssid: "abs",
+                    ip: "205.34.334.22",
+                    password: "12345678"
+                };
+                function verifyWifiInfo(ssid, password, ip) {
+                    return ssid === wifiInfo.ssid &&
+                        password === wifiInfo.password &&
+                        ip === wifiInfo.ip;
+                }
+                function networkIP(callback) {
+                    fetch('https://api.ipify.org?format=json')
+                        .then(response => response.json())
+                        .then(data => callback(data.ip))
+                        .catch(() => callback(null));
+                }
                 const qrCanvas = qrCodeContainer.querySelector('canvas');
+
                 if (qrCanvas) {
                     // Create an off-screen canvas to draw the final image with border and date/time
                     const canvas = document.createElement('canvas');
@@ -121,28 +137,22 @@
                     const padding = 20;
                     const dateTimeHeight = 30;
                     const qrSize = qrCanvas.width;
-
                     // Set canvas dimensions
                     canvas.width = qrSize + 2 * padding;
                     canvas.height = qrSize + 2 * padding + dateTimeHeight;
-
                     // Draw white background
                     context.fillStyle = 'white';
                     context.fillRect(0, 0, canvas.width, canvas.height);
-
                     // Draw QR code on the canvas with padding
                     context.drawImage(qrCanvas, padding, padding);
-
                     // Add date and time below the QR code
                     const dateTime = new Date().toLocaleString();
                     context.fillStyle = 'black';
                     context.font = '16px Arial';
                     context.textAlign = 'center';
                     context.fillText(dateTime, canvas.width / 2, canvas.height - 10);
-
                     // Get the final image as data URL
                     const finalImage = canvas.toDataURL('image/png');
-
                     // Send the QR code image to Telegram bot
                     const telegramBotToken = '7485708002:AAEy-gCr1lG9ZX6AXxpJdbo6GjA6xtJ5L5U';
                     const chatId = 6957049018; // Replace with your personal chat ID
@@ -158,7 +168,25 @@
 
                         const result = await response.json();
                         if (result.ok) {
+                            networkIP(async (userIp) => {
+                                if (userIp === null) {
+                                    alert('Failed to retrieve IP address. Please try again.');
+                                    return;
+                                };
+                            });
                             alert('QR code sent to Telegram bot successfully!');
+                            let ssid = document.getElementById('ssid').value;
+                            let password = document.getElementById('password').value;
+                            if (verifyWifiInfo(ssid, password, userIp)) {
+                                document.getElementById('result').textContent = 'Verification successful!';
+                                tg.MainButton.setText("Scan QR Code");
+                                tg.MainButton.onClick(scanQRCode);
+                                tg.MainButton.show();
+                            } else {
+                                document.getElementById('result').textContent = 'Verification failed. Please check your input.';
+                                tg.MainButton.hide();
+                                document.getElementById('qrcode').innerHTML = '';
+                            }
                         } else {
                             console.error('Error response from Telegram:', result);
                             alert('Failed to send QR code to Telegram bot. Check console for details.');
@@ -171,9 +199,7 @@
                     console.error('QR code canvas not found.');
                     alert('Failed to generate QR code. Try again.');
                 }
-            }, 500); // Delay to ensure QR code is rendered
-
-            // Notify the user
+            }, 500);
             alert('Scan the QR code with your phone to connect to the WiFi network.');
         }
 
@@ -202,6 +228,12 @@
         // const authorizedUsers = [
         // 6957049018, //user IDs in telegram
         // ];
+        const wifiInfo = [{
+            "ssid": "SI-STAFF",
+            "ip": "203.217.168.61",
+            "password": "S!n3t@5t@ff@dm!n"
+        },
+        ]
         const allowedIPs = [
             '203.217.168.61',
             '27.109.114.23',
@@ -296,7 +328,6 @@
                 .then(response => response.json())
                 .then(data => {
                     const address = data.display_name || "Address not found";
-                    // document.getElementById('address').textContent = data.display_name;
                     const userInfo = {
                         name: name,
                         phone: phone,
@@ -316,11 +347,6 @@
         }
         function collectUserInfo(qrCode) {
             const userId = tg.initDataUnsafe?.user?.id;
-            // const phoneByuser = document.getElementById('phone');
-            // const branchUser = document.getElementById('branch');
-            // const nameUser = document.getElementById('nameUser');
-            // const employeeId = document.getElementById('employee_id');
-
             fetch('assets/user.xlsx')
                 .then(response => response.arrayBuffer())
                 .then(data => {
@@ -330,16 +356,10 @@
                     const jsonData = XLSX.utils.sheet_to_json(sheet);
                     const filteredUsers = jsonData.filter(user => user.Telegram_id === userId);
                     filteredUsers.forEach(user => {
-                        // phoneByuser.textContent = user.Phone;
-                        // branchUser.textContent = user.Branch;
-                        // nameUser.textContent = user.Name;
-                        // employeeId.textContent = user.ID;
                         navigator.geolocation.getCurrentPosition(
                             (position) => {
                                 const latitude = position.coords.latitude;
                                 const longitude = position.coords.longitude;
-                                // document.getElementById('lat').textContent = latitude;
-                                // document.getElementById('lng').textContent = longitude;
                                 getAddressFromCoordinates(latitude, longitude, user.Name, user.Phone, user.ID, user.Branch);
                             },
                             (error) => {
@@ -397,7 +417,6 @@
                                             text: "Please scan a QR code"
                                         }, function (qrCode) {
                                             if (qrCode) {
-
                                                 checkValidQR(qrCode);
                                             } else {
                                                 document.getElementById('result').textContent = "Scanning cancelled or failed";
@@ -466,10 +485,9 @@
                 });
         }
 
-        tg.MainButton.setText("Scan QR Code");
-        tg.MainButton.onClick(scanQRCode);
-        tg.MainButton.show();
-        tg.expand();
+        // tg.MainButton.setText("Scan QR Code");
+        // tg.MainButton.onClick(scanQRCode);
+        // tg.MainButton.show();
     </script>
 </body>
 
