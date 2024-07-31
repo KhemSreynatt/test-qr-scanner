@@ -32,48 +32,6 @@
             border-radius: 5px;
             background-color: white;
         }
-
-        .container {
-            width: 80%;
-            margin-top: 20px;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-        }
-
-        .form-group button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .form-group button:hover {
-            background-color: #0056b3;
-        }
-
-        #qrcode {
-            margin-top: 20px;
-            text-align: center;
-        }
     </style>
 </head>
 
@@ -112,8 +70,8 @@
             },
             {
                 ssid: "SI-STAFF",
-                ip: "203.217.168.611",
-                password: "123345"
+                ip: "203.217.168.61",
+                password: "123345678"
             },
         ];
 
@@ -128,7 +86,6 @@
             }
         }
         async function validateWifiInfo(ipAddress) {
-            // Find matching WiFi info in the list
             const matchingWifi = wifiInfoList.find(wifi =>
                 wifi.ip === ipAddress
             );
@@ -163,14 +120,13 @@
         // Check Network
 
         async function checkAccess(callback) {
-
             const userIP = await getIpFromApi();
             const isValid = await validateWifiInfo(userIP);
             if (isValid) {
                 callback(true);
             } else {
                 callback(false);
-                document.getElementById('result').textContent = 'Please input correct ssid and password for for scan connect wifi!.';
+                document.getElementById('result').textContent = 'Invalid connection wifi!.';
                 document.getElementById('result').style.color = '#ff0000'
             }
         }
