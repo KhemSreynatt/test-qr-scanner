@@ -263,6 +263,10 @@
                                             text: "Please scan a QR code"
                                         }, function (qrCode) {
                                             if (qrCode) {
+                                                document.getElementById('result').textContent = qrCode;
+                                                tg.closeScanQrPopup();
+                                                tg.showAlert("Scan Done!");
+
                                                 // checkValidQR(qrCode);
                                             } else {
                                                 document.getElementById('result').textContent = "Scanning cancelled or failed";
