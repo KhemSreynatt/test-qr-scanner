@@ -393,7 +393,8 @@
             } else {
                 collectUserInfo(qrCode);
                 document.getElementById('result').textContent = 'Success for scanning!'
-                document.getElementById('result').style = '#0FFF50'
+                document.getElementById('result').style.color = '#FFFFFF'
+                document.getElementById('result').style.backgroundColor = '#4cbb17'
                 tg.closeScanQrPopup();
                 tg.showAlert("Scan Done!");
                 return resultQR
