@@ -107,14 +107,45 @@
                 password === wifiInfo.password &&
                 ip === wifiInfo.ip;
         }
-        function getIP(callback) {
-            fetch('https://api.ipify.org?format=json')
-                .then(response => response.json())
-                .then(data => callback(data.ip))
-                .catch(() => callback(null));
+        async function getIpFromApi() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
+            } catch (error) {
+                console.error('Error fetching IP:', error);
+                return null;
+            }
+        }
+        async function validateWifiInfo(userSsid, userPassword, ipAddress) {
+
+            if (userSsid === wifiInfo.ssid && userPassword === wifiInfo.password && ipAddress === wifiInfo.ip) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        async function handleWifiInput(userSsid, userPassword, ipAddress) {
+            const isValid = await validateWifiInfo(userSsid, userPassword, ipAddress);
+            if (isValid) {
+                // Allow user to scan attendant
+                alert("WiFi information is valid. Scanning attendant...");
+                document.getElementById('result').textContent = 'Verification successful!';
+                tg.MainButton.setText("Scan QR Code");
+                tg.MainButton.onClick(scanQRCode);
+                tg.MainButton.show();
+                // Add your scanning logic here
+            } else {
+                // Show alert for invalid input
+                alert('Invalid connection newtork !');
+                document.getElementById('result').textContent = 'Verification failed. Please check your input.';
+                document.getElementById('result').style.color = '#ff0000'
+                tg.MainButton.hide();
+                document.getElementById('qrcode').innerHTML = '';
+
+            }
         }
         async function submitForm() {
-
             const ssid = document.getElementById('ssid').value;
             const password = document.getElementById('password').value;
             const qrCodeData = `WIFI:T:WPA;S:${ssid};P:${password};;`;
@@ -127,17 +158,7 @@
                 correctLevel: QRCode.CorrectLevel.H
             });
             setTimeout(async () => {
-                getIP((ip) => {
-                    if (ip && ssid) {
-                        ipAddress = ip;
-                        alert(`ip address: ${ipAddress} `)
-                        callback(true);
-                    }
-                    else {
-                        alert('Error network')
-                        callback(false);
-                    }
-                })
+
                 const qrCanvas = qrCodeContainer.querySelector('canvas');
                 if (qrCanvas) {
                     const canvas = document.createElement('canvas');
@@ -161,6 +182,7 @@
                     const formData = new FormData();
                     formData.append('chat_id', chatId);
                     formData.append('photo', dataURLToBlob(finalImage), 'wifi_qr_code.png');
+                    const userIP = await getIpFromApi();
                     try {
                         const response = await fetch(`https://api.telegram.org/bot${telegramBotToken}/sendPhoto`, {
                             method: 'POST',
@@ -168,19 +190,20 @@
                         });
                         const result = await response.json();
                         if (result.ok) {
-                            alert(`ip network : ${ipAddress}, SSID : ${ssid} , PW: ${password}`);
-                            if (verifyWifiInfo(ssid, password, ipAddress)) {
-                                document.getElementById('result').textContent = 'Verification successful!';
-                                tg.MainButton.setText("Scan QR Code");
-                                tg.MainButton.onClick(scanQRCode);
-                                tg.MainButton.show();
-                            } else {
-                                alert('Invalid connection newtork !');
-                                document.getElementById('result').textContent = 'Verification failed. Please check your input.';
-                                document.getElementById('result').style.color = '#ff0000'
-                                tg.MainButton.hide();
-                                document.getElementById('qrcode').innerHTML = '';
-                            }
+                            alert(`ip network : ${userIP}, SSID : ${ssid} , PW: ${password}`);
+                            handleWifiInput(ssid, password, userIP);
+                            // if (verifyWifiInfo(ssid, password, ipAddress)) {
+                            //     document.getElementById('result').textContent = 'Verification successful!';
+                            //     tg.MainButton.setText("Scan QR Code");
+                            //     tg.MainButton.onClick(scanQRCode);
+                            //     tg.MainButton.show();
+                            // } else {
+                            //     alert('Invalid connection newtork !');
+                            //     document.getElementById('result').textContent = 'Verification failed. Please check your input.';
+                            //     document.getElementById('result').style.color = '#ff0000'
+                            //     tg.MainButton.hide();
+                            //     document.getElementById('qrcode').innerHTML = '';
+                            // }
                         } else {
                             alert('Failed to send QR code to Telegram bot. Check console for details.');
                         }
