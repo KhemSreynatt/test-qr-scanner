@@ -92,91 +92,6 @@
             return !!matchingWifi; // Returns true if a match is found, false otherwise
         }
 
-        function checkValidQRCode(qrData) {
-            try {
-                const scannedData = JSON.parse(qrData);
-                let isValid = false;
-                let message = "";
-
-                for (const userInfo of listWifiInfo) {
-                    let currentValid = true;
-                    let currentMessage = "";
-
-                    // Compare SSID
-                    if (scannedData.ssid !== userInfo.ssid) {
-                        currentValid = false;
-                        currentMessage += "SSID doesn't match. ";
-                    }
-
-                    // Compare DSSID
-                    if (scannedData.dssid !== userInfo.dssid) {
-                        currentValid = false;
-                        currentMessage += "DSSID doesn't match. ";
-                    }
-
-                    // Compare IP (partial match)
-                    if (!userInfo.ip.startsWith(scannedData.ip)) {
-                        currentValid = false;
-                        currentMessage += "IP doesn't match. ";
-                    }
-
-                    // Compare Branch
-                    if (scannedData.branch !== userInfo.branch) {
-                        currentValid = false;
-                        currentMessage += "Branch doesn't match. ";
-                    }
-
-                    // Compare GPS (within a certain range)
-                    if (userInfo.gps && scannedData.gps) {
-                        const [qrLat, qrLong] = scannedData.gps.split(',').map(Number);
-                        const [userLat, userLong] = userInfo.gps.split(',').map(Number);
-                        const distance = calculateDistance(qrLat, qrLong, userLat, userLong);
-                        if (distance > 0.1) { // 0.1 km = 100 meters
-                            currentValid = false;
-                            currentMessage += "Location doesn't match. ";
-
-
-                        }
-                    } else {
-                        currentMessage += "Couldn't verify location. ";
-                        document.getElementById('result').textContent = "Couldn't verify location. ";
-                    }
-
-                    if (currentValid) {
-                        isValid = true;
-                        message = "All checks passed.";
-                        break;
-                    } else {
-                        message = currentMessage;
-                    }
-                }
-
-                displayResult(isValid, message);
-
-            } catch (error) {
-                displayResult(false, "Error processing QR code: " + error.message);
-                document.getElementById('result').textContent = "Error processing QR code:";
-            }
-        }
-        function displayResult(isValid, message) {
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = `
-                <h3>Verification Result:</h3>
-                <p style="color: ${isValid ? 'green' : 'red'}">
-                    ${isValid ? 'Valid' : 'Invalid'}
-                </p>
-                <p>${message}</p>
-            `;
-            resultDiv.style.display = 'block';
-
-            if (isValid) {
-                tg.MainButton.setText("Access Granted");
-                tg.MainButton.show();
-            } else {
-                tg.MainButton.hide();
-            }
-        }
-
         function checkPermissionUser(callback) {
             const userId = tg.initDataUnsafe?.user?.id;
             fetch('assets/user.xlsx')
@@ -346,13 +261,13 @@
                                         tg.showScanQrPopup({
                                             text: "Please scan a QR code"
                                         }, function (qrCode) {
+                                            alert("Scanned QR Code:", qrCode);
                                             if (qrCode) {
                                                 tg.closeScanQrPopup();
                                                 tg.showAlert("Scan Done!");
                                                 alert("Scanned QR Code:", qrCode); // Debugging output
                                                 document.getElementById('result').textContent = qrCode;
-                                                document.getElementById('result').style.display = 'block';
-                                                checkValidQRCode(qrCode);
+
                                             } else {
                                                 document.getElementById('result').textContent = "Scanning cancelled or failed";
                                                 document.getElementById('result').style.color = '#ff0000'
