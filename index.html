@@ -134,9 +134,12 @@
                         if (distance > 0.1) { // 0.1 km = 100 meters
                             currentValid = false;
                             currentMessage += "Location doesn't match. ";
+
+
                         }
                     } else {
                         currentMessage += "Couldn't verify location. ";
+                        document.getElementById('result').textContent = "Couldn't verify location. ";
                     }
 
                     if (currentValid) {
@@ -152,6 +155,7 @@
 
             } catch (error) {
                 displayResult(false, "Error processing QR code: " + error.message);
+                document.getElementById('result').textContent = "Error processing QR code:";
             }
         }
         function displayResult(isValid, message) {
@@ -343,10 +347,12 @@
                                             text: "Please scan a QR code"
                                         }, function (qrCode) {
                                             if (qrCode) {
-                                                checkValidQRCode(qrCode)
                                                 tg.closeScanQrPopup();
                                                 tg.showAlert("Scan Done!");
+                                                alert("Scanned QR Code:", qrCode); // Debugging output
                                                 document.getElementById('result').textContent = qrCode;
+                                                document.getElementById('result').style.display = 'block';
+                                                checkValidQRCode(qrCode);
                                             } else {
                                                 document.getElementById('result').textContent = "Scanning cancelled or failed";
                                                 document.getElementById('result').style.color = '#ff0000'
@@ -414,6 +420,7 @@
                 });
         }
 
+        tg.expand();
         tg.MainButton.setText("Scan QR Code");
         tg.MainButton.onClick(scanQRCode);
         tg.MainButton.show();
