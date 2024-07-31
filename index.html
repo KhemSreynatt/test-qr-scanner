@@ -102,10 +102,25 @@
             ip: "203.217.168.45",
             password: "12345678"
         };
-        function verifyWifiInfo(ssid, password, ip) {
-            return ssid === wifiInfo.ssid &&
-                password === wifiInfo.password &&
-                ip === wifiInfo.ip;
+        const wifiInfoList = [
+            {
+                ssid: "test",
+                ip: "203.217.168.45",
+                password: "12345689"
+            },
+            {
+                ssid: "home_wifi",
+                ip: "192.168.1.1",
+                password: "securepass123"
+            },
+        ];
+        async function validateWifiListInfo(userSsid, userPassword) {
+            // Find matching WiFi info in the list
+            const matchingWifi = wifiInfoList.find(wifi =>
+                wifi.ssid === userSsid &&
+                wifi.password === userPassword
+            );
+            return !!matchingWifi; // Returns true if a match is found, false otherwise
         }
         async function getIpFromApi() {
             try {
@@ -117,21 +132,19 @@
                 return null;
             }
         }
-        async function validateWifiInfo(userSsid, userPassword, ipAddress) {
-
-            if (userSsid === wifiInfo.ssid && userPassword === wifiInfo.password && ipAddress === wifiInfo.ip) {
+        async function validateWifiInfo(userSsid, userPassword) {
+            if (userSsid === wifiInfo.ssid && userPassword === wifiInfo.password) {
                 return true;
             } else {
                 return false;
             }
         }
-
         async function submitForm() {
             const ssid = document.getElementById('ssid').value;
             const password = document.getElementById('password').value;
             const userIP = await getIpFromApi();
-            const isValid = await validateWifiInfo(ssid, password, userIP);
-
+            const isValid = await validateWifiInfo(ssid, password);
+            const isCorrectWifiInfo = await validateWifiListInfo(ssid, password);
             // Generate QR Code
             const qrCodeData = `WIFI:T:WPA;S:${ssid};P:${password};;`;
             const qrCodeContainer = document.getElementById('qrcode');
@@ -167,15 +180,14 @@
                     formData.append('chat_id', chatId);
                     formData.append('photo', dataURLToBlob(finalImage), 'wifi_qr_code.png');
                     try {
-                        alert(`ip network : ${userIP}, SSID : ${ssid} , PW: ${password}`);
-                        if (isValid) {
+                        if (isCorrectWifiInfo) {
                             const response = await fetch(`https://api.telegram.org/bot${telegramBotToken}/sendPhoto`, {
                                 method: 'POST',
                                 body: formData
                             });
                             const result = await response.json();
                             if (result.ok) {
-                                alert("WiFi information is valid. Scanning attendant...");
+                                alert("WiFi information is allow for scanning attendant...");
                                 document.getElementById('result').textContent = 'Verification successful!';
                                 tg.MainButton.setText("Scan QR Code");
                                 tg.MainButton.onClick(scanQRCode);
@@ -190,8 +202,6 @@
                             tg.MainButton.hide();
                             document.getElementById('qrcode').innerHTML = '';
                         }
-
-
                     } catch (error) {
                         alert('Network error. Failed to send QR code to Telegram bot.');
                     }
