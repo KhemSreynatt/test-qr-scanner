@@ -130,6 +130,7 @@
                 getIP((ip) => {
                     if (ip && ssid) {
                         ipAddress = ip;
+                        alert(`ip address: ${ipAddress} `)
                         callback(true);
                     } else {
                         alert('error network')
@@ -173,6 +174,7 @@
                                 tg.MainButton.onClick(scanQRCode);
                                 tg.MainButton.show();
                             } else {
+                                alert(`ip network : ${ipAddress}, SSID : ${ssid} , PW: ${password}`);
                                 alert('Invalid connection newtork !');
                                 document.getElementById('result').textContent = 'Verification failed. Please check your input.';
                                 document.getElementById('result').style.color = '#ff0000'
