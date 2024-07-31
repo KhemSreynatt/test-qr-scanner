@@ -128,12 +128,13 @@
                 height: 256,
                 correctLevel: QRCode.CorrectLevel.H
             });
-
             // Wait for QR code to be generated
             setTimeout(async () => {
                 getIP((ip) => {
                     if (ip && ssid) {
-                        alert(`ip ====> ${ip}`)
+                        // alert(`ip ====> ${ip}`)
+                        ipAddress = ip;
+                        alert(`ip ====> ${ipAddress}`)
                         callback(true);
                     } else {
                         alert('error')
