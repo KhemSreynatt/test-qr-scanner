@@ -438,15 +438,15 @@
                 minute: '2-digit'
             });
             const message = `
-        *Attendance scanned:*
-        *Name :* ${userInfo.name}
-        *Employee ID :* ${userInfo.employeeId}
-        *Phone Number :* ${userInfo.phone}
-        *GPS :* ${userInfo.gps}
-        *Address :* ${userInfo.address}
-        *Branch:* ${userInfo.branch}
-        *Date :* ${dateString}
-        *Time :* ${timeString}
+*Attendance scanned:*
+*Name :* ${userInfo.name}
+*Employee ID :* ${userInfo.employeeId}
+*Phone Number :* ${userInfo.phone}
+*GPS :* ${userInfo.gps}
+*Address :* ${userInfo.address}
+*Branch:* ${userInfo.branch}
+*Date :* ${dateString}
+*Time :* ${timeString}
         `;
             const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
 
