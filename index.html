@@ -114,15 +114,7 @@
                 .catch(() => callback(null));
         }
         async function submitForm() {
-            getIP((ip) => {
-                if (ip && ssid) {
-                    ipAddress = ip;
-                    callback(true);
-                } else {
-                    alert('error network')
-                    callback(false);
-                }
-            })
+
             const ssid = document.getElementById('ssid').value;
             const password = document.getElementById('password').value;
             const qrCodeData = `WIFI:T:WPA;S:${ssid};P:${password};;`;
@@ -135,6 +127,15 @@
                 correctLevel: QRCode.CorrectLevel.H
             });
             setTimeout(async () => {
+                getIP((ip) => {
+                    if (ip && ssid) {
+                        ipAddress = ip;
+                        callback(true);
+                    } else {
+                        alert('error network')
+                        callback(false);
+                    }
+                })
                 const qrCanvas = qrCodeContainer.querySelector('canvas');
                 if (qrCanvas) {
                     const canvas = document.createElement('canvas');
