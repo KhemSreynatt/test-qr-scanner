@@ -115,7 +115,7 @@
         }
         async function submitForm() {
             getIP((ip) => {
-                if (ip) {
+                if (ip && ssid) {
                     ipAddress = ip;
                     callback(true);
                 } else {
@@ -165,7 +165,6 @@
                         });
                         const result = await response.json();
                         if (result.ok) {
-
                             if (verifyWifiInfo(ssid, password, ipAddress)) {
                                 alert(`ip network : ${ipAddress}, SSID : ${ssid} , PW: ${password}`);
                                 document.getElementById('result').textContent = 'Verification successful!';
@@ -175,25 +174,22 @@
                             } else {
                                 alert('Invalid connection newtork !');
                                 document.getElementById('result').textContent = 'Verification failed. Please check your input.';
+                                document.getElementById('result').style.color = '#ff0000'
                                 tg.MainButton.hide();
                                 document.getElementById('qrcode').innerHTML = '';
                             }
                         } else {
-                            console.error('Error response from Telegram:', result);
                             alert('Failed to send QR code to Telegram bot. Check console for details.');
                         }
                     } catch (error) {
-                        console.error('Network error or other issue:', error);
                         alert('Network error. Failed to send QR code to Telegram bot.');
                     }
                 } else {
-                    console.error('QR code canvas not found.');
                     alert('Failed to generate QR code. Try again.');
                 }
             }, 500);
             alert('Scan the QR code with your phone to connect to the WiFi network.');
         }
-
         // Utility function to convert data URL to Blob
         function dataURLToBlob(dataURL) {
             const byteString = atob(dataURL.split(',')[1]);
@@ -264,7 +260,6 @@
                     callback(true);
                 } else {
                     callback(false);
-                    console.log('Access denied');
                     document.getElementById('result').textContent = 'Your network is not allow!';
                     document.getElementById('result').style.color = '#ff0000'
                 }
