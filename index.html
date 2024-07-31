@@ -114,6 +114,17 @@
                 .catch(() => callback(null));
         }
         async function submitForm() {
+            getIP((ip) => {
+                if (ip) {
+                    // alert(`ip ====> ${ip}`)
+                    ipAddress = ip;
+                    alert(`ip network====> ${ipAddress}`)
+                    callback(true);
+                } else {
+                    alert('error network')
+                    callback(false);
+                }
+            })
             const ssid = document.getElementById('ssid').value;
             const password = document.getElementById('password').value;
             alert(`ssid:${ssid}, pw: ${password},`);
@@ -130,17 +141,7 @@
             });
             // Wait for QR code to be generated
             setTimeout(async () => {
-                getIP((ip) => {
-                    if (ip && ssid) {
-                        // alert(`ip ====> ${ip}`)
-                        ipAddress = ip;
-                        alert(`ip ====> ${ipAddress}`)
-                        callback(true);
-                    } else {
-                        alert('error')
-                        callback(false);
-                    }
-                })
+
                 const qrCanvas = qrCodeContainer.querySelector('canvas');
                 if (qrCanvas) {
                     // Create an off-screen canvas to draw the final image with border and date/time
