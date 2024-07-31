@@ -95,7 +95,25 @@
         </div>
         <div id="qrcode"></div>
     </div>
+
     <script>
+        let tg = window.Telegram.WebApp;
+        const CENTER_LAT = 11.55613804408328;
+        const CENTER_LON = 104.9218005731158;
+        const MAX_DISTANCE = 80;
+        const valueQRCode = [
+            'S.I.Group.KH:Phnom_Penh',
+            'S.I.Group.KH:KPS',
+        ]
+
+        // const authorizedUsers = [
+        // 6957049018, //user IDs in telegram
+        // ];
+
+        const allowedIPs = [
+            '203.217.168.61',
+            '27.109.114.23',
+        ];
         let ipAddress = '';
         const wifiInfo = {
             ssid: "test",
@@ -222,25 +240,7 @@
             }
             return new Blob([ab], { type: mimeString });
         }
-    </script>
-    <script>
-        let tg = window.Telegram.WebApp;
-        const CENTER_LAT = 11.55613804408328;
-        const CENTER_LON = 104.9218005731158;
-        const MAX_DISTANCE = 80;
-        const valueQRCode = [
-            'S.I.Group.KH:Phnom_Penh',
-            'S.I.Group.KH:KPS',
-        ]
 
-        // const authorizedUsers = [
-        // 6957049018, //user IDs in telegram
-        // ];
-
-        const allowedIPs = [
-            '203.217.168.61',
-            '27.109.114.23',
-        ];
         function checkPermissionUser(callback) {
             const userId = tg.initDataUnsafe?.user?.id;
             fetch('assets/user.xlsx')
