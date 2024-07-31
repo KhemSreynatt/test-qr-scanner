@@ -80,7 +80,7 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
-    <div class="container">
+    <!-- <div class="container">
         <h2>Connect to WiFi</h2>
         <div class="form-group">
             <label for="ssid">SSID:</label>
@@ -94,7 +94,7 @@
             <button onclick="submitForm()">Generate QR Code</button>
         </div>
         <div id="qrcode"></div>
-    </div>
+    </div> -->
 
     <script>
         let tg = window.Telegram.WebApp;
@@ -109,7 +109,17 @@
             '203.217.168.61',
             '27.109.114.23',
         ];
-
+        //  MODELS: SSID, DSSID, IP Address, GPS Zone, Branchs, Branch ID, 
+        const listWifiInfo = [
+            {
+                ssid: "test",
+                dssid: "",
+                ip: "192.168.0",
+                gps: '11.55613804,104.921800',
+                branch: "SI.Group HQ",
+                branch_id: 1000,
+            }
+        ]
         const wifiInfoList = [
             {
                 ssid: "test",
@@ -122,6 +132,7 @@
                 password: "123345"
             },
         ];
+
         async function validateWifiListInfo(userSsid, userPassword) {
             // Find matching WiFi info in the list
             const matchingWifi = wifiInfoList.find(wifi =>
@@ -146,11 +157,11 @@
                 return null;
             }
         }
-        async function validateWifiInfo(userSsid, userPassword, ipAddress) {
+        async function validateWifiInfo(ipAddress) {
             // Find matching WiFi info in the list
             const matchingWifi = wifiInfoList.find(wifi =>
-                wifi.ssid === userSsid &&
-                wifi.password === userPassword &&
+                // wifi.ssid === userSsid &&
+                // wifi.password === userPassword &&
                 wifi.ip === ipAddress
             );
             return !!matchingWifi; // Returns true if a match is found, false otherwise
@@ -330,7 +341,6 @@
                         branch: branch,
                         gps: `${latitude}, ${longitude}`,
                         address: data.display_name,
-
                     };
                     sendToTelegramGroup(userInfo);
                     callback(address);
@@ -413,7 +423,8 @@
                                             text: "Please scan a QR code"
                                         }, function (qrCode) {
                                             if (qrCode) {
-                                                checkValidQR(qrCode);
+                                                tg.closeScanQrPopup();
+                                                // checkValidQR(qrCode);
                                             } else {
                                                 document.getElementById('result').textContent = "Scanning cancelled or failed";
                                                 document.getElementById('result').style.color = '#ff0000'
@@ -481,9 +492,10 @@
                 });
         }
 
-        // tg.MainButton.setText("Scan QR Code");
-        // tg.MainButton.onClick(scanQRCode);
-        // tg.MainButton.show();
+        tg.MainButton.setText("Scan QR Code");
+        tg.MainButton.onClick(scanQRCode);
+        tg.MainButton.show();
+
     </script>
 </body>
 
