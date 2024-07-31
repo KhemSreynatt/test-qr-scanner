@@ -92,7 +92,7 @@
             return !!matchingWifi; // Returns true if a match is found, false otherwise
         }
 
-        function checkValidQR(qrData) {
+        function checkValidQRCode(qrData) {
             try {
                 const scannedData = JSON.parse(qrData);
                 let isValid = false;
@@ -343,10 +343,10 @@
                                             text: "Please scan a QR code"
                                         }, function (qrCode) {
                                             if (qrCode) {
+                                                checkValidQRCode(qrCode)
                                                 tg.closeScanQrPopup();
                                                 tg.showAlert("Scan Done!");
                                                 document.getElementById('result').textContent = qrCode;
-                                                // checkValidQR(qrCode);
                                             } else {
                                                 document.getElementById('result').textContent = "Scanning cancelled or failed";
                                                 document.getElementById('result').style.color = '#ff0000'
