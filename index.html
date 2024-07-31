@@ -117,7 +117,6 @@
                 });
         }
         // Check Network
-
         async function checkAccess(callback) {
             const userIP = await getIpFromApi();
             const isValid = await validateWifiInfo(userIP);
@@ -273,7 +272,9 @@
                                         tg.showScanQrPopup({
                                             text: "Please scan a QR code"
                                         }, function (qrCode) {
-                                            parseQRData(qrCode);
+                                            const qrData = JSON.parse(qrCode.data);
+                                            document.getElementById('result').textContent = qrData;
+                                            tg.closeScanQrPopup();
                                             // if (qrCode) {
                                             //     tg.closeScanQrPopup();
                                             //     tg.showAlert("Scan Done!");
