@@ -105,21 +105,11 @@
             'S.I.Group.KH:Phnom_Penh',
             'S.I.Group.KH:KPS',
         ]
-
-        // const authorizedUsers = [
-        // 6957049018, //user IDs in telegram
-        // ];
-
         const allowedIPs = [
             '203.217.168.61',
             '27.109.114.23',
         ];
 
-        // const wifiInfo = {
-        //     ssid: "test",
-        //     ip: "203.217.168.45",
-        //     password: "12345678"
-        // };
         const wifiInfoList = [
             {
                 ssid: "test",
@@ -127,9 +117,9 @@
                 password: "12345689"
             },
             {
-                ssid: "phone",
+                ssid: "SI-STAFF",
                 ip: "203.217.168.61",
-                password: "123456789"
+                password: "S!n3t@5t@ff@dm!n"
             },
         ];
         async function validateWifiListInfo(userSsid, userPassword) {
@@ -150,13 +140,6 @@
                 return null;
             }
         }
-        // async function validateWifiInfo(userSsid, userPassword,) {
-        //     if (userSsid === wifiInfo.ssid && userPassword === wifiInfo.password) {
-        //         return true;
-        //     } else {
-        //         return false;
-        //     }
-        // }
         async function validateWifiInfo(userSsid, userPassword, ipAddress) {
             // Find matching WiFi info in the list
             const matchingWifi = wifiInfoList.find(wifi =>
@@ -166,11 +149,9 @@
             );
             return !!matchingWifi; // Returns true if a match is found, false otherwise
         }
-
         async function submitForm() {
             const ssid = document.getElementById('ssid').value;
             const password = document.getElementById('password').value;
-            alert(`ssid: ${ssid}, pw: ${password}`)
             const isCorrectWifiInfo = await validateWifiListInfo(ssid, password);
             // Generate QR Code
             const qrCodeData = `WIFI:T:WPA;S:${ssid};P:${password};;`;
@@ -276,15 +257,7 @@
                 });
         }
         // Check Network
-        function isIPAllowed(ip) {
-            return allowedIPs.some(allowedIP => ip.startsWith(allowedIP));
-        }
-        // function getUserIP(callback) {
-        //     fetch('https://api.ipify.org?format=json')
-        //         .then(response => response.json())
-        //         .then(data => callback(data.ip))
-        //         .catch(() => callback(null));
-        // }
+
         async function checkAccess(callback) {
             const ssid = document.getElementById('ssid').value;
             const password = document.getElementById('password').value;
@@ -294,20 +267,10 @@
                 callback(true);
             } else {
                 callback(false);
-                document.getElementById('result').textContent = 'Your network is not allow!';
+                document.getElementById('result').textContent = 'Please input correct ssid and password for for scan connect wifi!.';
                 document.getElementById('result').style.color = '#ff0000'
             }
         }
-        // getUserIP((ip) => {
-        //     if (ip && isIPAllowed(ip)) {
-        //         callback(true);
-        //     } else {
-        //         callback(false);
-        //         document.getElementById('result').textContent = 'Your network is not allow!';
-        //         document.getElementById('result').style.color = '#ff0000'
-        //     }
-        // });
-        // }
         // Check Map Zone
         function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371e3;
