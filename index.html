@@ -166,9 +166,10 @@
             );
             return !!matchingWifi; // Returns true if a match is found, false otherwise
         }
-        const ssid = document.getElementById('ssid').value;
-        const password = document.getElementById('password').value;
+
         async function submitForm() {
+            const ssid = document.getElementById('ssid').value;
+            const password = document.getElementById('password').value;
             alert(`ssid: ${ssid}, pw: ${password}`)
             const isCorrectWifiInfo = await validateWifiListInfo(ssid, password);
             // Generate QR Code
@@ -285,6 +286,8 @@
         //         .catch(() => callback(null));
         // }
         async function checkAccess(callback) {
+            const ssid = document.getElementById('ssid').value;
+            const password = document.getElementById('password').value;
             const userIP = await getIpFromApi();
             const isValid = await validateWifiInfo(ssid, password, userIP);
             if (isValid) {
