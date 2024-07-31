@@ -169,6 +169,7 @@
         const ssid = document.getElementById('ssid').value;
         const password = document.getElementById('password').value;
         async function submitForm() {
+            alert(`ssid: ${ssid}, pw: ${password}`)
             const isCorrectWifiInfo = await validateWifiListInfo(ssid, password);
             // Generate QR Code
             const qrCodeData = `WIFI:T:WPA;S:${ssid};P:${password};;`;
