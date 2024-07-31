@@ -132,8 +132,9 @@
                         ipAddress = ip;
                         alert(`ip address: ${ipAddress} `)
                         callback(true);
-                    } else {
-                        alert('error network')
+                    }
+                    else {
+                        alert('Error network')
                         callback(false);
                     }
                 })
@@ -167,14 +168,13 @@
                         });
                         const result = await response.json();
                         if (result.ok) {
+                            alert(`ip network : ${ipAddress}, SSID : ${ssid} , PW: ${password}`);
                             if (verifyWifiInfo(ssid, password, ipAddress)) {
-                                alert(`ip network : ${ipAddress}, SSID : ${ssid} , PW: ${password}`);
                                 document.getElementById('result').textContent = 'Verification successful!';
                                 tg.MainButton.setText("Scan QR Code");
                                 tg.MainButton.onClick(scanQRCode);
                                 tg.MainButton.show();
                             } else {
-                                alert(`ip network : ${ipAddress}, SSID : ${ssid} , PW: ${password}`);
                                 alert('Invalid connection newtork !');
                                 document.getElementById('result').textContent = 'Verification failed. Please check your input.';
                                 document.getElementById('result').style.color = '#ff0000'
