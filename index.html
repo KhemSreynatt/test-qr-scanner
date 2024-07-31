@@ -114,12 +114,12 @@
             '203.217.168.61',
             '27.109.114.23',
         ];
-        let ipAddress = '';
-        const wifiInfo = {
-            ssid: "test",
-            ip: "203.217.168.45",
-            password: "12345678"
-        };
+
+        // const wifiInfo = {
+        //     ssid: "test",
+        //     ip: "203.217.168.45",
+        //     password: "12345678"
+        // };
         const wifiInfoList = [
             {
                 ssid: "test",
@@ -127,9 +127,9 @@
                 password: "12345689"
             },
             {
-                ssid: "home_wifi",
-                ip: "192.168.1.1",
-                password: "securepass123"
+                ssid: "test",
+                ip: "203.217.168.45",
+                password: "123456789"
             },
         ];
         async function validateWifiListInfo(userSsid, userPassword) {
@@ -150,18 +150,25 @@
                 return null;
             }
         }
-        async function validateWifiInfo(userSsid, userPassword) {
-            if (userSsid === wifiInfo.ssid && userPassword === wifiInfo.password) {
-                return true;
-            } else {
-                return false;
-            }
+        // async function validateWifiInfo(userSsid, userPassword,) {
+        //     if (userSsid === wifiInfo.ssid && userPassword === wifiInfo.password) {
+        //         return true;
+        //     } else {
+        //         return false;
+        //     }
+        // }
+        async function validateWifiInfo(userSsid, userPassword, ipAddress) {
+            // Find matching WiFi info in the list
+            const matchingWifi = wifiInfoList.find(wifi =>
+                wifi.ssid === userSsid &&
+                wifi.password === userPassword &&
+                wifi.ip === ipAddress
+            );
+            return !!matchingWifi; // Returns true if a match is found, false otherwise
         }
+        const ssid = document.getElementById('ssid').value;
+        const password = document.getElementById('password').value;
         async function submitForm() {
-            const ssid = document.getElementById('ssid').value;
-            const password = document.getElementById('password').value;
-            const userIP = await getIpFromApi();
-            const isValid = await validateWifiInfo(ssid, password);
             const isCorrectWifiInfo = await validateWifiListInfo(ssid, password);
             // Generate QR Code
             const qrCodeData = `WIFI:T:WPA;S:${ssid};P:${password};;`;
@@ -207,6 +214,7 @@
                             if (result.ok) {
                                 alert("WiFi information is allow for scanning attendant...");
                                 document.getElementById('result').textContent = 'Verification successful!';
+                                document.getElementById('result').style.color = '#0FFF50'
                                 tg.MainButton.setText("Scan QR Code");
                                 tg.MainButton.onClick(scanQRCode);
                                 tg.MainButton.show();
@@ -269,23 +277,33 @@
         function isIPAllowed(ip) {
             return allowedIPs.some(allowedIP => ip.startsWith(allowedIP));
         }
-        function getUserIP(callback) {
-            fetch('https://api.ipify.org?format=json')
-                .then(response => response.json())
-                .then(data => callback(data.ip))
-                .catch(() => callback(null));
+        // function getUserIP(callback) {
+        //     fetch('https://api.ipify.org?format=json')
+        //         .then(response => response.json())
+        //         .then(data => callback(data.ip))
+        //         .catch(() => callback(null));
+        // }
+        async function checkAccess(callback) {
+            const userIP = await getIpFromApi();
+            const isValid = await validateWifiInfo(ssid, password, userIP);
+            if (isValid) {
+                callback(true);
+            } else {
+                callback(false);
+                document.getElementById('result').textContent = 'Your network is not allow!';
+                document.getElementById('result').style.color = '#ff0000'
+            }
         }
-        function checkAccess(callback) {
-            getUserIP((ip) => {
-                if (ip && isIPAllowed(ip)) {
-                    callback(true);
-                } else {
-                    callback(false);
-                    document.getElementById('result').textContent = 'Your network is not allow!';
-                    document.getElementById('result').style.color = '#ff0000'
-                }
-            });
-        }
+        // getUserIP((ip) => {
+        //     if (ip && isIPAllowed(ip)) {
+        //         callback(true);
+        //     } else {
+        //         callback(false);
+        //         document.getElementById('result').textContent = 'Your network is not allow!';
+        //         document.getElementById('result').style.color = '#ff0000'
+        //     }
+        // });
+        // }
         // Check Map Zone
         function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371e3;
