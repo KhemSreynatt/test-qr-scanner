@@ -261,16 +261,53 @@
                                         tg.showScanQrPopup({
                                             text: "Please scan a QR code"
                                         }, function (qrCode) {
-                                            alert("Scanned QR Code:", qrCode);
-                                            if (qrCode) {
-                                                tg.closeScanQrPopup();
-                                                tg.showAlert("Scan Done!");
-                                                alert("Scanned QR Code:", qrCode); // Debugging output
-                                                document.getElementById('result').textContent = qrCode;
 
-                                            } else {
-                                                document.getElementById('result').textContent = "Scanning cancelled or failed";
-                                                document.getElementById('result').style.color = '#ff0000'
+                                            // if (qrCode) {
+                                            //     tg.closeScanQrPopup();
+                                            //     tg.showAlert("Scan Done!");
+                                            //     alert("Scanned QR Code:", qrCode); // Debugging output
+                                            //     document.getElementById('result').textContent = qrCode;
+
+                                            // } else {
+                                            //     document.getElementById('result').textContent = "Scanning cancelled or failed";
+                                            //     document.getElementById('result').style.color = '#ff0000'
+                                            // }
+                                            try {
+                                                console.log("QR Code Scan Callback Invoked");
+                                                if (qrCode) {
+                                                    tg.closeScanQrPopup();
+                                                    tg.showAlert("Scan Done!");
+                                                    console.log("Scanned QR Code:", qrCode); // Debugging output
+                                                    alert("Scanned QR Code: " + qrCode);
+
+                                                    // Parse the QR code content
+                                                    let qrData;
+                                                    try {
+                                                        qrData = JSON.parse(qrCode);
+                                                    } catch (error) {
+                                                        console.error("Error parsing QR code content:", error);
+                                                        document.getElementById('result').textContent = "Error parsing QR code content: " + error.message;
+                                                        document.getElementById('result').style.color = '#ff0000';
+                                                        return;
+                                                    }
+
+                                                    // Check if the required fields are present
+                                                    if (qrData.ssid && qrData.dssid && qrData.ip && qrData.gps && qrData.branch && qrData.branch_id) {
+                                                        document.getElementById('result').textContent = `SSID: ${qrData.ssid}, DSSID: ${qrData.dssid}, IP: ${qrData.ip}, GPS: ${qrData.gps}, Branch: ${qrData.branch}, Branch ID: ${qrData.branch_id}`;
+                                                        document.getElementById('result').style.display = 'block';
+                                                        document.getElementById('result').style.color = '#000000'; // Set text color to black
+                                                    } else {
+                                                        document.getElementById('result').textContent = "QR code content is missing required fields";
+                                                        document.getElementById('result').style.color = '#ff0000';
+                                                    }
+                                                } else {
+                                                    document.getElementById('result').textContent = "Scanning cancelled or failed";
+                                                    document.getElementById('result').style.color = '#ff0000';
+                                                }
+                                            } catch (error) {
+                                                console.error("Error during QR code scan:", error);
+                                                document.getElementById('result').textContent = "Error during QR code scan: " + error.message;
+                                                document.getElementById('result').style.color = '#ff0000';
                                             }
                                         });
                                     } else {
