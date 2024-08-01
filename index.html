@@ -38,7 +38,9 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
+    <div id="qrcode">QR Code</div>
     <script>
+        const resultDiv = document.getElementById('qrcode');
         let tg = window.Telegram.WebApp;
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
@@ -270,24 +272,32 @@
                                 if (isPermitted) {
                                     if (typeof tg.showScanQrPopup === 'function') {
                                         tg.showScanQrPopup({
-                                            text: "Please scan a QR code"
+                                            text: "Please scan a QR code",
+                                            format: "QR_CODE",
                                         }, function (qrCode) {
-                                            const qrData = JSON.parse(qrCode.data);
-                                            document.getElementById('result').textContent = qrData;
                                             tg.closeScanQrPopup();
+                                            tg.showAlert("Scan Done!");
+                                            const scannedData = JSON.parse(qrCode);
+                                            resultDiv.innerHTML = `
+                        <p>SSID: ${scannedData.ssid}</p>
+                        <p>DSSID: ${scannedData.dssid}</p>
+                        <p>IP: ${scannedData.ip}</p>
+                        <p>GPS: ${scannedData.gps}</p>
+                        <p>Branch: ${scannedData.branch}</p>
+                        <p>Branch ID: ${scannedData.branch_id}</p>
+                    `;
                                             // if (qrCode) {
                                             //     tg.closeScanQrPopup();
                                             //     tg.showAlert("Scan Done!");
                                             //     alert("Scanned QR Code:", qrCode); // Debugging output
                                             //     document.getElementById('result').textContent = qrCode;
-
                                             // } else {
                                             //     document.getElementById('result').textContent = "Scanning cancelled or failed";
                                             //     document.getElementById('result').style.color = '#ff0000'
                                             // }
-
                                         });
                                     } else {
+                                        resultDiv.innerHTML = `<p>Error: ${error}</p>`;
                                         document.getElementById('result').textContent = "QR scanner not available";
                                         document.getElementById('result').style.color = '#ff0000'
                                     }
@@ -295,10 +305,8 @@
                             });
                         }
                     })
-
                 }
             });
-
         }
 
         function sendToTelegramGroup(userInfo) {
@@ -326,7 +334,6 @@
 *Time :* ${timeString}
         `;
             const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-
             fetch(url, {
                 method: 'POST',
                 headers: {
