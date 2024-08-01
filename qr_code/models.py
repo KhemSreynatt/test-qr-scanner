@@ -1,16 +1,19 @@
 from django.db import models
 
-class NetworkGPS(models.Model):
+class NetworkInfo(models.Model):
     ssid = models.CharField(max_length=50, null=False, blank=False)
+    dssid= models.CharField(max_length=50,null=False,blank=False)
     password = models.CharField(max_length=25, null=False, blank=False)
     ip=models.CharField(max_length=50, null=False, blank=False)
+    branch=models.CharField(max_length=50, null=False, blank=False)
+    branch_id=models.CharField(max_length=50, null=False, blank=False)
+    gps=models.CharField(max_length=100, null=False, blank=False)
 
     def __str__(self):
        return self.ssid
-
     class Meta:
         managed = False
-        db_table = 'network_gps'
+        db_table = 'network_info'
 
 
 class Attendances(models.Model):

@@ -8,46 +8,73 @@ from django.http import HttpResponse
 from django.utils import timezone
 from io import BytesIO
 from rest_framework import status
-from .serializers import NetworkGPSSerailizer, AttendanceSerailizer
-from .models import NetworkGPS, Attendances
+from .serializers import NetworkInfoSerailizer, AttendanceSerailizer
+from .models import NetworkInfo, Attendances
 from PIL import Image, ImageDraw, ImageFont
 from rest_framework.generics import ListAPIView
 from rest_framework.decorators import api_view
 import io
 # Network and GPS
-class NetworkGPSCreateView(ListAPIView):
-    queryset = NetworkGPS.objects.all()
-    serializer_class= NetworkGPSSerailizer
+class NetworkInfoCreateView(ListAPIView):
+    queryset = NetworkInfo.objects.all()
+    serializer_class= NetworkInfoSerailizer
 # dfdf
 @api_view(['POST'])
-def post_networkGps(request):
-    if request.method=="POST":
-        serializer = NetworkGPSSerailizer(data= request.data)
+def post_NetworkInfo(request):
+    if request.method == "POST":
+        ssid = request.data.get('ssid')
+        dssid= request.data.get('dssid')
+        password = request.data.get('password')
+        ip= request.data.get('ip')
+        gps= request.data.get('gps')
+        branch= request.data.get('branch')
+        branch_id=request.data.get('branch_id')
+        # Check for duplicates
+        if NetworkInfo.objects.filter(ssid=ssid, dssid=dssid, gps=gps, ip=ip).exists():
+            return Response({"error": "A record with the same ssid, dssid, and gps already exists."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # If no duplicates, proceed with saving
+        serializer = NetworkInfoSerailizer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            qr_data = {"ssid": f'{ssid}',"password":f"{password}","ip":f"{ip}","gps":f"{gps}", "branch": f"{branch}","dssid": f"{dssid}","branch_id": f"{branch_id}"}
+            qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=8,
+            border=5,
+            )
+            qr.add_data(qr_data)
+            qr.make(fit=True)
+            img = qr.make_image(fill='black', back_color='white')
+            buf = io.BytesIO()
+            img.save(buf, format='PNG')
+            buf.seek(0)
+            return HttpResponse(buf, content_type="image/png")
+            # return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 @api_view(['PUT', 'PATCH'])
+
 def update_network_gps(request, id):
     try:
-        networkgps = NetworkGPS.objects.get(id=id)
-    except NetworkGPS.DoesNotExist:
+        NetworkInfo = NetworkInfo.objects.get(id=id)
+    except NetworkInfo.DoesNotExist:
         return Response({'error': 'Network IP and GPS not found'}, status=status.HTTP_404_NOT_FOUND)
     if request.method == 'PUT':
-        serializer = NetworkGPSSerailizer(networkgps, data=request.data)
+        serializer = NetworkInfoSerailizer(NetworkInfo, data=request.data)
     elif request.method == 'PATCH':
-        serializer = NetworkGPSSerailizer(networkgps, data=request.data, partial=True)
+        serializer = NetworkInfoSerailizer(NetworkInfo, data=request.data, partial=True)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['DELETE'])
-def delete_networkGps(request, id):
+def delete_NetworkInfo(request, id):
     try:
      
-        attendances = NetworkGPS.objects.filter(id=id)
+        attendances = NetworkInfo.objects.filter(id=id)
         if not attendances.exists():
             return Response({"detail": "No attendance records found for this user."}, status=status.HTTP_404_NOT_FOUND)
         attendances.delete()
