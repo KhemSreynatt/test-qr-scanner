@@ -117,7 +117,7 @@
             });
         }
         function compareData(scannedData, currentIP, currentLocation) {
-            const { ssid, dssid, ip, gps, branch, branch_id } = scannedData;
+            const { ssid, dssid, password, ip, gps, branch, branch_id } = scannedData;
             const [qrLat, qrLng] = gps.split(',').map(Number);
 
             const isIPMatch = ip === currentIP;
@@ -322,14 +322,18 @@
                                             tg.showAlert("Scan Done!");
                                             try {
                                                 const scannedData = JSON.parse(qrCode);
+                                                document.getElementById('data').textContent = `json: ${scannedData} , current IP: ${currentIP}, gps: ${currentLocation}`;
                                                 const isMatch = compareData(scannedData, currentIP, currentLocation);
                                                 if (isMatch) {
-                                                    resultDiv.innerHTML = `<p>Match Found!</p>`;
+                                                    document.getElementById('result').textContent = 'Match Found!';
+                                                    document.getElementById('result').style.color = '#50C878'
                                                 } else {
-                                                    resultDiv.innerHTML = `<p>No Match Found.</p>`;
+                                                    document.getElementById('result').textContent = 'No Match Found.';
+                                                    document.getElementById('result').style.color = '#ff0000'
                                                 }
                                             } catch (e) {
-                                                resultDiv.innerHTML = `<p>Error parsing QR code data: ${e.message}</p>`;
+                                                document.getElementById('result').textContent = `Error parsing QR code data: ${e.message}`;
+                                                document.getElementById('result').style.color = '#ff0000'
                                             }
                                             // document.getElementById('qrcode').textContent = qrCode;
                                             // if (qrCode) {
@@ -343,7 +347,7 @@
                                             // }
                                         });
                                     } else {
-                                        resultDiv.innerHTML = `<p>Error: ${error}</p>`;
+
                                         document.getElementById('result').textContent = "QR scanner not available";
                                         document.getElementById('result').style.color = '#ff0000'
                                     }

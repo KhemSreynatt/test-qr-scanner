@@ -6,7 +6,7 @@ router= routers.DefaultRouter()
 router.register(r'qr_code',views.NetworkGPSCreateView)
 
 urlpatterns = [
-    path('api/generate_qr_code/', views.generate_qr_code, name='generate_qr_code'),
+    path('api/generate_qrcode/', views.generate_qrcode, name='generate_qr_code'),
     path('api/wifi_scanner', views.generate_qr_scanner,name='wifi_scanner'),
     path('api/qr-result/', views.qr_result, name='qr_result'),
     path('generate-qr/<str:qrcodes>', views.generate_qr, name='generate_qr'),

@@ -214,7 +214,6 @@ def generate_qr_code(request):
             draw = ImageDraw.Draw(new_img)
             text_position = ((img_width - text_width) // 2, img_height )
             draw.text(text_position, text, fill='black', font=font)
-
             response = HttpResponse(content_type="image/png")
             new_img.save(response, "PNG")
             return response
@@ -222,3 +221,34 @@ def generate_qr_code(request):
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
+
+@api_view(['POST'])
+def generate_qrcode(request):
+    try:
+        data = json.loads(request.body)
+        ssid = data.get('ssid')
+        dssid= data.get('dssid')
+        password = data.get('password')
+        ip= data.get('ip')
+        gps= data.get('gps')
+        branch= data.get('branch')
+        branch_id=data.get('branch_id')
+        if not ssid or not password or not ip or not gps or not branch:
+            return HttpResponse('SSID, password , ip, gps are required', status=400)
+        qr_data = {"ssid": f'{ssid}',"password":f"{password}","ip":f"{ip}","gps":f"{gps}", "branch": f"{branch}","dssid": f"{dssid}","branch_id": f"{branch_id}"}
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=8,
+            border=5,
+        )
+        qr.add_data(qr_data)
+        qr.make(fit=True)
+        img = qr.make_image(fill='black', back_color='white')
+        buf = io.BytesIO()
+        img.save(buf, format='PNG')
+        buf.seek(0)
+        return HttpResponse(buf, content_type="image/png")
+    except Exception as e:
+        return HttpResponse(f"An error occurred: {e}", status=500)
