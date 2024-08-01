@@ -38,8 +38,6 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
-    <div id="qrcode">QR Code</div>
-    <div id="data">Data for Compare</div>
     <script>
 
         let tg = window.Telegram.WebApp;
@@ -203,12 +201,10 @@
             const φ2 = lat2 * Math.PI / 180;
             const Δφ = (lat2 - lat1) * Math.PI / 180;
             const Δλ = (lon2 - lon1) * Math.PI / 180;
-
             const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
                 Math.cos(φ1) * Math.cos(φ2) *
                 Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
             return R * c;
         }
         function checkLocationPermission(callback) {
@@ -283,52 +279,52 @@
                 })
         }
 
-        function checkUserPermission(callback) {
-            const userId = tg.initDataUnsafe?.user?.id;
-            if (!userId) {
-                document.getElementById('result').textContent = `Unable to get user ID`;
-                document.getElementById('result').style.color = '#ff0000'
-                callback(false);
-                return;
-            }
-            if (authorizedUsers.includes(userId)) {
-                callback(true);
-            } else {
-                document.getElementById('result').textContent = `You don't have permission to scan. Please contact the administrator.`;
-                document.getElementById('result').style.color = '#ff0000'
-                callback(false);
-            }
-        }
-        function checkValidQR(qrCode) {
-            const resultQR = valueQRCode.includes(qrCode);
-            if (!resultQR) {
-                tg.closeScanQrPopup();
-                tg.showAlert(`Invalid your QR code! ${qrCode}`);
-                document.getElementById('result').textContent = 'Invalid your QR code!'
-                document.getElementById('result').style.color = '#ff0000'
-            } else {
-                collectUserInfo(qrCode);
-                document.getElementById('result').textContent = 'Success for scanning!'
-                document.getElementById('result').style.color = '#FFFFFF'
-                document.getElementById('result').style.backgroundColor = '#4cbb17'
-                tg.closeScanQrPopup();
-                tg.showAlert("Scan Done!");
-                return resultQR
-            }
-        }
-        function parseQRData(qrContent) {
-            try {
-                const data = JSON.parse(qrContent);
-                tg.closeScanQrPopup();
-                document.getElementById('result').textContent = data;
-                return data;
-            } catch (error) {
-                tg.closeScanQrPopup();
-                document.getElementById('result').textContent = 'Error parsing QR code content:'
+        // function checkUserPermission(callback) {
+        //     const userId = tg.initDataUnsafe?.user?.id;
+        //     if (!userId) {
+        //         document.getElementById('result').textContent = `Unable to get user ID`;
+        //         document.getElementById('result').style.color = '#ff0000'
+        //         callback(false);
+        //         return;
+        //     }
+        //     if (authorizedUsers.includes(userId)) {
+        //         callback(true);
+        //     } else {
+        //         document.getElementById('result').textContent = `You don't have permission to scan. Please contact the administrator.`;
+        //         document.getElementById('result').style.color = '#ff0000'
+        //         callback(false);
+        //     }
+        // }
+        // function checkValidQR(qrCode) {
+        //     const resultQR = valueQRCode.includes(qrCode);
+        //     if (!resultQR) {
+        //         tg.closeScanQrPopup();
+        //         tg.showAlert(`Invalid your QR code! ${qrCode}`);
+        //         document.getElementById('result').textContent = 'Invalid your QR code!'
+        //         document.getElementById('result').style.color = '#ff0000'
+        //     } else {
+        //         collectUserInfo(qrCode);
+        //         document.getElementById('result').textContent = 'Success for scanning!'
+        //         document.getElementById('result').style.color = '#FFFFFF'
+        //         document.getElementById('result').style.backgroundColor = '#4cbb17'
+        //         tg.closeScanQrPopup();
+        //         tg.showAlert("Scan Done!");
+        //         return resultQR
+        //     }
+        // }
+        // function parseQRData(qrContent) {
+        //     try {
+        //         const data = JSON.parse(qrContent);
+        //         tg.closeScanQrPopup();
+        //         document.getElementById('result').textContent = data;
+        //         return data;
+        //     } catch (error) {
+        //         tg.closeScanQrPopup();
+        //         document.getElementById('result').textContent = 'Error parsing QR code content:'
 
-                return null;
-            }
-        }
+        //         return null;
+        //     }
+        // }
         async function scanQRCode() {
             const currentIP = await getIpFromApi();
             const currentLocation = await getUserLocation();
@@ -347,10 +343,10 @@
                                             try {
                                                 const formattedQrCode = qrCode.replace(/'/g, '"');
                                                 const scannedData = JSON.parse(formattedQrCode);
-                                                document.getElementById('data').textContent = `json: ${scannedData} , current IP: ${currentIP}, gps: ${currentLocation.latitude},${currentLocation.longitude}`;
                                                 const isMatch = compareData(scannedData, currentIP, currentLocation);
                                                 if (isMatch) {
-                                                    document.getElementById('result').textContent = 'Match Found!';
+                                                    collectUserInfo(qrCode);
+                                                    document.getElementById('result').textContent = 'Success for scanning!';
                                                     document.getElementById('result').style.color = '#50C878'
                                                 } else {
                                                     document.getElementById('result').textContent = 'No Match Found.';
