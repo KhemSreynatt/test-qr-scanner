@@ -273,10 +273,9 @@
                                     if (typeof tg.showScanQrPopup === 'function') {
                                         tg.showScanQrPopup({
                                             text: "Please scan a QR code",
-                                            format: "QR_CODE",
                                         }, function (qrCode) {
                                             tg.closeScanQrPopup();
-                                            tg.showAlert("Scan Done!");
+                                            tg.showAlert("Scan Done!", qrCode);
                                             const scannedData = JSON.parse(qrCode);
                                             resultDiv.innerHTML = `
                         <p>SSID: ${scannedData.ssid}</p>
