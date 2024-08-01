@@ -61,7 +61,7 @@
                 dssid: "123456",
                 password: '12345678',
                 ip: "203.217.168.61",
-                gps: '11.55613804,104.921800',
+                gps: '11.556330952721005, 104.9217849523827',
                 branch: "SI.Group HQ",
                 branch_id: '1000'
             },
@@ -120,7 +120,6 @@
         function haversineDistance(lat1, lon1, lat2, lon2) {
             const toRadians = (degree) => degree * (Math.PI / 180);
             const R = 6371e3; // Earth radius in meters
-
             const φ1 = toRadians(lat1);
             const φ2 = toRadians(lat2);
             const Δφ = toRadians(lat2 - lat1);
@@ -130,7 +129,6 @@
                 Math.cos(φ1) * Math.cos(φ2) *
                 Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
             return R * c; // Distance in meters
         }
         function compareData(scannedData, currentIP, currentLocation) {
@@ -145,15 +143,15 @@
                 const isIPMatch = ip === scannedData.ip;
                 const isBranchMatch = branch === scannedData.branch;
                 const isBranchIdMatch = branch_id === scannedData.branch_id;
-                const distance = haversineDistance(qrLat, qrLng, currentLocation.latitude, currentLocation.longitude);
-                const isGPSMatch = distance <= 100; // Check if within 100 meters
+                const distanceToQrLocation = haversineDistance(scannedLat, scannedLng, currentLocation.latitude, currentLocation.longitude);
+                const distanceToItemLocation = haversineDistance(qrLat, qrLng, currentLocation.latitude, currentLocation.longitude);
+                const isGPSMatch = distanceToQrLocation <= 100 && distanceToItemLocation <= 100; // Check if within 100 meters
                 if (isSSIDMatch && isDSSIDMatch && isPasswordMatch && isIPMatch && isBranchMatch && isBranchIdMatch && isGPSMatch) {
                     return wifiInfo; // Return the matching wifi info
                 }
             }
             return null; // No match found
         }
-
 
         async function validateWifiInfo(ipAddress) {
             const matchingWifi = wifiInfoList.find(wifi =>
