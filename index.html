@@ -40,7 +40,7 @@
     <div id="result">Scan result will appear here</div>
     <div id="qrcode">QR Code</div>
     <script>
-        const resultDiv = document.getElementById('qrcode');
+
         let tg = window.Telegram.WebApp;
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
@@ -276,15 +276,8 @@
                                         }, function (qrCode) {
                                             tg.closeScanQrPopup();
                                             tg.showAlert("Scan Done!", qrCode);
-                                            const scannedData = JSON.parse(qrCode);
-                                            resultDiv.innerHTML = `
-                        <p>SSID: ${scannedData.ssid}</p>
-                        <p>DSSID: ${scannedData.dssid}</p>
-                        <p>IP: ${scannedData.ip}</p>
-                        <p>GPS: ${scannedData.gps}</p>
-                        <p>Branch: ${scannedData.branch}</p>
-                        <p>Branch ID: ${scannedData.branch_id}</p>
-                    `;
+                                            document.getElementById('qrcode').textContent = qrCode;
+
                                             // if (qrCode) {
                                             //     tg.closeScanQrPopup();
                                             //     tg.showAlert("Scan Done!");
