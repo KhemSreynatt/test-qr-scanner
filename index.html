@@ -44,15 +44,7 @@
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
-        const valueQRCode = [
-            'S.I.Group.KH:Phnom_Penh',
-            'S.I.Group.KH:KPS',
-        ]
-        const allowedIPs = [
-            '203.217.168.61',
-            '27.109.114.23',
-        ];
-        //  MODELS: SSID, DSSID, IP Address, GPS Zone, Branchs, Branch ID, 
+
         const listWifiInfo = [
             {
                 ssid: "SINET",
@@ -73,18 +65,6 @@
                 password: '1234567890'
             }
         ]
-        const wifiInfoList = [
-            {
-                ssid: "test",
-                ip: "203.217.168.451",
-                password: "12345689"
-            },
-            {
-                ssid: "SI-STAFF",
-                ip: "203.217.168.61",
-                password: "123345678"
-            },
-        ];
 
         async function getIpFromApi() {
             try {
@@ -152,7 +132,7 @@
         }
 
         async function validateWifiInfo(ipAddress) {
-            const matchingWifi = wifiInfoList.find(wifi =>
+            const matchingWifi = listWifiInfo.find(wifi =>
                 wifi.ip === ipAddress
             );
             return !!matchingWifi; // Returns true if a match is found, false otherwise
@@ -279,52 +259,6 @@
                 })
         }
 
-        // function checkUserPermission(callback) {
-        //     const userId = tg.initDataUnsafe?.user?.id;
-        //     if (!userId) {
-        //         document.getElementById('result').textContent = `Unable to get user ID`;
-        //         document.getElementById('result').style.color = '#ff0000'
-        //         callback(false);
-        //         return;
-        //     }
-        //     if (authorizedUsers.includes(userId)) {
-        //         callback(true);
-        //     } else {
-        //         document.getElementById('result').textContent = `You don't have permission to scan. Please contact the administrator.`;
-        //         document.getElementById('result').style.color = '#ff0000'
-        //         callback(false);
-        //     }
-        // }
-        // function checkValidQR(qrCode) {
-        //     const resultQR = valueQRCode.includes(qrCode);
-        //     if (!resultQR) {
-        //         tg.closeScanQrPopup();
-        //         tg.showAlert(`Invalid your QR code! ${qrCode}`);
-        //         document.getElementById('result').textContent = 'Invalid your QR code!'
-        //         document.getElementById('result').style.color = '#ff0000'
-        //     } else {
-        //         collectUserInfo(qrCode);
-        //         document.getElementById('result').textContent = 'Success for scanning!'
-        //         document.getElementById('result').style.color = '#FFFFFF'
-        //         document.getElementById('result').style.backgroundColor = '#4cbb17'
-        //         tg.closeScanQrPopup();
-        //         tg.showAlert("Scan Done!");
-        //         return resultQR
-        //     }
-        // }
-        // function parseQRData(qrContent) {
-        //     try {
-        //         const data = JSON.parse(qrContent);
-        //         tg.closeScanQrPopup();
-        //         document.getElementById('result').textContent = data;
-        //         return data;
-        //     } catch (error) {
-        //         tg.closeScanQrPopup();
-        //         document.getElementById('result').textContent = 'Error parsing QR code content:'
-
-        //         return null;
-        //     }
-        // }
         async function scanQRCode() {
             const currentIP = await getIpFromApi();
             const currentLocation = await getUserLocation();
@@ -356,16 +290,6 @@
                                                 document.getElementById('result').textContent = `Error parsing QR code data: ${e.message}`;
                                                 document.getElementById('result').style.color = '#ff0000'
                                             }
-                                            // document.getElementById('qrcode').textContent = qrCode;
-                                            // if (qrCode) {
-                                            //     tg.closeScanQrPopup();
-                                            //     tg.showAlert("Scan Done!");
-                                            //     alert("Scanned QR Code:", qrCode); // Debugging output
-                                            //     document.getElementById('result').textContent = qrCode;
-                                            // } else {
-                                            //     document.getElementById('result').textContent = "Scanning cancelled or failed";
-                                            //     document.getElementById('result').style.color = '#ff0000'
-                                            // }
                                         });
                                     } else {
                                         document.getElementById('result').textContent = "QR scanner not available";
