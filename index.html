@@ -347,7 +347,7 @@
                                             try {
                                                 const formattedQrCode = qrCode.replace(/'/g, '"');
                                                 const scannedData = JSON.parse(formattedQrCode);
-                                                document.getElementById('data').textContent = `json: ${scannedData} , current IP: ${currentIP}, gps: ${currentLocation}`;
+                                                document.getElementById('data').textContent = `json: ${scannedData} , current IP: ${currentIP}, gps: ${currentLocation.latitude},${currentLocation.longitude}`;
                                                 const isMatch = compareData(scannedData, currentIP, currentLocation);
                                                 if (isMatch) {
                                                     document.getElementById('result').textContent = 'Match Found!';
