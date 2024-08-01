@@ -57,13 +57,13 @@
         //  MODELS: SSID, DSSID, IP Address, GPS Zone, Branchs, Branch ID, 
         const listWifiInfo = [
             {
-                ssid: "test",
-                dssid: "123",
-                ip: "192.168.0",
+                ssid: "SINET",
+                dssid: "123456",
+                password: '12345678',
+                ip: "203.217.168.61",
                 gps: '11.55613804,104.921800',
                 branch: "SI.Group HQ",
-                branch_id: '1000',
-                password: '12345678'
+                branch_id: '1000'
             },
             {
                 ssid: "home",
@@ -117,18 +117,43 @@
                 }
             });
         }
-        function compareData(scannedData, currentIP, currentLocation) {
-            const { ssid, dssid, password, ip, gps, branch, branch_id } = scannedData;
-            const [qrLat, qrLng] = gps.split(',').map(Number);
+        function haversineDistance(lat1, lon1, lat2, lon2) {
+            const toRadians = (degree) => degree * (Math.PI / 180);
+            const R = 6371e3; // Earth radius in meters
 
-            const isIPMatch = ip === currentIP;
-            const isGPSMatch = (
-                Math.abs(qrLat - currentLocation.latitude) < 0.01 &&
-                Math.abs(qrLng - currentLocation.longitude) < 0.01
-            );
+            const φ1 = toRadians(lat1);
+            const φ2 = toRadians(lat2);
+            const Δφ = toRadians(lat2 - lat1);
+            const Δλ = toRadians(lon2 - lon1);
 
-            return isIPMatch && isGPSMatch;
+            const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                Math.cos(φ1) * Math.cos(φ2) *
+                Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            return R * c; // Distance in meters
         }
+        function compareData(scannedData, currentIP, currentLocation) {
+            for (const wifiInfo of listWifiInfo) {
+                const { ssid, dssid, password, ip, gps, branch, branch_id } = wifiInfo;
+                const [qrLat, qrLng] = gps.split(',').map(Number);
+                const [scannedLat, scannedLng] = scannedData.gps.split(',').map(Number);
+
+                const isSSIDMatch = ssid === scannedData.ssid;
+                const isDSSIDMatch = dssid === scannedData.dssid;
+                const isPasswordMatch = password === scannedData.password;
+                const isIPMatch = ip === scannedData.ip;
+                const isBranchMatch = branch === scannedData.branch;
+                const isBranchIdMatch = branch_id === scannedData.branch_id;
+                const distance = haversineDistance(qrLat, qrLng, currentLocation.latitude, currentLocation.longitude);
+                const isGPSMatch = distance <= 100; // Check if within 100 meters
+                if (isSSIDMatch && isDSSIDMatch && isPasswordMatch && isIPMatch && isBranchMatch && isBranchIdMatch && isGPSMatch) {
+                    return wifiInfo; // Return the matching wifi info
+                }
+            }
+            return null; // No match found
+        }
+
 
         async function validateWifiInfo(ipAddress) {
             const matchingWifi = wifiInfoList.find(wifi =>
@@ -349,7 +374,6 @@
                                             // }
                                         });
                                     } else {
-
                                         document.getElementById('result').textContent = "QR scanner not available";
                                         document.getElementById('result').style.color = '#ff0000'
                                     }
