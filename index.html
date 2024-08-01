@@ -322,7 +322,8 @@
                                             tg.closeScanQrPopup();
                                             tg.showAlert("Scan Done!");
                                             try {
-                                                const scannedData = JSON.parse(qrCode);
+                                                const formattedQrCode = qrCode.replace(/'/g, '"');
+                                                const scannedData = JSON.parse(formattedQrCode);
                                                 document.getElementById('data').textContent = `json: ${scannedData} , current IP: ${currentIP}, gps: ${currentLocation}`;
                                                 const isMatch = compareData(scannedData, currentIP, currentLocation);
                                                 if (isMatch) {
