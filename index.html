@@ -145,7 +145,7 @@
                 const isBranchIdMatch = branch_id === scannedData.branch_id;
                 const distanceToQrLocation = haversineDistance(scannedLat, scannedLng, currentLocation.latitude, currentLocation.longitude);
                 const distanceToItemLocation = haversineDistance(qrLat, qrLng, currentLocation.latitude, currentLocation.longitude);
-                const isGPSMatch = distanceToQrLocation <= 70 && distanceToItemLocation <= 70; // Check if within 100 meters
+                const isGPSMatch = distanceToQrLocation <= 60 && distanceToItemLocation <= 60; // Check if within 100 meters
                 if (isSSIDMatch && isDSSIDMatch && isPasswordMatch && isIPMatch && isBranchMatch && isBranchIdMatch && isGPSMatch) {
                     return wifiInfo; // Return the matching wifi info
                 }
