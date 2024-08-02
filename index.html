@@ -178,8 +178,9 @@
         }
         // Check Network
         async function checkAccess(callback) {
-            const userIP = await getIPv4FromApi();
-            const isValid = await validateWifiInfo(userIP);
+            const ipV4 = await getIPv4FromApi();
+            const ipV6 = await getIPv6FromApi();
+            const isValid = await validateWifiInfo(ipV4, ipV6);
             if (isValid) {
                 callback(true);
             } else {
@@ -298,7 +299,7 @@
                                                     document.getElementById('result').textContent = 'Success for scanning!';
                                                     document.getElementById('result').style.color = '#50C878'
                                                 } else {
-                                                    document.getElementById('result').textContent = 'No Match Found.';
+                                                    document.getElementById('result').textContent = 'Invalid for scanning, Please make sure follow permission !';
                                                     document.getElementById('result').style.color = '#ff0000'
                                                 }
                                             } catch (e) {
