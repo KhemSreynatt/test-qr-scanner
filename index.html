@@ -180,7 +180,9 @@
         async function checkAccess(callback) {
             const ipV4 = await getIPv4FromApi();
             const ipV6 = await getIPv6FromApi();
+            alert(`ipv4: ${ipV4}, ipv6: ${ipV6}`);
             const isValid = await validateWifiInfo(ipV4, ipV6);
+            alert(`validate Wifi Info : ${isValid} `);
             if (isValid) {
                 callback(true);
             } else {
