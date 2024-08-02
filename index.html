@@ -38,6 +38,99 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
+    <h1>Wi-Fi QR Code Scanner</h1>
+    <button onclick="handleWifiScan()">Scan Wi-Fi QR Code</button>
+    <div id="results">testing</div>
+
+    <script>
+        let tma = window.Telegram.WebApp;
+
+        function scanQRCode() {
+            return new Promise((resolve, reject) => {
+                tma.showScanQrPopup({
+                    text: "Please scan the Wi-Fi QR code"
+                }, (result) => {
+                    if (result) {
+                        resolve(result);
+                    } else {
+                        reject(new Error("QR scan cancelled or failed"));
+                    }
+                });
+            });
+        }
+
+        function parseWifiQR(qrData) {
+            const match = qrData.match(/WIFI:S:(.*?);T:(.*?);P:(.*?);;/);
+            if (match) {
+                return {
+                    ssid: match[1],
+                    type: match[2],
+                    password: match[3]
+                };
+            }
+            return null;
+        }
+
+        function getCurrentWifiInfo() {
+            return new Promise((resolve) => {
+                const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+                if (connection) {
+                    resolve({
+                        type: connection.type,
+                        effectiveType: connection.effectiveType
+                    });
+                } else {
+                    resolve(null);
+                }
+            });
+        }
+
+        async function handleWifiScan() {
+            const resultDiv = document.getElementById('results');
+            resultDiv.innerHTML = "Scanning...";
+
+            try {
+                const qrResult = await scanQRCode();
+                const wifiInfo = parseWifiQR(qrResult);
+
+                if (wifiInfo) {
+                    console.log("Scanned Wi-Fi Info:", wifiInfo);
+
+                    const currentConnection = await getCurrentWifiInfo();
+                    console.log("Current Connection:", currentConnection);
+
+                    let resultHTML = `
+                        <h3>Scanned Wi-Fi Information:</h3>
+                        <p>SSID: ${wifiInfo.ssid}</p>
+                        <p>Type: ${wifiInfo.type}</p>
+                        <p>Password: ${wifiInfo.password}</p>
+                    `;
+
+                    if (currentConnection) {
+                        resultHTML += `
+                            <h3>Current Connection:</h3>
+                            <p>Type: ${currentConnection.type}</p>
+                            <p>Effective Type: ${currentConnection.effectiveType}</p>
+                        `;
+                    }
+
+                    resultHTML += `
+                        <p><strong>Please connect to this Wi-Fi network manually using the provided information.</strong></p>
+                    `;
+
+                    resultDiv.innerHTML = resultHTML;
+                } else {
+                    resultDiv.innerHTML = "Invalid Wi-Fi QR code";
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                resultDiv.innerHTML = "Failed to scan QR code";
+            }
+        }
+
+        // Initialize Telegram Mini App
+        tg.expand();
+    </script>
     <script>
 
         let tg = window.Telegram.WebApp;
@@ -48,7 +141,7 @@
         const listWifiInfo = [
             {
                 ssid: "SINET",
-                dssid: "1234567890",
+                bssid: "1234567890",
                 password: '12345678',
                 ipv4: "203.217.168.61",
                 ipv6: "2404:b300:12:80::b7",
@@ -289,7 +382,6 @@
                                             text: "Please scan a QR code",
                                         }, function (qrCode) {
                                             tg.closeScanQrPopup();
-
                                             try {
                                                 const formattedQrCode = qrCode.replace(/'/g, '"');
                                                 const scannedData = JSON.parse(formattedQrCode);
