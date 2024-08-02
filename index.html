@@ -289,16 +289,18 @@
                                             text: "Please scan a QR code",
                                         }, function (qrCode) {
                                             tg.closeScanQrPopup();
-                                            tg.showAlert("Scan Done!");
+
                                             try {
                                                 const formattedQrCode = qrCode.replace(/'/g, '"');
                                                 const scannedData = JSON.parse(formattedQrCode);
                                                 const isMatch = compareData(scannedData, currentLocation);
                                                 if (isMatch) {
                                                     collectUserInfo(qrCode);
+                                                    tg.showAlert("Scan Done!");
                                                     document.getElementById('result').textContent = 'Success for scanning!';
                                                     document.getElementById('result').style.color = '#50C878'
                                                 } else {
+                                                    tg.showAlert("Ivalid for Scanning !");
                                                     document.getElementById('result').textContent = 'Invalid for scanning, Please make sure follow permission !';
                                                     document.getElementById('result').style.color = '#ff0000'
                                                 }
