@@ -48,27 +48,39 @@
         const listWifiInfo = [
             {
                 ssid: "SINET",
-                dssid: "123456",
+                dssid: "1234567890",
                 password: '12345678',
-                ip: "203.217.168.61",
+                ipv4: "203.217.168.61",
+                ipv6: "2404:b300:12:9::12",
                 gps: '11.556330952721005, 104.9217849523827',
                 branch: "SI.Group HQ",
                 branch_id: '1000'
             },
             {
-                ssid: "home",
-                dssid: "123",
-                ip: "192.168.01",
-                gps: '11.556138041,104.9218001',
-                branch: "SI.Group",
-                branch_id: '1001',
-                password: '1234567890'
+                ssid: "SINET_HOME",
+                dssid: "1234567890",
+                password: '1234567890',
+                ipv4: "203.217.168.45",
+                ipv6: "2404:b300:12:80::b7",
+                gps: '11.556249586635088, 104.92181846761173',
+                branch: "SI.Group KPS",
+                branch_id: '1001'
             }
         ]
 
-        async function getIpFromApi() {
+        async function getIPv4FromApi() {
             try {
                 const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
+            } catch (error) {
+                console.error('Error fetching IP:', error);
+                return null;
+            }
+        }
+        async function getIPv6FromApi() {
+            try {
+                const response = await fetch('https://api64.ipify.org/?format=json');
                 const data = await response.json();
                 return data.ip;
             } catch (error) {
@@ -109,31 +121,33 @@
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             return R * c; // Distance in meters
         }
-        function compareData(scannedData, currentIP, currentLocation) {
+        function compareData(scannedData, currentLocation) {
             for (const wifiInfo of listWifiInfo) {
-                const { ssid, dssid, password, ip, gps, branch, branch_id } = wifiInfo;
+                const { ssid, dssid, password, ipv4, ipv6, gps, branch, branch_id } = wifiInfo;
                 const [qrLat, qrLng] = gps.split(',').map(Number);
                 const [scannedLat, scannedLng] = scannedData.gps.split(',').map(Number);
 
                 const isSSIDMatch = ssid === scannedData.ssid;
                 const isDSSIDMatch = dssid === scannedData.dssid;
                 const isPasswordMatch = password === scannedData.password;
-                const isIPMatch = ip === scannedData.ip;
+                const isIPv4Match = ipv4 === scannedData.ipv4;
+                const isIPv6Match = ipv6 === scannedData.ipv6;
                 const isBranchMatch = branch === scannedData.branch;
                 const isBranchIdMatch = branch_id === scannedData.branch_id;
                 const distanceToQrLocation = haversineDistance(scannedLat, scannedLng, currentLocation.latitude, currentLocation.longitude);
                 const distanceToItemLocation = haversineDistance(qrLat, qrLng, currentLocation.latitude, currentLocation.longitude);
                 const isGPSMatch = distanceToQrLocation <= 60 && distanceToItemLocation <= 60; // Check if within 100 meters
-                if (isSSIDMatch && isDSSIDMatch && isPasswordMatch && isIPMatch && isBranchMatch && isBranchIdMatch && isGPSMatch) {
+                if (isSSIDMatch && isDSSIDMatch && isPasswordMatch && isIPv4Match && isIPv6Match && isBranchMatch && isBranchIdMatch && isGPSMatch) {
                     return wifiInfo; // Return the matching wifi info
                 }
             }
             return null; // No match found
         }
 
-        async function validateWifiInfo(ipAddress) {
+        async function validateWifiInfo(iPv4Address, iPv6Address) {
             const matchingWifi = listWifiInfo.find(wifi =>
-                wifi.ip === ipAddress
+                wifi.ipv4 === iPv4Address &&
+                wifi.ipv6 === iPv6Address,
             );
             return !!matchingWifi; // Returns true if a match is found, false otherwise
         }
@@ -164,7 +178,7 @@
         }
         // Check Network
         async function checkAccess(callback) {
-            const userIP = await getIpFromApi();
+            const userIP = await getIPv4FromApi();
             const isValid = await validateWifiInfo(userIP);
             if (isValid) {
                 callback(true);
@@ -260,7 +274,8 @@
         }
 
         async function scanQRCode() {
-            const currentIP = await getIpFromApi();
+            // const currentIPv4 = await getIPv4FromApi();
+            // const currentIPv6 = await getIPv6FromApi();
             const currentLocation = await getUserLocation();
             checkAccess((isAllowedIP) => {
                 if (isAllowedIP) {
@@ -277,7 +292,7 @@
                                             try {
                                                 const formattedQrCode = qrCode.replace(/'/g, '"');
                                                 const scannedData = JSON.parse(formattedQrCode);
-                                                const isMatch = compareData(scannedData, currentIP, currentLocation);
+                                                const isMatch = compareData(scannedData, currentLocation);
                                                 if (isMatch) {
                                                     collectUserInfo(qrCode);
                                                     document.getElementById('result').textContent = 'Success for scanning!';
