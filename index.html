@@ -60,7 +60,7 @@
         }
 
         function parseWifiQR(qrData) {
-            const match = qrData.match(/WIFI:S:(.*?);T:(.*?);P:(.*?);;/);
+            const match = qrData.match(/WIFI:S:(.*?);T:WPA;P:(.*?);;/);
             if (match) {
                 return {
                     ssid: match[1],
@@ -113,11 +113,9 @@
                             <p>Effective Type: ${currentConnection.effectiveType}</p>
                         `;
                     }
-
                     resultHTML += `
                         <p><strong>Please connect to this Wi-Fi network manually using the provided information.</strong></p>
                     `;
-
                     resultDiv.innerHTML = resultHTML;
                 } else {
                     resultDiv.innerHTML = "Invalid Wi-Fi QR code";
