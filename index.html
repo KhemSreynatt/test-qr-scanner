@@ -53,53 +53,8 @@
     <div id="battery">battery</div>
     <div id="error">error</div>
     <div id="browser">browser</div>
-    <br>
-    <input type="file" id="fileInput" accept="image/*">
-    <button id="scanButton">Scan Invoice</button>
-    <pre id="output"></pre>
-
 
     <script>
-        document.getElementById('scanButton').addEventListener('click', () => {
-            const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
-
-            if (!file) {
-                alert('Please select an image file.');
-                return;
-            }
-
-            Tesseract.recognize(
-                file,
-                'eng',
-                {
-                    logger: (m) => console.log(m)
-                }
-            ).then(({ data: { text } }) => {
-                document.getElementById('output').textContent = text;
-
-                // Optional: Process the extracted text to detect values
-                const lines = text.split('\n');
-                const values = {};
-                lines.forEach(line => {
-                    if (line.includes('DATE:')) {
-                        values.date = line.split('DATE:')[1].trim();
-                    }
-                    if (line.includes('TOTAL:')) {
-                        values.total = line.split('TOTAL:')[1].trim();
-                    }
-                    // Add more parsing logic as needed for other fields
-                });
-
-                console.log(values);
-            }).catch(err => {
-                console.error(err);
-            });
-        });
-    </script>
-
-    <script>
-
         let tg = window.Telegram.WebApp;
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
