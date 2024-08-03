@@ -13,6 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Load Babel to enable JSX syntax in the browser -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -52,7 +53,62 @@
     <div id="battery">battery</div>
     <div id="error">error</div>
     <div id="browser">browser</div>
+    <hr>
+    <button id="scanButton">Scan Invoice</button>
+    <input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none;">
+    <div id="results"></div>
+    <script>
+        const scanButton = document.getElementById('scanButton');
+        const fileInput = document.getElementById('fileInput');
+        const resultDiv = document.getElementById('results');
 
+        scanButton.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                performOCR(file);
+            }
+        });
+
+        function performOCR(file) {
+            Tesseract.recognize(file, 'eng')
+                .then(({ data: { text } }) => {
+                    parseInvoiceData(text);
+                })
+                .catch(error => {
+                    console.error('OCR Error:', error);
+                    resultDiv.textContent = 'Error processing image';
+                });
+        }
+        function parseInvoiceData(text) {
+            const lines = text.split('\n');
+            const result = {};
+
+            lines.forEach(line => {
+                if (line.includes('DATE:')) {
+                    result.date = line.split('DATE:')[1].trim();
+                } else if (line.includes('TOTAL')) {
+                    result.total = line.match(/\$\s*(\d+(\.\d{2})?)/)[1];
+                } else if (line.includes('TICKET NO')) {
+                    result.ticketNo = line.split(':')[1].trim();
+                }
+                // Add more parsing logic for other fields
+            });
+
+            displayResults(result);
+        }
+
+        function displayResults(data) {
+            resultDiv.innerHTML = `
+        <p>Date: ${data.date || 'Not found'}</p>
+        <p>Total: $${data.total || 'Not found'}</p>
+        <p>Ticket No: ${data.ticketNo || 'Not found'}</p>
+    `;
+        }
+    </script>
     <script>
 
         let tg = window.Telegram.WebApp;
