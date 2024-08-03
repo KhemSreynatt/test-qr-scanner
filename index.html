@@ -53,6 +53,29 @@
     <div id="battery">battery</div>
     <div id="error">error</div>
     <div id="browser">browser</div>
+    <h3>Check Bluetooth Status</h3>
+    <button id="checkBluetooth">Check Bluetooth</button>
+    <p id="status"></p>
+
+    <script>
+        document.getElementById('checkBluetooth').addEventListener('click', async () => {
+            const statusElement = document.getElementById('status');
+
+            if (!navigator.bluetooth) {
+                statusElement.textContent = "Bluetooth API not supported.";
+                return;
+            }
+
+            try {
+                const device = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true
+                });
+                statusElement.textContent = `Bluetooth device found: ${device.name}`;
+            } catch (error) {
+                statusElement.textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
 
     <script>
         let tg = window.Telegram.WebApp;
@@ -68,10 +91,8 @@
                         ],
                         optionalServices: ['battery_service']
                     });
-
                     console.log('Beacon detected:', device.name);
                     document.getElementById('device').textContent = device.name;
-
                     // Connect to the device
                     const server = await device.gatt.connect();
                     console.log('Connected to beacon');
