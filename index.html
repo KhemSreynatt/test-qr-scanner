@@ -55,73 +55,94 @@
     <div id="browser">browser</div>
     <br>
     <input type="file" id="fileInput" accept="image/*" style="display: none;">
-    <button id="scanButton">Scan Invoice</button>
-    <div id="result"></div>
-    <img id="imagePreview" src="" alt="Invoice preview" style="display: none;">
+    <div id="resultDiv"></div>
+
 
     <script>
-        let tma = window.Telegram.WebApp;
+        const fileInput = document.getElementById('fileInput');
+        const resultDiv = document.getElementById('resultDiv');
 
-        document.getElementById('scanButton').addEventListener('click', () => {
-            document.getElementById('fileInput').click();
-        });
-
-        document.getElementById('fileInput').addEventListener('change', handleImageUpload);
-
-        async function handleImageUpload(event) {
+        fileInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
             if (file) {
-                const imageUrl = URL.createObjectURL(file);
-                document.getElementById('imagePreview').src = imageUrl;
-                document.getElementById('imagePreview').style.display = 'block';
+                performOCR(file);
+            }
+        });
+        function preprocessImage(file) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
 
-                try {
-                    const extractedText = await performOCR(imageUrl);
-                    const invoiceData = extractInvoiceData(extractedText);
-                    displayResults(invoiceData);
-                } catch (error) {
-                    console.error('Error processing invoice:', error);
-                    document.getElementById('result').innerText = 'Error processing invoice. Please try again.';
-                }
+                    // Draw original image
+                    ctx.drawImage(img, 0, 0, img.width, img.height);
+
+                    // Get image data
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imageData.data;
+
+                    // Apply threshold
+                    for (let i = 0; i < data.length; i += 4) {
+                        const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                        const threshold = 128;
+                        const color = avg > threshold ? 255 : 0;
+                        data[i] = data[i + 1] = data[i + 2] = color;
+                    }
+
+                    // Put processed image back on canvas
+                    ctx.putImageData(imageData, 0, 0);
+
+                    // Convert canvas to blob
+                    canvas.toBlob(resolve, 'image/png');
+                };
+                img.onerror = reject;
+                img.src = URL.createObjectURL(file);
+            });
+        }
+        async function performOCR(file) {
+            try {
+                const processedImage = await preprocessImage(file);
+                const { data: { text } } = await Tesseract.recognize(processedImage, 'eng', {
+                    logger: m => console.log(m)
+                });
+                parseInvoiceData(text);
+            } catch (error) {
+                console.error('OCR Error:', error);
+                resultDiv.textContent = 'Error processing image';
             }
         }
+        function parseInvoiceData(text) {
+            const result = {};
+            const lines = text.split('\n');
 
-        async function performOCR(imageUrl) {
-            const worker = await Tesseract.createWorker();
-            await worker.loadLanguage('eng');
-            await worker.initialize('eng');
-            const { data: { text } } = await worker.recognize(imageUrl);
-            await worker.terminate();
-            return text;
+            for (let line of lines) {
+                line = line.trim().toLowerCase();
+
+                if (line.includes('date')) {
+                    result.date = line.split(/date:?\s*/i)[1];
+                } else if (line.includes('total')) {
+                    const match = line.match(/\$?\s*(\d+(\.\d{2})?)/);
+                    if (match) result.total = match[1];
+                } else if (line.includes('ticket') && line.includes('no')) {
+                    result.ticketNo = line.split(/no:?\s*/i)[1];
+                }
+                // Add more flexible parsing for other fields
+            }
+
+            displayResults(result);
         }
-
-        function extractInvoiceData(text) {
-            return {
-                date: text.match(/DATE:\s*(\d{2}\/\d{2}\/\d{4})/)?.[1] || 'Not found',
-                total: text.match(/TOTAL\s*\$?\s*(\d+\.?\d{2})/i)?.[1] || 'Not found',
-                clientName: text.match(/CLIENT:?\s*(.+)/i)?.[1] || 'Not found',
-                station: text.match(/STATION\/Term:(\d+\/\d+)/)?.[1] || 'Not found',
-                ticketNo: text.match(/TICKET NO\/SAM CHRONO:(\d+\/\d+)/)?.[1] || 'Not found',
-                plateNo: text.match(/PLATE NO\.?\s*:?\s*([A-Z0-9-]+)/i)?.[1] || 'Not found',
-            };
-        }
-
-        function displayResults(invoiceData) {
-            const resultDiv = document.getElementById('result');
+        function displayResults(data) {
             resultDiv.innerHTML = `
-                <h2>Invoice Details:</h2>
-                <p><strong>Date:</strong> ${invoiceData.date}</p>
-                <p><strong>Total:</strong> $${invoiceData.total}</p>
-                <p><strong>Client:</strong> ${invoiceData.clientName}</p>
-                <p><strong>Station/Term:</strong> ${invoiceData.station}</p>
-                <p><strong>Ticket No:</strong> ${invoiceData.ticketNo}</p>
-                <p><strong>Plate No:</strong> ${invoiceData.plateNo}</p>
-            `;
+        <p>Date: ${data.date || 'Not found'}</p>
+        <p>Total: $${data.total || 'Not found'}</p>
+        <p>Ticket No: ${data.ticketNo || 'Not found'}</p>
+    `;
         }
-
-        // Initialize Telegram Mini App
-        tma.expand();
     </script>
+
     <script>
 
         let tg = window.Telegram.WebApp;
