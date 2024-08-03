@@ -55,15 +55,26 @@
     <div id="browser">browser</div>
     <br>
     <input type="file" id="fileInput" accept="image/*" style="display: none;">
+    <button id="scanButton" disabled>Scan Invoice</button>
     <div id="resultDiv"></div>
 
 
     <script>
         const fileInput = document.getElementById('fileInput');
         const resultDiv = document.getElementById('resultDiv');
+        const scanButton = document.getElementById('scanButton');
 
         fileInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
+            if (file) {
+                previewImage.src = URL.createObjectURL(file);
+                previewImage.style.display = 'block';
+                scanButton.disabled = false;
+            }
+        });
+
+        scanButton.addEventListener('click', () => {
+            const file = fileInput.files[0];
             if (file) {
                 performOCR(file);
             }
