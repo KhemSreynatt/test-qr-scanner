@@ -39,77 +39,46 @@
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
     <h1>Wi-Fi QR Code Scanner</h1>
-    <button onclick="handleWifiScan()">Scan Wi-Fi QR Code</button>
-    <div id="results">testing</div>
+    <button onclick="detectBeacons()">Scan Wi-Fi QR Code</button>
 
-    <script>
-        let tma = window.Telegram.WebApp;
-
-        function scanQRCode() {
-            return new Promise((resolve, reject) => {
-                if (tma.WebApp.scan) {
-                    tma.WebApp.scan({
-                        text: "Please scan the Wi-Fi QR code"
-                    }, (qrData) => {
-                        if (qrData) {
-                            resolve(qrData);
-                        } else {
-                            reject(new Error("QR scan cancelled or failed"));
-                        }
-                    });
-                } else {
-                    reject(new Error("QR scanning not supported"));
-                }
-            });
-        }
-
-        function parseWifiQR(qrData) {
-            const match = qrData.match(/WIFI:S:(.*?);T:WPA;P:(.*?);;/);
-            if (match) {
-                return {
-                    ssid: match[1],
-                    password: match[3]
-                };
-            }
-            return null;
-        }
-
-        async function handleWifiScan() {
-            const resultDiv = document.getElementById('results');
-            resultDiv.innerHTML = "Initiating scan...";
-
-            try {
-                const qrResult = await scanQRCode();
-                const wifiInfo = parseWifiQR(qrResult);
-
-                if (wifiInfo) {
-                    let resultHTML = `
-                        <h3>Scanned Wi-Fi Information:</h3>
-                        <p>SSID: ${wifiInfo.ssid}</p>
-                        <p>Type: ${wifiInfo.type}</p>
-                        <p>Password: ${wifiInfo.password}</p>
-                        <p><strong>Please connect to this Wi-Fi network manually using the provided information.</strong></p>
-                    `;
-                    resultDiv.innerHTML = resultHTML;
-                } else {
-                    resultDiv.innerHTML = "Invalid Wi-Fi QR code";
-                }
-            } catch (error) {
-                console.error("Error:", error);
-                resultDiv.innerHTML = "Failed to scan QR code: " + error.message;
-            }
-        }
-
-        // Initialize Telegram Mini App
-        tg.expand();
-    </script>
     <script>
 
         let tg = window.Telegram.WebApp;
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
+        async function detectBeacons() {
+            if ('bluetooth' in navigator) {
+                try {
+                    const device = await navigator.bluetooth.requestDevice({
+                        filters: [
+                            { services: ['fe9a'] }  // Example UUID for iBeacon
+                        ],
+                        optionalServices: ['battery_service']
+                    });
 
+                    console.log('Beacon detected:', device.name);
+
+                    // Connect to the device
+                    const server = await device.gatt.connect();
+                    console.log('Connected to beacon');
+
+                    // You can now interact with the beacon, e.g., read its battery level
+                    const batteryService = await server.getPrimaryService('battery_service');
+                    const batteryLevel = await batteryService.getCharacteristic('battery_level');
+                    const value = await batteryLevel.readValue();
+                    console.log('Battery level:', value.getUint8(0));
+
+                } catch (error) {
+                    console.error('Bluetooth error:', error);
+                }
+            } else {
+                console.error('Web Bluetooth API is not supported in this browser');
+            }
+        }
+
+        // Call this function when you want to start detecting beacons
+        // detectBeacons();
         const listWifiInfo = [
             {
                 ssid: "SINET",
