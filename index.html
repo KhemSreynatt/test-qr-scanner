@@ -53,53 +53,44 @@
     <div id="battery">battery</div>
     <div id="error">error</div>
     <div id="browser">browser</div>
-    <hr>
+    <br>
+    <input type="file" id="fileInput" accept="image/*" style="display: none;">
     <button id="scanButton">Scan Invoice</button>
-    <input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none;">
-    <div id="results"></div>
+    <div id="result"></div>
+    <img id="imagePreview" src="" alt="Invoice preview" style="display: none;">
+
     <script>
         let tma = window.Telegram.WebApp;
 
-        document.getElementById('scanButton').addEventListener('click', scanInvoice);
+        document.getElementById('scanButton').addEventListener('click', () => {
+            document.getElementById('fileInput').click();
+        });
 
-        async function scanInvoice() {
-            try {
-                // 1. Capture image
-                const imageData = await captureImage();
+        document.getElementById('fileInput').addEventListener('change', handleImageUpload);
 
-                // 2. Perform OCR
-                const extractedText = await performOCR(imageData);
+        async function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const imageUrl = URL.createObjectURL(file);
+                document.getElementById('imagePreview').src = imageUrl;
+                document.getElementById('imagePreview').style.display = 'block';
 
-                // 3. Extract relevant information
-                const invoiceData = extractInvoiceData(extractedText);
-
-                // 4. Display results
-                displayResults(invoiceData);
-            } catch (error) {
-                console.error('Error scanning invoice:', error);
-                document.getElementById('results').innerText = 'Error scanning invoice. Please try again.';
+                try {
+                    const extractedText = await performOCR(imageUrl);
+                    const invoiceData = extractInvoiceData(extractedText);
+                    displayResults(invoiceData);
+                } catch (error) {
+                    console.error('Error processing invoice:', error);
+                    document.getElementById('result').innerText = 'Error processing invoice. Please try again.';
+                }
             }
         }
 
-        function captureImage() {
-            return new Promise((resolve, reject) => {
-                tma.showScanQrPopup({}, (qrResult) => {
-                    if (qrResult) {
-                        // This is a placeholder. In a real scenario, you'd need to
-                        // convert the QR result to an image for OCR processing.
-                        resolve(qrResult);
-                    } else {
-                        reject(new Error('Failed to capture image'));
-                    }
-                });
-            });
-        }
-
-        async function performOCR(imageData) {
+        async function performOCR(imageUrl) {
             const worker = await Tesseract.createWorker();
             await worker.loadLanguage('eng');
             await worker.initialize('eng');
-            const { data: { text } } = await worker.recognize(imageData);
+            const { data: { text } } = await worker.recognize(imageUrl);
             await worker.terminate();
             return text;
         }
@@ -107,19 +98,24 @@
         function extractInvoiceData(text) {
             return {
                 date: text.match(/DATE:\s*(\d{2}\/\d{2}\/\d{4})/)?.[1] || 'Not found',
-                total: text.match(/TOTAL\s*\$\s*(\d+\.\d{2})/)?.[1] || 'Not found',
-                clientName: text.match(/CLIENT:\s*(.+)/)?.[1] || 'Not found',
-                // Add more fields as needed
+                total: text.match(/TOTAL\s*\$?\s*(\d+\.?\d{2})/i)?.[1] || 'Not found',
+                clientName: text.match(/CLIENT:?\s*(.+)/i)?.[1] || 'Not found',
+                station: text.match(/STATION\/Term:(\d+\/\d+)/)?.[1] || 'Not found',
+                ticketNo: text.match(/TICKET NO\/SAM CHRONO:(\d+\/\d+)/)?.[1] || 'Not found',
+                plateNo: text.match(/PLATE NO\.?\s*:?\s*([A-Z0-9-]+)/i)?.[1] || 'Not found',
             };
         }
 
         function displayResults(invoiceData) {
-            const resultDiv = document.getElementById('results');
+            const resultDiv = document.getElementById('result');
             resultDiv.innerHTML = `
                 <h2>Invoice Details:</h2>
                 <p><strong>Date:</strong> ${invoiceData.date}</p>
                 <p><strong>Total:</strong> $${invoiceData.total}</p>
                 <p><strong>Client:</strong> ${invoiceData.clientName}</p>
+                <p><strong>Station/Term:</strong> ${invoiceData.station}</p>
+                <p><strong>Ticket No:</strong> ${invoiceData.ticketNo}</p>
+                <p><strong>Plate No:</strong> ${invoiceData.plateNo}</p>
             `;
         }
 
