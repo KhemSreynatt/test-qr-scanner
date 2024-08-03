@@ -32,6 +32,14 @@
             border-radius: 5px;
             background-color: white;
         }
+
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+        }
     </style>
 </head>
 
@@ -39,7 +47,7 @@
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
     <h1>Wi-Fi QR Code Scanner</h1>
-    <button onclick="detectBeacons()">Scan Wi-Fi QR Code</button>
+    <button onclick="  connectToBluetoothBeacon()">Bluetooth</button>
     <div id="device">device</div>
     <div id="battery">battery</div>
     <div id="error">error</div>
@@ -84,6 +92,46 @@
                 document.getElementById('browser').textContent = 'Web Bluetooth API is not supported in this browser';
             }
         }
+        // Function to request and connect to a Bluetooth device
+        async function connectToBluetoothBeacon() {
+            try {
+                // Check if the browser supports Web Bluetooth
+                if (!navigator.bluetooth) {
+                    document.getElementById('result').textContent = 'Web Bluetooth API is not available in this browser.';
+                    console.log('Web Bluetooth API is not available in this browser.');
+                    return;
+                }
+
+                // Request a Bluetooth device
+                const device = await navigator.bluetooth.requestDevice({
+                    filters: [{ services: ['battery_service'] }] // Example service
+                });
+
+                console.log('Device found:', device.name);
+                document.getElementById('device').textContent = device.name;
+
+                // Connect to the device
+                const server = await device.gatt.connect();
+                console.log('Connected to device:', device.name);
+                document.getElementById('device').textContent = `Connected to device:${device.name}`;
+
+                // Get the battery service (example)
+                const service = await server.getPrimaryService('battery_service');
+                const characteristic = await service.getCharacteristic('battery_level');
+
+                // Read the battery level
+                const value = await characteristic.readValue();
+                const batteryLevel = value.getUint8(0);
+                console.log('Battery level:', batteryLevel, '%');
+                document.getElementById('battery').textContent = `batteryLevel:${batteryLevel}`;
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('error').textContent = error;
+            }
+        }
+
+        // Call the function to connect to the Bluetooth beacon
 
         // Call this function when you want to start detecting beacons
         // detectBeacons();
