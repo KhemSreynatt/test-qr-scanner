@@ -40,6 +40,10 @@
     <div id="result">Scan result will appear here</div>
     <h1>Wi-Fi QR Code Scanner</h1>
     <button onclick="detectBeacons()">Scan Wi-Fi QR Code</button>
+    <div id="device">device</div>
+    <div id="battery">battery</div>
+    <div id="error">error</div>
+    <div id="browser">browser</div>
 
     <script>
 
@@ -58,6 +62,7 @@
                     });
 
                     console.log('Beacon detected:', device.name);
+                    document.getElementById('device').textContent = device.name;
 
                     // Connect to the device
                     const server = await device.gatt.connect();
@@ -68,12 +73,15 @@
                     const batteryLevel = await batteryService.getCharacteristic('battery_level');
                     const value = await batteryLevel.readValue();
                     console.log('Battery level:', value.getUint8(0));
+                    document.getElementById('battery').textContent = value.getUint8(0);
 
                 } catch (error) {
                     console.error('Bluetooth error:', error);
+                    document.getElementById('error').textContent = error;
                 }
             } else {
                 console.error('Web Bluetooth API is not supported in this browser');
+                document.getElementById('browser').textContent = 'Web Bluetooth API is not supported in this browser';
             }
         }
 
