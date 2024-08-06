@@ -63,6 +63,7 @@
         document.getElementById('connectButton').addEventListener('click', function () {
             if (!navigator.bluetooth) {
                 document.getElementById('result').textContent = 'Web Bluetooth is not supported in this browser';
+                document.getElementById('result').style.color = '#ff0000';
                 return;
             }
 
@@ -87,6 +88,7 @@
                 })
                 .catch(error => {
                     document.getElementById('result').textContent = 'Error: ' + error;
+                    document.getElementById('result').style.color = '#ff0000';
                 });
         });
     </script>
