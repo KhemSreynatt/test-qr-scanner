@@ -47,8 +47,9 @@
 
 <body>
     <h1>QR Code Scanner</h1>
+    <h3>Bluetooth Beacon Reader</h3>
+    <button id="connectButton">Connect to Beacon</button>
     <div id="result">Scan result will appear here</div>
-    <h1>Wi-Fi QR Code Scanner</h1>
     <!-- <button onclick="  connectToBluetoothBeacon()">Bluetooth</button>
     <div id="device">device</div>
     <div id="battery">battery</div>
@@ -57,58 +58,36 @@
     <h3>Check Bluetooth Status</h3>
     <button id="connect">Check Bluetooth Connection</button>
     <p id="status">Status: Not connected</p> -->
-    <div class="container-md mt-5">
-        <div class="row">
-            <div class="page-header">
-                <h1>BleuIO - <small>iBeacon</small></h1>
-            </div>
-        </div>
-        <div class="row mt-5 p-0">
-            <div id="buttonRow" class="d-flex justify-content-left">
-                <div class="d-flex p-1">
-                    <button type="button" id="connectButton" class="btn btn-success">
-                        Connect
-                    </button>
-                </div>
-                <div class="d-flex p-1">
-                    <button type="button" id="iBeaconButton" class="btn btn-success disabled">
-                        Create an iBeacon
-                    </button>
-                </div>
-                <div class="d-flex p-1">
-                    <h6 class="m-2">UUID:</h6>
-                    <input type="text" id="uuidInputField" class="form-control" style="width: 616px;"
-                        value="5f2dd896-b886-4549-ae01-e41acd7a354a0203010400" />
-                </div>
-            </div>
-        </div>
-        <div class="row mt-5">
-            <div class="col-md-12">
-                <h5>Output:</h5>
-                <p id="output"></p>
-            </div>
-        </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
-        crossorigin="anonymous"></script>
-    <script src="script.js"></script>
+
     <script>
-        document.getElementById('connect').addEventListener('click', async () => {
+        document.getElementById('connectButton').addEventListener('click', function () {
             if (!navigator.bluetooth) {
-                alert('Bluetooth is not supported on this browser.');
+                document.getElementById('result').textContent = 'Web Bluetooth is not supported in this browser';
                 return;
             }
 
-            try {
-                const device = await navigator.bluetooth.requestDevice({
-                    acceptAllDevices: true
+            navigator.bluetooth.requestDevice({
+                filters: [
+                    { services: ['battery_service'] } // Replace with your beacon's service UUID
+                ]
+            })
+                .then(device => {
+                    document.getElementById('result').textContent = 'Device selected: ' + device.name;
+                    return device.gatt.connect();
+                })
+                .then(server => {
+                    document.getElementById('result').textContent += '\nConnected to GATT server';
+                    return server.getPrimaryService('battery_service'); // Replace with your beacon's service UUID
+                })
+                .then(service => service.getCharacteristic('battery_level')) // Replace with your beacon's characteristic UUID
+                .then(characteristic => characteristic.readValue())
+                .then(value => {
+                    let beaconValue = value.getUint8(0);
+                    document.getElementById('result').textContent += '\nBeacon value: ' + beaconValue;
+                })
+                .catch(error => {
+                    document.getElementById('result').textContent = 'Error: ' + error;
                 });
-                document.getElementById('status').innerText = `Connected to: ${device.name}`;
-            } catch (error) {
-                document.getElementById('status').innerText = 'Bluetooth connection failed.';
-                console.error('Error:', error);
-            }
         });
     </script>
     <script>
