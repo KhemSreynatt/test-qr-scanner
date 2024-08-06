@@ -58,7 +58,55 @@
     <h3>Check Bluetooth Status</h3>
     <button id="connect">Check Bluetooth Connection</button>
     <p id="status">Status: Not connected</p> -->
+    <h1>Bluetooth Check</h1>
+    <p id="platformInfo"></p>
+    <p id="bluetoothStatus"></p>
+    <button id="checkBluetoothButton">Check Bluetooth</button>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const platformInfo = document.getElementById('platformInfo');
+            const bluetoothStatus = document.getElementById('bluetoothStatus');
+            const checkBluetoothButton = document.getElementById('checkBluetoothButton');
+
+            // Check if we're running in a Telegram Mini App
+            if (window.Telegram && window.Telegram.WebApp) {
+                const platform = window.Telegram.WebApp.platform;
+                platformInfo.textContent = `Platform: ${platform}`;
+
+                checkBluetoothButton.addEventListener('click', checkBluetooth);
+            } else {
+                platformInfo.textContent = 'Not running in a Telegram Mini App';
+                checkBluetoothButton.disabled = true;
+            }
+
+            function checkBluetooth() {
+                if ('bluetooth' in navigator) {
+                    navigator.bluetooth.getAvailability().then(isAvailable => {
+                        if (isAvailable) {
+                            bluetoothStatus.textContent = 'Bluetooth is available';
+                            // You can try to request a Bluetooth device here
+                            requestBluetoothDevice();
+                        } else {
+                            bluetoothStatus.textContent = 'Bluetooth is not available';
+                        }
+                    });
+                } else {
+                    bluetoothStatus.textContent = 'Web Bluetooth API is not supported';
+                }
+            }
+
+            function requestBluetoothDevice() {
+                navigator.bluetooth.requestDevice({ acceptAllDevices: true })
+                    .then(device => {
+                        bluetoothStatus.textContent = 'Bluetooth device accessed successfully';
+                    })
+                    .catch(error => {
+                        bluetoothStatus.textContent = `Error accessing Bluetooth: ${error}`;
+                    });
+            }
+        });
+    </script>
     <script>
         document.getElementById('connectButton').addEventListener('click', function () {
             if (!navigator.bluetooth) {
@@ -168,7 +216,6 @@
         }
 
         // Call the function to connect to the Bluetooth beacon
-
         // Call this function when you want to start detecting beacons
         // detectBeacons();
         const listWifiInfo = [
