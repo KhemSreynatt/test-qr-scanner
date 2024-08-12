@@ -45,7 +45,7 @@
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
     <p id="isp"></p>
-
+    <p id="response"></p>
 
     <script>
         let tg = window.Telegram.WebApp;
@@ -96,12 +96,13 @@
             try {
                 const ipv4address = await getIPv4FromApi();
                 const response = await fetch(`http://ip-api.com/json/${ipv4address}`);
+                document.getElementById('response').textContent = `ISP error : ${response}`;
                 const data = await response.json();
                 document.getElementById('isp').textContent = data.isp;
                 return data.isp;
             } catch (error) {
-                console.error('Error fetching ips:', error);
-                document.getElementById('isp').textContent = error;
+                console.error('Error fetching isp:', error);
+                document.getElementById('isp').textContent = `ISP error : ${error}`;
                 return null;
             }
         }
@@ -195,6 +196,7 @@
             const ipV4 = await getIPv4FromApi();
             const ipV6 = await getIPv6FromApi();
             const isp = await getISPformApi();
+            document.getElementById('isp').textContent = isp;
             const isValid = await validateWifiInfo(ipV4, ipV6, isp);
             if (isValid) {
                 callback(true);
