@@ -95,15 +95,27 @@
                 return null;
             }
         }
+
         async function getIPv6FromApi() {
             try {
-                const response = await fetch('https://api64.ipify.org/?format=json');
+                const response = await fetch('https://api6.ipify.org/?format=json');
                 const data = await response.json();
                 return data.ip;
             } catch (error) {
                 console.error('Error fetching IP:', error);
                 return null;
             }
+        }
+        async function getISPformApi(ipv4) {
+            try {
+                const response = await fetch(`http://ip-api.com/json/${ipv4}`);
+                const data = await response.json();
+                return data.isp;
+            } catch (error) {
+                console.error('Error fetching ips:', error);
+                return null;
+            }
+
         }
         function getUserLocation() {
             return new Promise((resolve, reject) => {
@@ -112,7 +124,7 @@
                         (position) => {
                             resolve({
                                 latitude: position.coords.latitude,
-                                longitude: position.coords.longitude
+                                longitude: position.coords.longitude,
                             });
                         },
                         (error) => {
@@ -139,7 +151,7 @@
         }
         function compareData(scannedData, currentLocation) {
             for (const wifiInfo of listWifiInfo) {
-                const { ssid, dssid, password, ipv4, ipv6, gps, branch, branch_id } = wifiInfo;
+                const { isp, ipv4, ipv6, gps, branch, branch_id } = wifiInfo;
                 const [qrLat, qrLng] = gps.split(',').map(Number);
                 const [scannedLat, scannedLng] = scannedData.gps.split(',').map(Number);
 
@@ -157,10 +169,11 @@
             return null; // No match found
         }
 
-        async function validateWifiInfo(iPv4Address, iPv6Address) {
+        async function validateWifiInfo(iPv4Address, iPv6Address, isp) {
             const matchingWifi = listWifiInfo.find(wifi =>
                 wifi.ipv4 === iPv4Address &&
-                wifi.ipv6 === iPv6Address,
+                wifi.ipv6 === iPv6Address &&
+                wifi.isp === isp,
             );
             return !!matchingWifi; // Returns true if a match is found, false otherwise
         }
@@ -193,7 +206,8 @@
         async function checkAccess(callback) {
             const ipV4 = await getIPv4FromApi();
             const ipV6 = await getIPv6FromApi();
-            const isValid = await validateWifiInfo(ipV4, ipV6);
+            const isp = await getISPformApi();
+            const isValid = await validateWifiInfo(ipV4, ipV6, isp);
             if (isValid) {
                 callback(true);
             } else {
@@ -290,46 +304,50 @@
         async function scanQRCode() {
 
             const currentLocation = await getUserLocation();
-            checkAccess((isAllowedIP) => {
-                if (isAllowedIP) {
-                    checkPermissionUser((isPermittedUser) => {
-                        if (isPermittedUser) {
-                            checkLocationPermission((isPermitted) => {
-                                if (isPermitted) {
-                                    if (typeof tg.showScanQrPopup === 'function') {
-                                        tg.showScanQrPopup({
-                                            text: "Please scan a QR code",
-                                        }, function (qrCode) {
-                                            tg.closeScanQrPopup();
-                                            try {
-                                                const formattedQrCode = qrCode.replace(/'/g, '"');
-                                                const scannedData = JSON.parse(formattedQrCode);
-                                                const isMatch = compareData(scannedData, currentLocation);
-                                                if (isMatch) {
-                                                    collectUserInfo(qrCode);
-                                                    tg.showAlert("Scan Done!");
-                                                    document.getElementById('result').textContent = 'Success for scanning!';
-                                                    document.getElementById('result').style.color = '#50C878'
-                                                } else {
-                                                    tg.showAlert("Ivalid for Scanning !");
-                                                    document.getElementById('result').textContent = 'Invalid for scanning, Please make sure follow permission !';
+            if (tg.platform === 'ios') {
+                checkAccess((isAllowedIP) => {
+                    if (isAllowedIP) {
+                        checkPermissionUser((isPermittedUser) => {
+                            if (isPermittedUser) {
+                                checkLocationPermission((isPermitted) => {
+                                    if (isPermitted) {
+                                        if (typeof tg.showScanQrPopup === 'function') {
+                                            tg.showScanQrPopup({
+                                                text: "Please scan a QR code",
+                                            }, function (qrCode) {
+                                                tg.closeScanQrPopup();
+                                                try {
+                                                    const formattedQrCode = qrCode.replace(/'/g, '"');
+                                                    const scannedData = JSON.parse(formattedQrCode);
+                                                    const isMatch = compareData(scannedData, currentLocation);
+                                                    if (isMatch) {
+                                                        collectUserInfo(qrCode);
+                                                        tg.showAlert("Scan Done!");
+                                                        document.getElementById('result').textContent = 'Success for scanning!';
+                                                        document.getElementById('result').style.color = '#50C878'
+                                                    } else {
+                                                        tg.showAlert("Ivalid for Scanning !");
+                                                        document.getElementById('result').textContent = 'Invalid for scanning, Please make sure follow permission !';
+                                                        document.getElementById('result').style.color = '#ff0000'
+                                                    }
+                                                } catch (e) {
+                                                    document.getElementById('result').textContent = `Error parsing QR code data: ${e.message}`;
                                                     document.getElementById('result').style.color = '#ff0000'
                                                 }
-                                            } catch (e) {
-                                                document.getElementById('result').textContent = `Error parsing QR code data: ${e.message}`;
-                                                document.getElementById('result').style.color = '#ff0000'
-                                            }
-                                        });
-                                    } else {
-                                        document.getElementById('result').textContent = "QR scanner not available";
-                                        document.getElementById('result').style.color = '#ff0000'
+                                            });
+                                        } else {
+                                            document.getElementById('result').textContent = "QR scanner not available";
+                                            document.getElementById('result').style.color = '#ff0000'
+                                        }
                                     }
-                                }
-                            });
-                        }
-                    })
-                }
-            });
+                                });
+                            }
+                        })
+                    }
+                });
+
+            }
+
         }
 
         function sendToTelegramGroup(userInfo) {
