@@ -46,7 +46,7 @@
     <div id="result">Scan result will appear here</div>
     <p id="isp"></p>
     <p id="response"></p>
-    <button onclick="getISPformApi('203.217.168.61')"></button>
+    <button onclick="getISPformApi('203.217.168.61')">test ISP</button>
 
     <script>
         let tg = window.Telegram.WebApp;
@@ -93,19 +93,41 @@
                 return null;
             }
         }
-        async function getISPformApi(ipv4address) {
-            try {
-                const response = await fetch(`http://ip-api.com/json/${ipv4address}`);
-                document.getElementById('response').textContent = `ISP error : ${response}`;
-                const data = await response.json();
-                document.getElementById('isp').textContent = data.isp;
-                return data.isp;
-            } catch (error) {
-                console.error('Error fetching isp:', error);
-                document.getElementById('isp').textContent = `ISP error : ${error}`;
-                return null;
-            }
+        function getISPformApi(ip) {
+            const url = `http://ip-api.com/json/${ip}`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('IP Info:', data);
+                    // Process the data here
+                    displayIpInfo(data);
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
         }
+        function displayIpInfo(data) {
+            const infoDiv = document.getElementById('ip-info');
+            infoDiv.innerHTML = `
+    <h2>IP Information for ${data.query}</h2>
+    <p>Country: ${data.country} (${data.countryCode})</p>
+    <p>Region: ${data.regionName} (${data.region})</p>
+    <p>City: ${data.city}</p>
+    <p>Zip: ${data.zip || 'N/A'}</p>
+    <p>Coordinates: ${data.lat}, ${data.lon}</p>
+    <p>Timezone: ${data.timezone}</p>
+    <p>ISP: ${data.isp}</p>
+    <p>Organization: ${data.org || 'N/A'}</p>
+    <p>AS: ${data.as}</p>
+  `;
+        }
+
         function getUserLocation() {
             return new Promise((resolve, reject) => {
                 if (navigator.geolocation) {
