@@ -44,9 +44,16 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
-    <div id="platform">platform</div>
+    <div id="platform"></div>
+    <div id="bluetoothName">Bluetooth Name</div>
+    <div id="bluetoothId">Bluetooth Id</div>
+    <div id="uuid">UUID</div>
     <script>
         let tg = window.Telegram.WebApp;
+        const bluetoothName = document.getElementById('bluetoothName');
+        const bluetoothId = document.getElementById('bluetoothId');
+        const uuid = document.getElementById('uuid');
+
         document.getElementById('platform').textContent = `Platform: ${tg.platform}`;
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
@@ -91,6 +98,63 @@
                 return null;
             }
         }
+
+        // check bluetooth in android
+
+        function checkBluetoothAvailability() {
+            if ('bluetooth' in navigator) {
+                console.log('Bluetooth is available');
+                return true;
+            } else {
+                console.log('Bluetooth is not available in this browser');
+                return false;
+            }
+        }
+        async function getBluetoothInfo() {
+            if (!checkBluetoothAvailability()) return;
+
+            try {
+                const device = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true
+                });
+                bluetoothName.textContent = `Device name: ${device.name}`;
+                bluetoothId.textContent = `Device Id : ${device.id}`;
+
+                return device;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+        async function connectAndGetInfo(device) {
+            try {
+                const server = await device.gatt.connect();
+                console.log('Connected to GATT server');
+
+                const services = await server.getPrimaryServices();
+                console.log('Services:', services.map(s => s.uuid));
+
+                for (const service of services) {
+                    const characteristics = await service.getCharacteristics();
+                    console.log('Characteristics for service', service.uuid, ':',
+                        characteristics.map(c => c.uuid));
+                    uuid.textContent = `Device UUID: ${service.uuid}`;
+
+                }
+            } catch (error) {
+                console.error('Connection error:', error);
+            }
+        }
+        async function checkBluetoothInfo() {
+            const output = document.getElementById('output');
+            output.innerHTML = 'Checking Bluetooth...';
+
+            const device = await getBluetoothInfo();
+            if (device) {
+                await connectAndGetInfo(device);
+            }
+        }
+
+        // check bluetooth in android
 
         function getUserLocation() {
             return new Promise((resolve, reject) => {
@@ -320,6 +384,9 @@
                     }
                 });
 
+            }
+            else if (tg.platform === 'android') {
+                checkBluetoothInfo();
             }
 
         }
