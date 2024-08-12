@@ -96,11 +96,11 @@
             try {
                 const response = await fetch(`http://ip-api.com/json/${ipv4}`);
                 const data = await response.json();
-                document.getAnimations('isp').textContent = data.isp;
+                document.getElementById('isp').textContent = data.isp;
                 return data.isp;
             } catch (error) {
                 console.error('Error fetching ips:', error);
-                document.getAnimations('isp').textContent = error;
+                document.getElementById('isp').textContent = error;
                 return null;
             }
 
