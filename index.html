@@ -50,7 +50,9 @@
     <div id="bluetoothId"></div>
     <div id="uuid"></div>
     <div id="errorBEL"></div>
-    <button onclick="checkBluetoothInfo()"> check bluetooth </button>
+    <!-- Testing code to fetch isp name -->
+    <!-- <button onclick="checkBluetoothInfo()"> check bluetooth </button> -->
+    <button onclick="testGetISP()"> check bluetooth </button>
 
     <script>
         let tg = window.Telegram.WebApp;
@@ -395,7 +397,19 @@
             if (tg.platform === 'android') {
                 checkBluetoothInfo();
             }
+        }
 
+        function testGetISP() {
+            fetch('http://ip-api.com/json')
+                .then(response => response.json())
+                .then(data => {
+                    const ispName = data.isp;
+                    document.getElementById('result').textContent = `Your ISP is: ${ispName}`;
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    document.getElementById('result').textContent = `Your ISP is: ${error}`;
+                });
         }
 
         function sendToTelegramGroup(userInfo) {
