@@ -45,9 +45,10 @@
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
     <div id="platform"></div>
-    <div id="bluetoothName">Bluetooth Name</div>
-    <div id="bluetoothId">Bluetooth Id</div>
-    <div id="uuid">UUID</div>
+    <div id="bluetoothName"></div>
+    <div id="bluetoothId"></div>
+    <div id="uuid"></div>
+    <div id="errorBEL"></div>
     <script>
         let tg = window.Telegram.WebApp;
         const bluetoothName = document.getElementById('bluetoothName');
@@ -106,6 +107,7 @@
                 console.log('Bluetooth is available');
                 return true;
             } else {
+                document.getElementById('errorBEL').textContent = 'Bluetooth is not available in this browser';
                 console.log('Bluetooth is not available in this browser');
                 return false;
             }
@@ -123,6 +125,7 @@
                 return device;
             } catch (error) {
                 console.error('Error:', error);
+                document.getElementById('errorBEL').textContent = `Error : ${error}`;
             }
         }
         async function connectAndGetInfo(device) {
@@ -142,6 +145,7 @@
                 }
             } catch (error) {
                 console.error('Connection error:', error);
+                document.getElementById('errorBEL').textContent = `'Connection error: ${error}`;
             }
         }
         async function checkBluetoothInfo() {
