@@ -44,9 +44,10 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
-
+    <div id="platform">platform</div>
     <script>
         let tg = window.Telegram.WebApp;
+        document.getElementById('platform').textContent = `Platform: ${tg.platform}`;
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
