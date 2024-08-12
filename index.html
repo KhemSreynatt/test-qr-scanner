@@ -44,7 +44,7 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
-    <p id="ip-info">ip info</p>
+    <p id="isp">ip info</p>
     <button onclick="getISPformApi('203.217.168.61')">test ISP</button>
 
     <script>
@@ -92,39 +92,27 @@
                 return null;
             }
         }
-        function getISPformApi(ip) {
+        async function getISPformApi(ip) {
             const url = `http://ip-api.com/json/${ip}`;
 
             fetch(url)
                 .then(response => {
                     if (!response.ok) {
+                        document.getElementById('isp').textContent = `response status ${response.status}`;
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     return response.json();
                 })
                 .then(data => {
                     console.log('IP Info:', data);
+                    document.getElementById('isp').textContent = data.isp;
                     // Process the data here
-                    displayIpInfo(data);
+
                 })
                 .catch(error => {
                     console.error('There was a problem with the fetch operation:', error);
+                    document.getElementById('isp').textContent = `fetch api error ${error}`;
                 });
-        }
-        function displayIpInfo(data) {
-            const infoDiv = document.getElementById('ip-info');
-            infoDiv.innerHTML = `
-    <h2>IP Information for ${data.query}</h2>
-    <p>Country: ${data.country} (${data.countryCode})</p>
-    <p>Region: ${data.regionName} (${data.region})</p>
-    <p>City: ${data.city}</p>
-    <p>Zip: ${data.zip || 'N/A'}</p>
-    <p>Coordinates: ${data.lat}, ${data.lon}</p>
-    <p>Timezone: ${data.timezone}</p>
-    <p>ISP: ${data.isp}</p>
-    <p>Organization: ${data.org || 'N/A'}</p>
-    <p>AS: ${data.as}</p>
-  `;
         }
 
         function getUserLocation() {
