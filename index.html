@@ -98,24 +98,14 @@
             document.getElementById('url').textContent = url;
 
 
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) {
-                        document.getElementById('isp').textContent = `response status ${response.status}`;
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('IP Info:', data);
-                    document.getElementById('isp').textContent = data.isp;
-                    // Process the data here
-
-                })
-                .catch(error => {
-                    console.error('There was a problem with the fetch operation:', error);
-                    document.getElementById('isp').textContent = `fetch api error ${error}`;
-                });
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                document.getElementById('isp').textContent = data;
+                return data.isp;
+            } catch (error) {
+                document.getElementById('isp').textContent = `error fetch : ${error}`;
+            }
         }
 
         function getUserLocation() {
@@ -212,7 +202,6 @@
                 callback(true);
             } else {
                 callback(false);
-                document.getElementById('isp').textContent = isp;
                 document.getElementById('result').textContent = 'Invalid connection wifi!.';
                 document.getElementById('result').style.color = '#ff0000'
             }
