@@ -46,7 +46,7 @@
     <div id="result">Scan result will appear here</div>
     <p id="isp">ip info</p>
     <p id="url">URL</p>
-    <button onclick="getISPformApi('203.217.168.61')">test ISP</button>
+    <button onclick="getIpInfo('203.217.168.61')">test ISP</button>
 
     <script>
         let tg = window.Telegram.WebApp;
@@ -96,8 +96,6 @@
         async function getISPformApi(ip) {
             const url = `http://ip-api.com/json/${ip}`;
             document.getElementById('url').textContent = url;
-
-
             try {
                 const response = await fetch(url);
                 const data = await response.json();
@@ -107,7 +105,30 @@
                 document.getElementById('isp').textContent = `error fetch : ${error}`;
             }
         }
+        function getIpInfo(ip) {
+            const url = `https://ip-api.com/json/${ip}`;
 
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+
+            xhr.onload = function () {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    const data = JSON.parse(xhr.responseText);
+                    console.log('IP Info:', data);
+                    document.getElementById('isp').textContent = data;
+                } else {
+                    console.error('Request failed with status', xhr.status);
+                    document.getElementById('isp').textContent = `Error: Request failed with status ${xhr.status}`;
+                }
+            };
+
+            xhr.onerror = function () {
+                console.error('Request failed');
+                document.getElementById('isp').textContent = 'Error: Request failed';
+            };
+
+            xhr.send();
+        }
         function getUserLocation() {
             return new Promise((resolve, reject) => {
                 if (navigator.geolocation) {
