@@ -45,6 +45,7 @@
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
     <div id="platform"></div>
+    <div id="output"></div>
     <div id="bluetoothName"></div>
     <div id="bluetoothId"></div>
     <div id="uuid"></div>
@@ -99,6 +100,7 @@
                 return null;
             }
         }
+
 
         // check bluetooth in android
 
@@ -389,7 +391,7 @@
                 });
 
             }
-            else if (tg.platform === 'android') {
+            if (tg.platform === 'android') {
                 checkBluetoothInfo();
             }
 
