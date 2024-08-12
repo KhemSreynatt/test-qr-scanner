@@ -8,13 +8,9 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.3.1/dist/jsQR.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-    <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Load Babel to enable JSX syntax in the browser -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous" />
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -47,196 +43,44 @@
 
 <body>
     <h1>QR Code Scanner</h1>
-    <h3>Bluetooth Beacon Reader</h3>
-    <button id="connectButton">Connect to Beacon</button>
     <div id="result">Scan result will appear here</div>
-    <!-- <button onclick="  connectToBluetoothBeacon()">Bluetooth</button>
-    <div id="device">device</div>
-    <div id="battery">battery</div>
-    <div id="error">error</div>
-    <div id="browser">browser</div>
-    <h3>Check Bluetooth Status</h3>
-    <button id="connect">Check Bluetooth Connection</button>
-    <p id="status">Status: Not connected</p> -->
-    <h1>Bluetooth Check</h1>
     <p id="platformInfo"></p>
-    <p id="bluetoothStatus"></p>
-    <button id="checkBluetoothButton">Check Bluetooth</button>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const platformInfo = document.getElementById('platformInfo');
-            const bluetoothStatus = document.getElementById('bluetoothStatus');
-            const checkBluetoothButton = document.getElementById('checkBluetoothButton');
-
             // Check if we're running in a Telegram Mini App
             if (window.Telegram && window.Telegram.WebApp) {
                 const platform = window.Telegram.WebApp.platform;
                 platformInfo.textContent = `Platform: ${platform}`;
 
-                checkBluetoothButton.addEventListener('click', checkBluetooth);
             } else {
                 platformInfo.textContent = 'Not running in a Telegram Mini App';
-                checkBluetoothButton.disabled = true;
-            }
 
-            function checkBluetooth() {
-                if ('bluetooth' in navigator) {
-                    navigator.bluetooth.getAvailability().then(isAvailable => {
-                        if (isAvailable) {
-                            bluetoothStatus.textContent = 'Bluetooth is available';
-                            // You can try to request a Bluetooth device here
-                            requestBluetoothDevice();
-                        } else {
-                            bluetoothStatus.textContent = 'Bluetooth is not available';
-                        }
-                    });
-                } else {
-                    bluetoothStatus.textContent = 'Web Bluetooth API is not supported';
-                }
-            }
-
-            function requestBluetoothDevice() {
-                navigator.bluetooth.requestDevice({ acceptAllDevices: true })
-                    .then(device => {
-                        bluetoothStatus.textContent = 'Bluetooth device accessed successfully';
-                    })
-                    .catch(error => {
-                        bluetoothStatus.textContent = `Error accessing Bluetooth: ${error}`;
-                    });
             }
         });
     </script>
-    <script>
-        document.getElementById('connectButton').addEventListener('click', function () {
-            if (!navigator.bluetooth) {
-                document.getElementById('result').textContent = 'Web Bluetooth is not supported in this browser';
-                document.getElementById('result').style.color = '#ff0000';
-                return;
-            }
 
-            navigator.bluetooth.requestDevice({
-                filters: [
-                    { services: ['battery_service'] } // Replace with your beacon's service UUID
-                ]
-            })
-                .then(device => {
-                    document.getElementById('result').textContent = 'Device selected: ' + device.name;
-                    return device.gatt.connect();
-                })
-                .then(server => {
-                    document.getElementById('result').textContent += '\nConnected to GATT server';
-                    return server.getPrimaryService('battery_service'); // Replace with your beacon's service UUID
-                })
-                .then(service => service.getCharacteristic('battery_level')) // Replace with your beacon's characteristic UUID
-                .then(characteristic => characteristic.readValue())
-                .then(value => {
-                    let beaconValue = value.getUint8(0);
-                    document.getElementById('result').textContent += '\nBeacon value: ' + beaconValue;
-                })
-                .catch(error => {
-                    document.getElementById('result').textContent = 'Error: ' + error;
-                    document.getElementById('result').style.color = '#ff0000';
-                });
-        });
-    </script>
     <script>
         let tg = window.Telegram.WebApp;
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
-        async function detectBeacons() {
-            if ('bluetooth' in navigator) {
-                try {
-                    const device = await navigator.bluetooth.requestDevice({
-                        filters: [
-                            { services: ['fe9a'] }  // Example UUID for iBeacon
-                        ],
-                        optionalServices: ['battery_service']
-                    });
-                    console.log('Beacon detected:', device.name);
-                    document.getElementById('device').textContent = device.name;
-                    // Connect to the device
-                    const server = await device.gatt.connect();
-                    console.log('Connected to beacon');
-
-                    // You can now interact with the beacon, e.g., read its battery level
-                    const batteryService = await server.getPrimaryService('battery_service');
-                    const batteryLevel = await batteryService.getCharacteristic('battery_level');
-                    const value = await batteryLevel.readValue();
-                    console.log('Battery level:', value.getUint8(0));
-                    document.getElementById('battery').textContent = value.getUint8(0);
-
-                } catch (error) {
-                    console.error('Bluetooth error:', error);
-                    document.getElementById('error').textContent = error;
-                }
-            } else {
-                console.error('Web Bluetooth API is not supported in this browser');
-                document.getElementById('browser').textContent = 'Web Bluetooth API is not supported in this browser';
-            }
-        }
-        // Function to request and connect to a Bluetooth device
-        async function connectToBluetoothBeacon() {
-            try {
-                // Check if the browser supports Web Bluetooth
-                if (!navigator.bluetooth) {
-                    document.getElementById('result').textContent = 'Web Bluetooth API is not available in this browser.';
-                    console.log('Web Bluetooth API is not available in this browser.');
-                    return;
-                }
-
-                // Request a Bluetooth device
-                const device = await navigator.bluetooth.requestDevice({
-                    filters: [{ services: ['battery_service'] }] // Example service
-                });
-
-                console.log('Device found:', device.name);
-                document.getElementById('device').textContent = device.name;
-
-                // Connect to the device
-                const server = await device.gatt.connect();
-                console.log('Connected to device:', device.name);
-                document.getElementById('device').textContent = `Connected to device:${device.name}`;
-
-                // Get the battery service (example)
-                const service = await server.getPrimaryService('battery_service');
-                const characteristic = await service.getCharacteristic('battery_level');
-
-                // Read the battery level
-                const value = await characteristic.readValue();
-                const batteryLevel = value.getUint8(0);
-                console.log('Battery level:', batteryLevel, '%');
-                document.getElementById('battery').textContent = `batteryLevel:${batteryLevel}`;
-
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('error').textContent = error;
-            }
-        }
-
-        // Call the function to connect to the Bluetooth beacon
-        // Call this function when you want to start detecting beacons
-        // detectBeacons();
         const listWifiInfo = [
             {
-                ssid: "SINET",
-                bssid: "1234567890",
-                password: '12345678',
+                isp: "S.I Group",
                 ipv4: "203.217.168.61",
                 ipv6: "2404:b300:12:80::b7",
                 gps: '11.556330952721005, 104.9217849523827',
-                branch: "SI.Group HQ",
+                branch: "S.I Group HQ",
                 branch_id: '1000'
             },
             {
-                ssid: "SINET_HOME",
-                dssid: "1234567890",
-                password: '1234567890',
+                isp: "S.I Group",
                 ipv4: "203.217.168.45",
                 ipv6: "2404:b300:12:9::12",
                 gps: '11.556249586635088, 104.92181846761173',
-                branch: "SI.Group KPS",
+                branch: "S.I Group KPS",
                 branch_id: '1001'
             }
         ]
@@ -287,7 +131,6 @@
             const φ2 = toRadians(lat2);
             const Δφ = toRadians(lat2 - lat1);
             const Δλ = toRadians(lon2 - lon1);
-
             const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
                 Math.cos(φ1) * Math.cos(φ2) *
                 Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
@@ -300,9 +143,6 @@
                 const [qrLat, qrLng] = gps.split(',').map(Number);
                 const [scannedLat, scannedLng] = scannedData.gps.split(',').map(Number);
 
-                const isSSIDMatch = ssid === scannedData.ssid;
-                const isDSSIDMatch = dssid === scannedData.dssid;
-                const isPasswordMatch = password === scannedData.password;
                 const isIPv4Match = ipv4 === scannedData.ipv4;
                 const isIPv6Match = ipv6 === scannedData.ipv6;
                 const isBranchMatch = branch === scannedData.branch;
@@ -310,7 +150,7 @@
                 const distanceToQrLocation = haversineDistance(scannedLat, scannedLng, currentLocation.latitude, currentLocation.longitude);
                 const distanceToItemLocation = haversineDistance(qrLat, qrLng, currentLocation.latitude, currentLocation.longitude);
                 const isGPSMatch = distanceToQrLocation <= 60 && distanceToItemLocation <= 60; // Check if within 100 meters
-                if (isSSIDMatch && isDSSIDMatch && isPasswordMatch && isIPv4Match && isIPv6Match && isBranchMatch && isBranchIdMatch && isGPSMatch) {
+                if (isIPv4Match && isIPv6Match && isBranchMatch && isBranchIdMatch && isGPSMatch) {
                     return wifiInfo; // Return the matching wifi info
                 }
             }
@@ -448,8 +288,7 @@
         }
 
         async function scanQRCode() {
-            // const currentIPv4 = await getIPv4FromApi();
-            // const currentIPv6 = await getIPv6FromApi();
+
             const currentLocation = await getUserLocation();
             checkAccess((isAllowedIP) => {
                 if (isAllowedIP) {
