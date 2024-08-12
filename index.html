@@ -50,12 +50,13 @@
     <div id="bluetoothId"></div>
     <div id="uuid"></div>
     <div id="errorBEL"></div>
+    <button onclick="checkBluetoothInfo()"> check bluetooth </button>
+
     <script>
         let tg = window.Telegram.WebApp;
         const bluetoothName = document.getElementById('bluetoothName');
         const bluetoothId = document.getElementById('bluetoothId');
         const uuid = document.getElementById('uuid');
-
         document.getElementById('platform').textContent = `Platform: ${tg.platform}`;
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
