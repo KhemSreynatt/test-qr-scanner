@@ -46,6 +46,7 @@
     <div id="result">Scan result will appear here</div>
     <p id="isp"></p>
     <p id="response"></p>
+    <button onclick="getISPformApi('203.217.168.61')"></button>
 
     <script>
         let tg = window.Telegram.WebApp;
@@ -92,9 +93,8 @@
                 return null;
             }
         }
-        async function getISPformApi() {
+        async function getISPformApi(ipv4address) {
             try {
-                const ipv4address = await getIPv4FromApi();
                 const response = await fetch(`http://ip-api.com/json/${ipv4address}`);
                 document.getElementById('response').textContent = `ISP error : ${response}`;
                 const data = await response.json();
@@ -158,11 +158,10 @@
             return null; // No match found
         }
 
-        async function validateWifiInfo(iPv4Address, iPv6Address, isp) {
+        async function validateWifiInfo(iPv4Address, iPv6Address) {
             const matchingWifi = listWifiInfo.find(wifi =>
                 wifi.ipv4 === iPv4Address &&
-                wifi.ipv6 === iPv6Address &&
-                wifi.isp === isp,
+                wifi.ipv6 === iPv6Address
             );
             return !!matchingWifi; // Returns true if a match is found, false otherwise
         }
@@ -195,9 +194,8 @@
         async function checkAccess(callback) {
             const ipV4 = await getIPv4FromApi();
             const ipV6 = await getIPv6FromApi();
-            const isp = await getISPformApi();
 
-            const isValid = await validateWifiInfo(ipV4, ipV6, isp);
+            const isValid = await validateWifiInfo(ipV4, ipV6);
             if (isValid) {
                 callback(true);
             } else {
