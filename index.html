@@ -92,9 +92,10 @@
                 return null;
             }
         }
-        async function getISPformApi(ipv4) {
+        async function getISPformApi() {
             try {
-                const response = await fetch(`http://ip-api.com/json/${ipv4}`);
+                const ipv4address = await getIPv4FromApi();
+                const response = await fetch(`http://ip-api.com/json/${ipv4address}`);
                 const data = await response.json();
                 document.getElementById('isp').textContent = data.isp;
                 return data.isp;
@@ -103,7 +104,6 @@
                 document.getElementById('isp').textContent = error;
                 return null;
             }
-
         }
         function getUserLocation() {
             return new Promise((resolve, reject) => {
@@ -194,7 +194,7 @@
         async function checkAccess(callback) {
             const ipV4 = await getIPv4FromApi();
             const ipV6 = await getIPv6FromApi();
-            const isp = await getISPformApi(ipV4);
+            const isp = await getISPformApi();
             const isValid = await validateWifiInfo(ipV4, ipV6, isp);
             if (isValid) {
                 callback(true);
