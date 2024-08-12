@@ -196,12 +196,13 @@
             const ipV4 = await getIPv4FromApi();
             const ipV6 = await getIPv6FromApi();
             const isp = await getISPformApi();
-            document.getElementById('isp').textContent = isp;
+
             const isValid = await validateWifiInfo(ipV4, ipV6, isp);
             if (isValid) {
                 callback(true);
             } else {
                 callback(false);
+                document.getElementById('isp').textContent = isp;
                 document.getElementById('result').textContent = 'Invalid connection wifi!.';
                 document.getElementById('result').style.color = '#ff0000'
             }
