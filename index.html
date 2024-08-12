@@ -206,7 +206,7 @@
         async function checkAccess(callback) {
             const ipV4 = await getIPv4FromApi();
             const ipV6 = await getIPv6FromApi();
-            const isp = await getISPformApi();
+            const isp = await getISPformApi(ipV4);
             const isValid = await validateWifiInfo(ipV4, ipV6, isp);
             if (isValid) {
                 callback(true);
