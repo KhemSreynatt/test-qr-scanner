@@ -21,6 +21,7 @@
             justify-content: center;
             height: 100vh;
             margin: 0;
+            padding: 20px;
             background-color: #f0f0f0;
         }
 
@@ -32,26 +33,23 @@
             background-color: white;
         }
 
-        /* button {
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: white;
-        } */
         button {
-            margin-top: 20px;
-            width: 90%;
+            width: 100%;
             padding: 10px;
-            border: 1px solid #ddd;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
             border-radius: 5px;
-            font-weight: bold;
-            background-color: #50ebd1;
-            color: #fff;
-            position: fixed;
+            cursor: pointer;
             bottom: 20px;
-            margin: 20px;
-            text-align: center;
+
+
+        }
+
+        #bluetoothInfo {
+            display: none;
+            width: 100%;
         }
     </style>
 </head>
@@ -59,14 +57,17 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
-    <div id="platform"></div>
-    <div id="platformDevice"></div>
-    <div id="output"></div>
-    <div id="bluetoothName"></div>
-    <div id="bluetoothId"></div>
-    <div id="uuid"></div>
-    <div id="errorBEL"></div>
-    <button onclick="openLinkForAndroid()">Open Link in chrome</button>
+    <!-- <div id="platform"></div>
+    <div id="platformDevice"></div> -->
+    <br>
+    <div id="bluetoothInfo">
+        <div id="bluetoothName"></div>
+        <div id="bluetoothId"></div>
+        <div id="uuid"></div>
+        <div id="errorBLE"></div>
+        <br><br><br>
+        <button onclick="checkBluetoothInfo()">Please Connect with Bluetooth</button>
+    </div>
 
     <script>
         let platformDevice = navigator.platform.toLowerCase();
@@ -74,8 +75,9 @@
         const bluetoothName = document.getElementById('bluetoothName');
         const bluetoothId = document.getElementById('bluetoothId');
         const uuid = document.getElementById('uuid');
-        document.getElementById('platform').textContent = `Platform: ${tg.platform}`;
-        document.getElementById('platformDevice').textContent = `platformDevice: ${platformDevice}`;
+        const errorBLE = document.getElementById('errorBLE');
+        // document.getElementById('platform').textContent = `Platform TMA: ${tg.platform}`;
+        // document.getElementById('platformDevice').textContent = `platformDevice: ${platformDevice}`;
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
@@ -106,10 +108,64 @@
             if (platform.includes('android')) return 'Android';
             return 'Unknown';
         }
+        function checkBluetoothAvailability() {
+            if ('bluetooth' in navigator) {
+                console.log('Bluetooth is available');
+                return true;
+            } else {
+                errorBLE.textContent = 'Bluetooth is not available in this browser';
+                errorBLE.style.color = '#ff0000';
+                console.log('Bluetooth is not available in this browser');
+                return false;
+            }
+        }
+        if (platformDevice === 'android') {
+            document.getElementById('bluetoothInfo').style.display = 'block';
+        }
+        async function connectAndGetInfo(device) {
+            try {
+                const server = await device.gatt.connect();
 
-        console.log('Platform user:', checkPlatform());
+                const services = await server.getPrimaryServices();
+
+                for (const service of services) {
+                    const characteristics = await service.getCharacteristics();
+                    console.log('Characteristics for service', service.uuid, ':',
+                        characteristics.map(c => c.uuid));
+                    uuid.textContent = `Device UUID: ${service.uuid}`;
+
+                }
+            } catch (error) {
+                errorBLE.textContent = `Connection error: ${error}`;
+                errorBLE.style.color = '#ff0000';
+                console.error('Connection error:', error);
+            }
+        }
+        async function getBluetoothInfo() {
+            if (!checkBluetoothAvailability()) return;
+
+            try {
+                const device = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true
+                });
+                bluetoothName.textContent = `Device name: ${device.name}`;
+                bluetoothId.textContent = `Device Id : ${device.id}`;
+                return device;
+            } catch (error) {
+                errorBLE.textContent = `Error BLE info : ${error}`;
+                errorBLE.style.color = '#ff0000';
+            }
+        }
+        async function checkBluetoothInfo() {
+            bluetoothName.textContent = 'Checking Bluetooth ...'
+            const device = await getBluetoothInfo();
+            if (device) {
+                await connectAndGetInfo(device);
+            }
+        }
+        // 
         function openLinkForAndroid() {
-            var url = 'https://khemsreynatt.github.io/check_attendance/';
+            var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
             Telegram.WebApp.openLink(url);
         }
         async function getIPv4FromApi() {
@@ -263,7 +319,7 @@
                 document.getElementById('result').textContent = 'Invalid connection wifi!.';
                 document.getElementById('result').style.color = '#ff0000'
             }
-            // document.getElementById('platform').textContent = `Platform: ${tg.platform}, ISP: ${ispName}`;
+
         }
         // Check Map Zone
         function calculateDistance(lat1, lon1, lat2, lon2) {
