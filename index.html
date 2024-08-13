@@ -10,6 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Load Babel to enable JSX syntax in the browser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/platform/1.3.6/platform.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
         body {
@@ -31,12 +32,26 @@
             background-color: white;
         }
 
-        button {
+        /* button {
             margin-top: 20px;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
             background-color: white;
+        } */
+        button {
+            margin-top: 20px;
+            width: 90%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-weight: bold;
+            background-color: #50ebd1;
+            color: #fff;
+            position: fixed;
+            bottom: 20px;
+            margin: 20px;
+            text-align: center;
         }
     </style>
 </head>
@@ -45,18 +60,22 @@
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
     <div id="platform"></div>
+    <div id="platformDevice"></div>
     <div id="output"></div>
     <div id="bluetoothName"></div>
     <div id="bluetoothId"></div>
     <div id="uuid"></div>
     <div id="errorBEL"></div>
     <button onclick="openLinkForAndroid()">Open Link in chrome</button>
+
     <script>
+        let platformDevice = navigator.platform;
         let tg = window.Telegram.WebApp;
         const bluetoothName = document.getElementById('bluetoothName');
         const bluetoothId = document.getElementById('bluetoothId');
         const uuid = document.getElementById('uuid');
         document.getElementById('platform').textContent = `Platform: ${tg.platform}`;
+        document.getElementById('platformDevice').textContent = `platformDevice: ${platformDevice}`;
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
@@ -78,7 +97,17 @@
                 branch_id: '1001'
             }
         ]
+        function checkPlatform() {
+            const platform = navigator.platform.toLowerCase();
+            if (platform.includes('win')) return 'Windows';
+            if (platform.includes('mac')) return 'macOS';
+            if (platform.includes('linux')) return 'Linux';
+            if (platform.includes('iphone') || platform.includes('ipod') || platform.includes('ipad')) return 'iOS';
+            if (platform.includes('android')) return 'Android';
+            return 'Unknown';
+        }
 
+        console.log('Platform user:', checkPlatform());
         function openLinkForAndroid() {
             var url = 'https://khemsreynatt.github.io/check_attendance/';
             Telegram.WebApp.openLink(url);
@@ -116,65 +145,6 @@
             }
         }
 
-        // check bluetooth in android
-
-        function checkBluetoothAvailability() {
-            if ('bluetooth' in navigator) {
-                console.log('Bluetooth is available');
-                return true;
-            } else {
-                document.getElementById('errorBEL').textContent = 'Bluetooth is not available in this browser';
-                console.log('Bluetooth is not available in this browser');
-                return false;
-            }
-        }
-        async function getBluetoothInfo() {
-            if (!checkBluetoothAvailability()) return;
-
-            try {
-                const device = await navigator.bluetooth.requestDevice({
-                    acceptAllDevices: true
-                });
-                bluetoothName.textContent = `Device name: ${device.name}`;
-                bluetoothId.textContent = `Device Id : ${device.id}`;
-
-                return device;
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('errorBEL').textContent = `Error : ${error}`;
-            }
-        }
-        async function connectAndGetInfo(device) {
-            try {
-                const server = await device.gatt.connect();
-                console.log('Connected to GATT server');
-
-                const services = await server.getPrimaryServices();
-                console.log('Services:', services.map(s => s.uuid));
-
-                for (const service of services) {
-                    const characteristics = await service.getCharacteristics();
-                    console.log('Characteristics for service', service.uuid, ':',
-                        characteristics.map(c => c.uuid));
-                    uuid.textContent = `Device UUID: ${service.uuid}`;
-
-                }
-            } catch (error) {
-                console.error('Connection error:', error);
-                document.getElementById('errorBEL').textContent = `'Connection error: ${error}`;
-            }
-        }
-        async function checkBluetoothInfo() {
-            const output = document.getElementById('output');
-            output.innerHTML = 'Checking Bluetooth...';
-
-            const device = await getBluetoothInfo();
-            if (device) {
-                await connectAndGetInfo(device);
-            }
-        }
-
-        // check bluetooth in android
 
         function getUserLocation() {
             return new Promise((resolve, reject) => {
@@ -389,33 +359,38 @@
                         if (isPermittedUser) {
                             checkLocationPermission((isPermitted) => {
                                 if (isPermitted) {
-                                    if (typeof tg.showScanQrPopup === 'function') {
-                                        tg.showScanQrPopup({
-                                            text: "Please scan a QR code",
-                                        }, function (qrCode) {
-                                            tg.closeScanQrPopup();
-                                            try {
-                                                const formattedQrCode = qrCode.replace(/'/g, '"');
-                                                const scannedData = JSON.parse(formattedQrCode);
-                                                const isMatch = compareData(scannedData, currentLocation);
-                                                if (isMatch) {
-                                                    collectUserInfo(qrCode);
-                                                    tg.showAlert("Scan Done!");
-                                                    document.getElementById('result').textContent = 'Success for scanning!';
-                                                    document.getElementById('result').style.color = '#50C878'
-                                                } else {
-                                                    tg.showAlert("Ivalid for Scanning !");
-                                                    document.getElementById('result').textContent = 'Invalid for scanning, Please make sure follow permission !';
+                                    if (tg.platform === 'ios') {
+                                        if (typeof tg.showScanQrPopup === 'function') {
+                                            tg.showScanQrPopup({
+                                                text: "Please scan a QR code",
+                                            }, function (qrCode) {
+                                                tg.closeScanQrPopup();
+                                                try {
+                                                    const formattedQrCode = qrCode.replace(/'/g, '"');
+                                                    const scannedData = JSON.parse(formattedQrCode);
+                                                    const isMatch = compareData(scannedData, currentLocation);
+                                                    if (isMatch) {
+                                                        collectUserInfo(qrCode);
+                                                        tg.showAlert("Scan Done!");
+                                                        document.getElementById('result').textContent = 'Success for scanning!';
+                                                        document.getElementById('result').style.color = '#50C878'
+                                                    } else {
+                                                        tg.showAlert("Ivalid for Scanning !");
+                                                        document.getElementById('result').textContent = 'Invalid for scanning, Please make sure follow permission !';
+                                                        document.getElementById('result').style.color = '#ff0000'
+                                                    }
+                                                } catch (e) {
+                                                    document.getElementById('result').textContent = `Error parsing QR code data: ${e.message}`;
                                                     document.getElementById('result').style.color = '#ff0000'
                                                 }
-                                            } catch (e) {
-                                                document.getElementById('result').textContent = `Error parsing QR code data: ${e.message}`;
-                                                document.getElementById('result').style.color = '#ff0000'
-                                            }
-                                        });
-                                    } else {
-                                        document.getElementById('result').textContent = "QR scanner not available";
-                                        document.getElementById('result').style.color = '#ff0000'
+                                            });
+                                        } else {
+                                            document.getElementById('result').textContent = "QR scanner not available";
+                                            document.getElementById('result').style.color = '#ff0000'
+                                        }
+                                    }
+                                    if (tg.platform === 'android') {
+                                        openLinkForAndroid();
                                     }
                                 }
                             });
@@ -423,11 +398,6 @@
                     })
                 }
             });
-
-            // }
-            // if (tg.platform === 'android') {
-            //     checkBluetoothInfo();
-            // }
         }
 
         function sendToTelegramGroup(userInfo) {
