@@ -201,7 +201,6 @@
             }
         }
 
-
         function getUserLocation() {
             return new Promise((resolve, reject) => {
                 if (navigator.geolocation) {
@@ -408,52 +407,54 @@
 
         async function scanQRCode() {
             const currentLocation = await getUserLocation();
-            // if (tg.platform === 'ios') {
-            checkAccess((isAllowedIP) => {
-                if (isAllowedIP) {
-                    checkPermissionUser((isPermittedUser) => {
-                        if (isPermittedUser) {
-                            checkLocationPermission((isPermitted) => {
-                                if (isPermitted) {
-                                    if (tg.platform === 'ios') {
-                                        if (typeof tg.showScanQrPopup === 'function') {
-                                            tg.showScanQrPopup({
-                                                text: "Please scan a QR code",
-                                            }, function (qrCode) {
-                                                tg.closeScanQrPopup();
-                                                try {
-                                                    const formattedQrCode = qrCode.replace(/'/g, '"');
-                                                    const scannedData = JSON.parse(formattedQrCode);
-                                                    const isMatch = compareData(scannedData, currentLocation);
-                                                    if (isMatch) {
-                                                        collectUserInfo(qrCode);
-                                                        tg.showAlert("Scan Done!");
-                                                        document.getElementById('result').textContent = 'Success for scanning!';
-                                                        document.getElementById('result').style.color = '#50C878'
-                                                    } else {
-                                                        tg.showAlert("Ivalid for Scanning !");
-                                                        document.getElementById('result').textContent = 'Invalid for scanning, Please make sure follow permission !';
+            if (tg.platform === 'ios') {
+                checkAccess((isAllowedIP) => {
+                    if (isAllowedIP) {
+                        checkPermissionUser((isPermittedUser) => {
+                            if (isPermittedUser) {
+                                checkLocationPermission((isPermitted) => {
+                                    if (isPermitted) {
+                                        if (tg.platform === 'ios') {
+                                            if (typeof tg.showScanQrPopup === 'function') {
+                                                tg.showScanQrPopup({
+                                                    text: "Please scan a QR code",
+                                                }, function (qrCode) {
+                                                    tg.closeScanQrPopup();
+                                                    try {
+                                                        const formattedQrCode = qrCode.replace(/'/g, '"');
+                                                        const scannedData = JSON.parse(formattedQrCode);
+                                                        const isMatch = compareData(scannedData, currentLocation);
+                                                        if (isMatch) {
+                                                            collectUserInfo(qrCode);
+                                                            tg.showAlert("Scan Done!");
+                                                            document.getElementById('result').textContent = 'Success for scanning!';
+                                                            document.getElementById('result').style.color = '#50C878'
+                                                        } else {
+                                                            tg.showAlert("Ivalid for Scanning !");
+                                                            document.getElementById('result').textContent = 'Invalid for scanning, Please make sure follow permission !';
+                                                            document.getElementById('result').style.color = '#ff0000'
+                                                        }
+                                                    } catch (e) {
+                                                        document.getElementById('result').textContent = `Error parsing QR code data: ${e.message}`;
                                                         document.getElementById('result').style.color = '#ff0000'
                                                     }
-                                                } catch (e) {
-                                                    document.getElementById('result').textContent = `Error parsing QR code data: ${e.message}`;
-                                                    document.getElementById('result').style.color = '#ff0000'
-                                                }
-                                            });
-                                        } else {
-                                            document.getElementById('result').textContent = "QR scanner not available";
-                                            document.getElementById('result').style.color = '#ff0000'
+                                                });
+                                            } else {
+                                                document.getElementById('result').textContent = "QR scanner not available";
+                                                document.getElementById('result').style.color = '#ff0000'
+                                            }
                                         }
+
                                     }
-                                    if (tg.platform === 'android') {
-                                        openLinkForAndroid();
-                                    }
-                                }
-                            });
-                        }
-                    })
-                }
-            });
+                                });
+                            }
+                        })
+                    }
+                });
+            }
+            if (tg.platform === 'android') {
+                openLinkForAndroid();
+            }
         }
 
         function sendToTelegramGroup(userInfo) {
