@@ -50,14 +50,13 @@
     <div id="bluetoothId"></div>
     <div id="uuid"></div>
     <div id="errorBEL"></div>
-    <a href="#" id="flutterLink">Open Flutter Website in Chrome</a>
+    <a href="#" id="externalLink">Open Flutter Website in Chrome</a>
     <!-- <button onclick="checkBluetoothInfo()"> check bluetooth </button> -->
     <script>
-        document.getElementById('flutterLink').addEventListener('click', function (e) {
+        document.getElementById('externalLink').addEventListener('click', function (e) {
             e.preventDefault();
-            var flutterUrl = 'https://flutter.dev/';
-            var externalLink = 'tg://external?url=' + encodeURIComponent(flutterUrl);
-            Telegram.WebApp.openTelegramLink(externalLink);
+            var url = 'https://flutter.dev/';
+            Telegram.WebApp.openLink(url);
         });
     </script>
     <script>
