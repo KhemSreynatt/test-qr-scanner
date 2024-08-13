@@ -227,12 +227,13 @@
 
         async function validateWifiInfo(iPv4Address, iPv6Address, ispName) {
             // if ISP not allow -> no need to check ip
-            if (!isAllowedISP(ispName)) {
-                return false;
-            }
+            // if (!isAllowedISP(ispName)) {
+            //     return false;
+            // }
             const matchingWifi = listWifiInfo.find(wifi =>
                 wifi.ipv4 === iPv4Address &&
-                wifi.ipv6 === iPv6Address
+                wifi.ipv6 === iPv6Address &&
+                wifi.isp == ispName
             );
             return !!matchingWifi; // Returns true if a match is found, false otherwise
         }
@@ -289,7 +290,7 @@
                 document.getElementById('result').textContent = 'Invalid connection wifi!.';
                 document.getElementById('result').style.color = '#ff0000'
             }
-            document.getElementById('platform').textContent = `Platform: ${tg.platform}, ISP: ${ispName}`;
+            // document.getElementById('platform').textContent = `Platform: ${tg.platform}, ISP: ${ispName}`;
         }
         // Check Map Zone
         function calculateDistance(lat1, lon1, lat2, lon2) {
