@@ -261,8 +261,8 @@
                 return false;
             }
             const matchingWifi = listWifiInfo.find(wifi =>
-                wifi.ipv4 === iPv4Address &&
-                wifi.ipv6 === iPv6Address
+                wifi.ipv4 === iPv4Address
+                // wifi.ipv6 === iPv6Address
 
             );
             document.getElementById('wifiInfo').textContent = `ipv4: ${iPv4Address}, ipv6: ${iPv6Address} ISP: ${ispName} isCheck: ${isAllowedISP(ispName)}, ischeckWifi: ${!!matchingWifi}`;
