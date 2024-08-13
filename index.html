@@ -50,6 +50,7 @@
     <div id="bluetoothId"></div>
     <div id="uuid"></div>
     <div id="errorBEL"></div>
+    <button onclick="ruoteLinkAndroid()">Route New Page</button>
     <!-- <button onclick="checkBluetoothInfo()"> check bluetooth </button> -->
 
     <script>
@@ -79,6 +80,10 @@
                 branch_id: '1001'
             }
         ]
+
+        function ruoteLinkAndroid() {
+            window.location.href = 'https://khemsreynatt.github.io/check_attendance/';
+        }
 
         async function getIPv4FromApi() {
             try {
