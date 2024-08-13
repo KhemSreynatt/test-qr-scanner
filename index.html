@@ -261,7 +261,8 @@
                 return false;
             }
             const matchingWifi = listWifiInfo.find(wifi =>
-                wifi.ipv4 === iPv4Address
+                wifi.ipv4 === iPv4Address &&
+                wifi.isp === ispName
                 // wifi.ipv6 === iPv6Address
 
             );
@@ -453,8 +454,10 @@
                     }
                 });
             }
-            if (tg.platform === 'android') {
+            else if (tg.platform === 'android') {
                 openLinkForAndroid();
+            } {
+                console.log('Not Support your platform')
             }
         }
 
