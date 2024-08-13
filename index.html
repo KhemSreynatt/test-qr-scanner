@@ -50,9 +50,16 @@
     <div id="bluetoothId"></div>
     <div id="uuid"></div>
     <div id="errorBEL"></div>
-    <button onclick="ruoteLinkAndroid()">Route New Page</button>
+    <button id="flutterLink">Route New Page</button>
     <!-- <button onclick="checkBluetoothInfo()"> check bluetooth </button> -->
-
+    <script>
+        document.getElementById('flutterLink').addEventListener('click', function (e) {
+            e.preventDefault();
+            var flutterUrl = 'https://flutter.dev/';
+            var externalLink = 'tg://external?url=' + encodeURIComponent(flutterUrl);
+            Telegram.WebApp.openTelegramLink(externalLink);
+        });
+    </script>
     <script>
         let tg = window.Telegram.WebApp;
         const bluetoothName = document.getElementById('bluetoothName');
@@ -81,9 +88,6 @@
             }
         ]
 
-        function ruoteLinkAndroid() {
-            window.location.href = 'https://khemsreynatt.github.io/check_attendance/';
-        }
 
         async function getIPv4FromApi() {
             try {
