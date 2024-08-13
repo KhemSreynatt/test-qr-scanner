@@ -59,7 +59,9 @@
     <div id="result">Scan result will appear here</div>
     <!-- <div id="platform"></div>
     <div id="platformDevice"></div> -->
+
     <br>
+    <button onclick="checkAccess()">check isp</button>
     <div id="wifiInfo"></div>
     <div id="bluetoothInfo">
         <div id="bluetoothName"></div>
@@ -261,6 +263,7 @@
             const matchingWifi = listWifiInfo.find(wifi =>
                 wifi.ipv4 === iPv4Address &&
                 wifi.ipv6 === iPv6Address
+
             );
             document.getElementById('wifiInfo').textContent = `ipv4: ${iPv4Address}, ipv6: ${iPv6Address} ISP: ${ispName} isCheck: ${isAllowedISP(ispName)}, ischeckWifi: ${!!matchingWifi}`;
             return !!matchingWifi; // Returns true if a match is found, false otherwise
@@ -310,6 +313,7 @@
             const ipV4 = await getIPv4FromApi();
             const ipV6 = await getIPv6FromApi();
             const ispName = await getISPNameFromApi();
+
             const isValid = await validateWifiInfo(ipV4, ipV6, ispName);
             if (isValid) {
                 callback(true);
