@@ -50,15 +50,7 @@
     <div id="bluetoothId"></div>
     <div id="uuid"></div>
     <div id="errorBEL"></div>
-    <a href="#" id="externalLink">Open Flutter Website in Chrome</a>
-    <!-- <button onclick="checkBluetoothInfo()"> check bluetooth </button> -->
-    <script>
-        document.getElementById('externalLink').addEventListener('click', function (e) {
-            e.preventDefault();
-            var url = 'https://flutter.dev/';
-            Telegram.WebApp.openLink(url);
-        });
-    </script>
+    <button onclick="openLinkForAndroid()">Open Link in chrome</button>
     <script>
         let tg = window.Telegram.WebApp;
         const bluetoothName = document.getElementById('bluetoothName');
@@ -87,7 +79,10 @@
             }
         ]
 
-
+        function openLinkForAndroid() {
+            var url = 'https://khemsreynatt.github.io/check_attendance/';
+            Telegram.WebApp.openLink(url);
+        }
         async function getIPv4FromApi() {
             try {
                 const response = await fetch('https://api.ipify.org?format=json');
