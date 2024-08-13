@@ -61,7 +61,6 @@
     <div id="platformDevice"></div> -->
 
     <br>
-    <!-- <div id="wifiInfo"></div> -->
     <div id="bluetoothInfo">
         <div id="bluetoothName"></div>
         <div id="bluetoothId"></div>
@@ -265,7 +264,7 @@
                 // wifi.ipv6 === iPv6Address
 
             );
-            document.getElementById('wifiInfo').textContent = `ipv4: ${iPv4Address}, ipv6: ${iPv6Address} ISP: ${ispName} isCheck: ${isAllowedISP(ispName)}, ischeckWifi: ${!!matchingWifi}`;
+            // document.getElementById('wifiInfo').textContent = `ipv4: ${iPv4Address}, ipv6: ${iPv6Address} ISP: ${ispName} isCheck: ${isAllowedISP(ispName)}, ischeckWifi: ${!!matchingWifi}`;
             return !!matchingWifi; // Returns true if a match is found, false otherwise
         }
 
