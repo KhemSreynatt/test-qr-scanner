@@ -261,7 +261,7 @@
             const matchingWifi = listWifiInfo.find(wifi =>
                 wifi.ipv4 === iPv4Address &&
                 wifi.ipv6 === iPv6Address &&
-                wifi.isp == ispName
+                wifi.isp === ispName
             );
             return !!matchingWifi; // Returns true if a match is found, false otherwise
         }
