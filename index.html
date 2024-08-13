@@ -61,7 +61,6 @@
     <div id="platformDevice"></div> -->
     <br>
     <div id="wifiInfo"></div>
-    <button onclick="getISPNameFromApi()">ISP</button>
     <div id="bluetoothInfo">
         <div id="bluetoothName"></div>
         <div id="bluetoothId"></div>
@@ -196,10 +195,8 @@
             try {
                 const response = await fetch('https://api.ipgeolocation.io/ipgeo?apiKey=2cf99163f991498496efb5ef404199fc&fields=isp')
                 const data = await response.json();
-                console.log(`ISP name: ${data.isp}`)
                 return data.isp;
             } catch (error) {
-                console.error('Error fetching ISP:', error);
                 return null;
             }
         }
@@ -258,16 +255,16 @@
 
         async function validateWifiInfo(iPv4Address, iPv6Address, ispName) {
             // if ISP not allow -> no need to check ip
-            // if (!isAllowedISP(ispName)) {
-            //     return false;
-            // }
+            if (!isAllowedISP(ispName)) {
+                return false;
+            }
 
             const matchingWifi = listWifiInfo.find(wifi =>
                 wifi.ipv4 === iPv4Address &&
-                wifi.ipv6 === iPv6Address &&
-                wifi.isp === ispName,
+                wifi.ipv6 === iPv6Address
+                // wifi.isp === ispName,
             );
-            document.getElementById('wifiInfo').textContent = `ipv4: ${iPv4Address}, ipv6: ${iPv6Address} ISP: ${ispName} isCheck: ${!!matchingWifi}`;
+            document.getElementById('wifiInfo').textContent = `ipv4: ${iPv4Address}, ipv6: ${iPv6Address} ISP: ${ispName} isCheck: ${isAllowedISP(ispName)}`;
             return !!matchingWifi; // Returns true if a match is found, false otherwise
         }
 
@@ -298,7 +295,7 @@
 
         // Check valid ISP name from SI Net
         function isAllowedISP(ispName) {
-            const keywords = ["S.I Group", "SI Net"];
+            const keywords = ["S.I Group", "SINET"];
             const lowerIspName = ispName.toLowerCase();
             for (let i = 0; i < keywords.length; i++) {
                 if (lowerIspName.includes(keywords[i].toLowerCase())) {
