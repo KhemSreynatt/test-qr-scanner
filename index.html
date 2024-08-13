@@ -69,7 +69,7 @@
     <button onclick="openLinkForAndroid()">Open Link in chrome</button>
 
     <script>
-        let platformDevice = navigator.platform;
+        let platformDevice = navigator.platform.toLowerCase();
         let tg = window.Telegram.WebApp;
         const bluetoothName = document.getElementById('bluetoothName');
         const bluetoothId = document.getElementById('bluetoothId');
