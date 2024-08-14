@@ -121,7 +121,7 @@
         }
         const detectedPlatform = checkPlatform();
         document.getElementById('platformDevice').textContent = `platformDevice: ${detectedPlatform}`;
-        if (platformDevice === 'android') {
+        if (detectedPlatform === 'android') {
             document.getElementById('bluetoothInfo').style.display = 'block';
         }
         function checkBluetoothAvailability() {
