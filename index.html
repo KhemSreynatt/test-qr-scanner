@@ -57,8 +57,8 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
-    <!-- <div id="platform"></div>
-    <div id="platformDevice"></div> -->
+    <div id="platform"></div>
+    <div id="platformDevice"></div>
 
     <br>
     <div id="bluetoothInfo">
@@ -72,16 +72,20 @@
 
     <script>
         let platformDevice = navigator.platform.toLowerCase();
+
         let tg = window.Telegram.WebApp;
         const bluetoothName = document.getElementById('bluetoothName');
         const bluetoothId = document.getElementById('bluetoothId');
         const uuid = document.getElementById('uuid');
         const errorBLE = document.getElementById('errorBLE');
-        // document.getElementById('platform').textContent = `Platform TMA: ${tg.platform}`;
-        // document.getElementById('platformDevice').textContent = `platformDevice: ${platformDevice}`;
+        document.getElementById('platform').textContent = `Platform TMA: ${tg.platform}`;
+        document.getElementById('platformDevice').textContent = `platformDevice: ${platformDevice}`;
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
+        if (platformDevice === 'android') {
+            document.getElementById('bluetoothInfo').style.display = 'block';
+        }
         const listWifiInfo = [
             {
                 isp: "S.I Group",
@@ -100,15 +104,7 @@
                 branch_id: '1001'
             }
         ]
-        function checkPlatform() {
-            const platform = navigator.platform.toLowerCase();
-            if (platform.includes('win')) return 'Windows';
-            if (platform.includes('mac')) return 'macOS';
-            if (platform.includes('linux')) return 'Linux';
-            if (platform.includes('iphone') || platform.includes('ipod') || platform.includes('ipad')) return 'iOS';
-            if (platform.includes('android')) return 'Android';
-            return 'Unknown';
-        }
+
         function checkBluetoothAvailability() {
             if ('bluetooth' in navigator) {
                 console.log('Bluetooth is available');
@@ -120,13 +116,10 @@
                 return false;
             }
         }
-        if (platformDevice === 'android') {
-            document.getElementById('bluetoothInfo').style.display = 'block';
-        }
+
         async function connectAndGetInfo(device) {
             try {
                 const server = await device.gatt.connect();
-
                 const services = await server.getPrimaryServices();
 
                 for (const service of services) {
@@ -134,7 +127,6 @@
                     console.log('Characteristics for service', service.uuid, ':',
                         characteristics.map(c => c.uuid));
                     uuid.textContent = `Device UUID: ${service.uuid}`;
-
                 }
             } catch (error) {
                 errorBLE.textContent = `Connection error: ${error}`;
@@ -312,7 +304,7 @@
             const ipV4 = await getIPv4FromApi();
             const ipV6 = await getIPv6FromApi();
             const ispName = await getISPNameFromApi();
-
+            alert(`IPV6: ${ipV6}`)
             const isValid = await validateWifiInfo(ipV4, ipV6, ispName);
             if (isValid) {
                 callback(true);
