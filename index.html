@@ -12,6 +12,7 @@
     <!-- Load Babel to enable JSX syntax in the browser -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/platform/1.3.6/platform.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -55,6 +56,26 @@
             display: none;
             width: 100%;
         }
+
+        #scanqrAndroid {
+            display: none;
+            width: 100%;
+        }
+
+        #video-container {
+            width: 100%;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        #qr-canvas {
+            display: none;
+        }
+
+        #qr-result {
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
     </style>
 </head>
 
@@ -64,6 +85,14 @@
     <div id="platform"></div>
     <div id="platformDevice"></div>
     <br>
+    <div id="scanqrAndroid">
+        <div id="qr-result">qr relust</div>
+        <div id="video-container">
+            <video id="qr-video" width="100%" height="90%"></video>
+        </div>
+        <canvas id="qr-canvas">qr canvas</canvas>
+        <button onclick="startScanning()">Scan QR Code</button>
+    </div>
     <div id="platformAndroid">
         <button onclick="openLinkForAndroid()">Verify Bluetooth</button>
     </div>
@@ -74,11 +103,81 @@
         <div id="uuid"></div>
         <div id="errorBLE"></div> -->
         <br><br><br>
-        <button id="connect-button">Connect to Bluetooth Device</button>
+        <button id="check_bluethooth_button">Connect to Bluetooth Device</button>
         <pre id="output"></pre>
     </div>
     <script>
-        document.getElementById('connect-button').addEventListener('click', function () {
+
+        //   Scan for android 
+        const video = document.getElementById('qr-video');
+        const canvasElement = document.getElementById('qr-canvas');
+        const canvas = canvasElement.getContext('2d');
+        const qrResult = document.getElementById('qr-result');
+        const STOP_DELAY = 1000;
+        let scanning = false;
+
+        function startScanning() {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function (stream) {
+                scanning = true;
+                video.srcObject = stream;
+                video.setAttribute('playsinline', true);
+                video.play();
+                requestAnimationFrame(tick);
+            }).catch(function (error) {
+                console.error("Error accessing the camera", error);
+                qrResult.textContent = "Error accessing the camera: " + error.message;
+            });
+        }
+        function stopScanning() {
+            scanning = false;
+            video.pause();
+            video.srcObject.getTracks().forEach(track => track.stop());
+            qrResult.textContent += " (Scanning stopped)";
+        }
+
+        function tick() {
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvasElement.height = video.videoHeight;
+                canvasElement.width = video.videoWidth;
+                canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+                var imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                var code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: "dontInvert",
+                });
+                if (code) {
+                    drawLine(code.location.topLeftCorner, code.location.topRightCorner, "#FF3B58");
+                    drawLine(code.location.topRightCorner, code.location.bottomRightCorner, "#FF3B58");
+                    drawLine(code.location.bottomRightCorner, code.location.bottomLeftCorner, "#FF3B58");
+                    drawLine(code.location.bottomLeftCorner, code.location.topLeftCorner, "#FF3B58");
+                    qrResult.textContent = "Detected QR code: " + code.data;
+
+                    // Add a delay before stopping the scanner
+                    setTimeout(() => {
+                        alert('Scan Done!');
+                        stopScanning();
+                    }, STOP_DELAY);
+
+                    return;
+                } else {
+                    qrResult.textContent = "No QR code detected.";
+                }
+            }
+            if (scanning) {
+                requestAnimationFrame(tick);
+            }
+        }
+
+        function drawLine(begin, end, color) {
+            canvas.beginPath();
+            canvas.moveTo(begin.x, begin.y);
+            canvas.lineTo(end.x, end.y);
+            canvas.lineWidth = 4;
+            canvas.strokeStyle = color;
+            canvas.stroke();
+        }
+
+        //   Scan for android 
+        document.getElementById('check_bluethooth_button').addEventListener('click', function () {
             const output = document.getElementById('output');
             output.textContent = "Requesting Bluetooth Device...";
 
@@ -99,7 +198,7 @@
                     output.textContent += `\n Primary Services UUIDs:`;
                     if (services.length > 0) {
                         let service = services[0];
-                        output.textContent += `\ Service UUID: ${service.uuid}`;
+                        output.textContent += `\n Service UUID: ${service.uuid}`;
                     }
                     else {
                         output.textContent += `\nNo Services found on this device.`;
@@ -154,8 +253,8 @@
         ];
         const listBluetoothInfo = [
             {
-                device_name: "",
-                uuid: ''
+                device_name: "SOUNDPEATS Air4 Pro",
+                uuid: '0000180f-0000-1000-8000-00805f9b34fb'
             }
         ];
         function checkPlatform() {
@@ -182,9 +281,11 @@
         if (detectedPlatform === 'android' && tg.platform === 'unknown') {
             document.getElementById('bluetoothInfo').style.display = 'block';
             document.getElementById('platformAndroid').style.display = 'none';
+            document.getElementById('scanqrAndroid').style.display = 'block';
         }
         if (detectedPlatform === 'android' && tg.platform === 'android') {
             document.getElementById('platformAndroid').style.display = 'block';
+            document.getElementById('scanqrAndroid').style.display = 'none';
         }
 
         function checkBluetoothAvailability() {
@@ -597,6 +698,7 @@
         tg.expand();
 
     </script>
+    <!-- <script src="scan_qr_code.js"></script> -->
 </body>
 
 </html>
