@@ -75,7 +75,8 @@
             output.textContent = "Requesting Bluetooth Device...";
 
             navigator.bluetooth.requestDevice({
-                acceptAllDevices: true
+                acceptAllDevices: true,
+                optionalServices: ['battery_service']
                 // No optional services specified, will list all available primary services
             })
                 .then(device => {
@@ -220,7 +221,8 @@
         // 
         function openLinkForAndroid() {
             var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
-            Telegram.WebApp.openLink(url);
+            // Telegram.WebApp.openLink(url);
+            tg.openLink(url);
         }
         async function getIPv4FromApi() {
             try {
@@ -464,6 +466,7 @@
         async function scanQRCode() {
             const currentLocation = await getUserLocation();
             if (tg.platform === 'ios') {
+
                 checkAccess((isAllowedIP) => {
                     if (isAllowedIP) {
                         checkPermissionUser((isPermittedUser) => {
@@ -504,6 +507,7 @@
                         })
                     }
                 });
+
             }
             else if (tg.platform === 'android') {
                 openLinkForAndroid();
