@@ -120,7 +120,7 @@
         const detectedPlatform = checkPlatform();
 
         document.getElementById('platformDevice').textContent = `platformDevice: ${detectedPlatform}`;
-        if (detectedPlatform === 'android') {
+        if (detectedPlatform === 'android' && tg.platform === 'unknown') {
             document.getElementById('bluetoothInfo').style.display = 'block';
         }
 
