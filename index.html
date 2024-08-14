@@ -60,14 +60,49 @@
 
     <br>
     <div id="bluetoothInfo">
-        <div id="bluetoothName"></div>
+        <!-- <div id="bluetoothName"></div>
         <div id="bluetoothId"></div>
         <div id="uuid"></div>
-        <div id="errorBLE"></div>
+        <div id="errorBLE"></div> -->
         <br><br><br>
-        <button onclick="checkBluetoothInfo()">Please Connect with Bluetooth</button>
+        <button id="connect-button">Connect to Bluetooth Device</button>
+        <pre id="output"></pre>
+        <!-- <button onclick="checkBluetoothInfo()">Please Connect with Bluetooth</button> -->
     </div>
+    <script>
+        document.getElementById('connect-button').addEventListener('click', function () {
+            const output = document.getElementById('output');
+            output.textContent = "Requesting Bluetooth Device...";
 
+            navigator.bluetooth.requestDevice({
+                acceptAllDevices: true, // Accept any device
+                optionalServices: ['battery_service'] // Example service, you can add more services
+            })
+                .then(device => {
+                    output.textContent += `\nDevice Name: ${device.name}`;
+                    output.textContent += `\nDevice ID: ${device.id}`;
+                    return device.gatt.connect();
+                })
+                .then(server => {
+                    output.textContent += `\nConnected to GATT Server`;
+                    return server.getPrimaryServices();
+                })
+                .then(services => {
+                    output.textContent += `\nPrimary Services:`;
+                    services.forEach(service => {
+                        output.textContent += `\n  - Service UUID: ${service.uuid}`;
+                        service.getCharacteristics().then(characteristics => {
+                            characteristics.forEach(characteristic => {
+                                output.textContent += `\n    - Characteristic UUID: ${characteristic.uuid}`;
+                            });
+                        });
+                    });
+                })
+                .catch(error => {
+                    output.textContent += `\nError: ${error}`;
+                });
+        });
+    </script>
     <script>
 
         let tg = window.Telegram.WebApp;
@@ -159,11 +194,12 @@
             try {
                 const device = await navigator.bluetooth.requestDevice({
                     acceptAllDevices: true,
-                    optionalServices: ['12994B7E-6D47-4215-8C9E-AAE9A1095BA3']
+                    optionalServices: ['battery_service']
                 });
                 bluetoothName.textContent = `Device name: ${device.name}`;
                 bluetoothId.textContent = `Device Id : ${device.id}`;
                 return device;
+
             } catch (error) {
                 errorBLE.textContent = `Error BLE info : ${error}`;
                 errorBLE.style.color = '#ff0000';
@@ -173,9 +209,14 @@
             bluetoothName.textContent = 'Checking Bluetooth ...'
             const device = await getBluetoothInfo();
             if (device) {
+                const server = await device.gatt.connect();
+                const services = await server.getPrimaryServices();
+                const uuids = services.map(service => service.uuid);
+                uuid.textContent = `Device UUID: ${uuids}`;
                 await connectAndGetInfo(device);
             }
         }
+
         // 
         function openLinkForAndroid() {
             var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
