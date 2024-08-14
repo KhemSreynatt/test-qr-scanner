@@ -88,10 +88,10 @@
     <div id="scanqrAndroid">
         <div id="qr-result"></div>
         <div id="video-container">
-            <video id="qr-video" width="100%" height="80%"></video>
+            <video id="qr-video" width="100%" height="80%" style="display: none;"></video>
         </div>
-        <!-- <canvas id="qr-canvas">qr canvas</canvas> -->
-        <button onclick="startScanning()">Scan QR Code</button>
+        <canvas id="qr-canvas">qr canvas</canvas>
+        <button id="scanButton" onclick="startScanning()">Scan QR Code</button>
     </div>
     <div id="platformAndroid">
         <button onclick="openLinkForAndroid()">Verify Bluetooth</button>
@@ -113,6 +113,8 @@
         const canvasElement = document.getElementById('qr-canvas');
         const canvas = canvasElement.getContext('2d');
         const qrResult = document.getElementById('qr-result');
+        const videoContainer = document.getElementById('video-container');
+        const scanButton = document.getElementById('scanButton');
         const STOP_DELAY = 1000;
         let scanning = false;
 
@@ -121,6 +123,9 @@
                 scanning = true;
                 video.srcObject = stream;
                 video.setAttribute('playsinline', true);
+                video.style.display = 'block'; // Show video when scanning starts
+                videoContainer.style.display = 'block'; // Show video container
+                scanButton.style.display = 'none'; // Hide scan button
                 video.play();
                 requestAnimationFrame(tick);
             }).catch(function (error) {
@@ -133,6 +138,9 @@
             scanning = false;
             video.pause();
             video.srcObject.getTracks().forEach(track => track.stop());
+            video.style.display = 'none'; // Hide video when scanning stops
+            videoContainer.style.display = 'none'; // Hide video container
+            scanButton.style.display = 'block'; // Show scan button again
         }
 
         function tick() {
@@ -145,12 +153,14 @@
                     inversionAttempts: "dontInvert",
                 });
                 if (code) {
-                    qrResult.textContent = "Detected Value QR code: " + code.data;
+                    qrResult.textContent = code.data;
+
                     // Add a delay before stopping the scanner
                     setTimeout(() => {
                         alert('Scan Done!');
                         stopScanning();
                     }, STOP_DELAY);
+
                     return;
                 } else {
                     qrResult.textContent = "No QR code detected.";
