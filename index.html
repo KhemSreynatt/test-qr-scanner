@@ -133,7 +133,7 @@
             scanning = false;
             video.pause();
             video.srcObject.getTracks().forEach(track => track.stop());
-            video.display = 'none';
+            video.style.display = 'none';
             // qrResult.textContent += " (Scanning stopped)";
         }
 
