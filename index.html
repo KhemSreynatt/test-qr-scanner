@@ -75,8 +75,8 @@
             output.textContent = "Requesting Bluetooth Device...";
 
             navigator.bluetooth.requestDevice({
-                acceptAllDevices: true, // Accept any device
-                optionalServices: ['battery_service'] // Example service, you can add more services
+                acceptAllDevices: true
+                // No optional services specified, will list all available primary services
             })
                 .then(device => {
                     output.textContent += `\nDevice Name: ${device.name}`;
@@ -85,12 +85,13 @@
                 })
                 .then(server => {
                     output.textContent += `\nConnected to GATT Server`;
-                    return server.getPrimaryServices();
+                    return server.getPrimaryServices(); // Get all primary services
                 })
                 .then(services => {
-                    output.textContent += `\nPrimary Services:`;
+                    output.textContent += `\nPrimary Services UUIDs:`;
                     services.forEach(service => {
                         output.textContent += `\n  - Service UUID: ${service.uuid}`;
+                        // You can also get characteristics for each service if needed
                         service.getCharacteristics().then(characteristics => {
                             characteristics.forEach(characteristic => {
                                 output.textContent += `\n    - Characteristic UUID: ${characteristic.uuid}`;
@@ -170,7 +171,6 @@
                 return false;
             }
         }
-
         async function connectAndGetInfo(device) {
             try {
                 const server = await device.gatt.connect();
