@@ -86,7 +86,7 @@
     <div id="platformDevice"></div>
     <br>
     <div id="scanqrAndroid">
-        <div id="qr-result">qr relust</div>
+        <div id="qr-result"></div>
         <div id="video-container">
             <video id="qr-video" width="100%" height="80%"></video>
         </div>
@@ -133,7 +133,8 @@
             scanning = false;
             video.pause();
             video.srcObject.getTracks().forEach(track => track.stop());
-            qrResult.textContent += " (Scanning stopped)";
+            video.display = 'none';
+            // qrResult.textContent += " (Scanning stopped)";
         }
 
         function tick() {
