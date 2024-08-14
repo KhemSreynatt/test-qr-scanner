@@ -94,14 +94,10 @@
         <button id="scanButton" onclick="startScanning()">Scan QR Code</button>
     </div>
     <div id="platformAndroid">
-        <button onclick="openLinkForAndroid()">Verify Bluetooth</button>
+        <button onclick="verifyScanAndroid()">Verify Bluetooth</button>
     </div>
     <br>
     <div id="bluetoothInfo">
-        <!-- <div id="bluetoothName"></div>
-        <div id="bluetoothId"></div>
-        <div id="uuid"></div>
-        <div id="errorBLE"></div> -->
         <br><br><br>
         <button id="check_bluethooth_button">Connect to Bluetooth Device</button>
         <pre id="output"></pre>
@@ -129,13 +125,11 @@
             });
         }
 
-        function stopScanning() {
+        function stopScanning(result) {
             scanning = false;
-            // video.pause();
             video.style.display = 'none';
+            alert('Scan Done!')
             video.srcObject.getTracks().forEach(track => track.stop());
-
-            // qrResult.textContent += " (Scanning stopped)";
         }
 
         function tick() {
@@ -148,12 +142,8 @@
                     inversionAttempts: "dontInvert",
                 });
                 if (code) {
-
                     qrResult.textContent = "Detected QR code: " + code.data;
-
-                    // Add a delay before stopping the scanner
                     setTimeout(() => {
-                        alert('Scan Done!');
                         stopScanning();
                     }, STOP_DELAY);
 
@@ -583,7 +573,6 @@
         async function scanQRCode() {
             const currentLocation = await getUserLocation();
             if (tg.platform === 'ios') {
-
                 checkAccess((isAllowedIP) => {
                     if (isAllowedIP) {
                         checkPermissionUser((isPermittedUser) => {
@@ -626,12 +615,27 @@
                 });
 
             }
-            else if (tg.platform === 'android') {
-                openLinkForAndroid();
-            } {
-                console.log('Not Support your platform')
-            }
+
         }
+
+        async function verifyScanAndroid() {
+            const currentLocation = await getUserLocation();
+            checkAccess((isAllowedIP) => {
+                if (isAllowedIP) {
+                    checkPermissionUser((isPermittedUser) => {
+                        if (isPermittedUser) {
+                            checkLocationPermission((isPermitted) => {
+                                if (isPermitted) {
+                                    openLinkForAndroid()
+                                }
+                            });
+                        }
+                    })
+                }
+            });
+
+        }
+
 
         function sendToTelegramGroup(userInfo) {
             const botToken = '7485708002:AAEy-gCr1lG9ZX6AXxpJdbo6GjA6xtJ5L5U';
