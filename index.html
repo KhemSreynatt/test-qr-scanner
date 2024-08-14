@@ -120,10 +120,12 @@
             }
         }
         const detectedPlatform = checkPlatform();
+
         document.getElementById('platformDevice').textContent = `platformDevice: ${detectedPlatform}`;
         if (detectedPlatform === 'android') {
             document.getElementById('bluetoothInfo').style.display = 'block';
         }
+
         function checkBluetoothAvailability() {
             if ('bluetooth' in navigator) {
                 console.log('Bluetooth is available');
@@ -193,7 +195,7 @@
 
         async function getIPv6FromApi() {
             try {
-                const response = await fetch('https://api6.ipify.org/?format=json');
+                const response = await fetch('https://api6.ipify.org?format=json');
                 const data = await response.json();
                 return data.ip;
             } catch (error) {
@@ -271,8 +273,8 @@
             }
             const matchingWifi = listWifiInfo.find(wifi =>
                 wifi.ipv4 === iPv4Address &&
-                wifi.isp === ispName
-                // wifi.ipv6 === iPv6Address
+                wifi.isp === ispName &&
+                wifi.ipv6 === iPv6Address
 
             );
             // document.getElementById('wifiInfo').textContent = `ipv4: ${iPv4Address}, ipv6: ${iPv6Address} ISP: ${ispName} isCheck: ${isAllowedISP(ispName)}, ischeckWifi: ${!!matchingWifi}`;
@@ -323,7 +325,7 @@
             const ipV4 = await getIPv4FromApi();
             const ipV6 = await getIPv6FromApi();
             const ispName = await getISPNameFromApi();
-            alert(`IPV6: ${ipV6}`)
+            // alert(`IPV6: ${ipV6}`)
             const isValid = await validateWifiInfo(ipV4, ipV6, ispName);
             if (isValid) {
                 callback(true);
