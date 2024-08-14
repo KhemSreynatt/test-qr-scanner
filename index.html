@@ -76,6 +76,7 @@
 
             navigator.bluetooth.requestDevice({
                 acceptAllDevices: true
+                // No optional services specified, will list all available primary services
             })
                 .then(device => {
                     output.textContent += `\nDevice Name: ${device.name}`;
@@ -87,22 +88,16 @@
                     return server.getPrimaryServices(); // Get all primary services
                 })
                 .then(services => {
-                    if (services.length > 0) {
-                        let service = services[0]; // Get the first service
-                        output.textContent += `\nService UUID: ${service.uuid}`;
-
-                        // Get the first characteristic of the first service
-                        return service.getCharacteristics().then(characteristics => {
-                            if (characteristics.length > 0) {
-                                let characteristic = characteristics[0]; // Get the first characteristic
-                                output.textContent += `\nCharacteristic UUID: ${characteristic.uuid}`;
-                            } else {
-                                output.textContent += `\nNo Characteristics found in this Service.`;
-                            }
+                    output.textContent += `\nPrimary Services UUIDs:`;
+                    services.forEach(service => {
+                        output.textContent += `\n  - Service UUID: ${service.uuid}`;
+                        // You can also get characteristics for each service if needed
+                        service.getCharacteristics().then(characteristics => {
+                            characteristics.forEach(characteristic => {
+                                output.textContent += `\n    - Characteristic UUID: ${characteristic.uuid}`;
+                            });
                         });
-                    } else {
-                        output.textContent += `\nNo Services found on this device.`;
-                    }
+                    });
                 })
                 .catch(error => {
                     output.textContent += `\nError: ${error}`;
