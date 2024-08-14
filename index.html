@@ -159,7 +159,7 @@
             try {
                 const device = await navigator.bluetooth.requestDevice({
                     acceptAllDevices: true,
-                    optionalServices: ['0000180d-0000-1000-8000-00805f9b34fb']
+                    optionalServices: ['12994B7E-6D47-4215-8C9E-AAE9A1095BA3']
                 });
                 bluetoothName.textContent = `Device name: ${device.name}`;
                 bluetoothId.textContent = `Device Id : ${device.id}`;
