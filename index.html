@@ -45,7 +45,13 @@
             bottom: 20px;
         }
 
+
         #bluetoothInfo {
+            display: none;
+            width: 100%;
+        }
+
+        #platformAndroid {
             display: none;
             width: 100%;
         }
@@ -58,8 +64,9 @@
     <div id="platform"></div>
     <div id="platformDevice"></div>
     <br>
-    <button onclick="openLinkForAndroid()">Test Route page</button>
-
+    <div class="platformAndroid">
+        <button onclick="openLinkForAndroid()">Verify Bluetooth</button>
+    </div>
     <br>
     <div id="bluetoothInfo">
         <!-- <div id="bluetoothName"></div>
@@ -161,6 +168,9 @@
         document.getElementById('platformDevice').textContent = `platformDevice: ${detectedPlatform}`;
         if (detectedPlatform === 'android' && tg.platform === 'unknown') {
             document.getElementById('bluetoothInfo').style.display = 'block';
+        }
+        if (detectedPlatform === 'android' && tg.platform === 'android') {
+            document.getElementById('platformAndroid').style.display = 'block';
         }
 
         function checkBluetoothAvailability() {
@@ -565,10 +575,13 @@
                 });
         }
 
+        if (tg.platform === 'ios') {
+            tg.MainButton.setText("Scan QR Code");
+            tg.MainButton.onClick(scanQRCode);
+            tg.MainButton.show();
+        }
         tg.expand();
-        tg.MainButton.setText("Scan QR Code");
-        tg.MainButton.onClick(scanQRCode);
-        tg.MainButton.show();
+
     </script>
 </body>
 
