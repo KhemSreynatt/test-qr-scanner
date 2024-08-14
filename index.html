@@ -37,7 +37,7 @@
             width: 100%;
             padding: 10px;
             font-size: 16px;
-            background-color: #4CAF50;
+            background-color: #00B5AC;
             color: white;
             border: none;
             border-radius: 5px;
@@ -76,7 +76,6 @@
         <br><br><br>
         <button id="connect-button">Connect to Bluetooth Device</button>
         <pre id="output"></pre>
-        <!-- <button onclick="checkBluetoothInfo()">Please Connect with Bluetooth</button> -->
     </div>
     <script>
         document.getElementById('connect-button').addEventListener('click', function () {
@@ -86,7 +85,6 @@
             navigator.bluetooth.requestDevice({
                 acceptAllDevices: true,
                 optionalServices: ['battery_service']
-                // No optional services specified, will list all available primary services
             })
                 .then(device => {
                     output.textContent += `\nDevice Name: ${device.name}`;
@@ -98,19 +96,28 @@
                     return server.getPrimaryServices(); // Get all primary services
                 })
                 .then(services => {
-                    output.textContent += `\nPrimary Services UUIDs:`;
-                    services.forEach(service => {
-                        output.textContent += `\n  - Service UUID: ${service.uuid}`;
-                        // You can also get characteristics for each service if needed
-                        service.getCharacteristics().then(characteristics => {
-                            characteristics.forEach(characteristic => {
-                                output.textContent += `\n    - Characteristic UUID: ${characteristic.uuid}`;
-                            });
-                        });
-                    });
+                    output.textContent += `\n Primary Services UUIDs:`;
+                    if (services.length > 0) {
+                        let service = services[0];
+                        output.textContent += `\ Service UUID: ${service.uuid}`;
+                    }
+                    else {
+                        output.textContent += `\nNo Services found on this device.`;
+                        output.style.color = '#ff0000';
+                    }
+                    // services.forEach(service => {
+                    //     output.textContent += `\n  - Service UUID: ${service.uuid}`;
+                    //     // You can also get characteristics for each service if needed
+                    //     service.getCharacteristics().then(characteristics => {
+                    //         characteristics.forEach(characteristic => {
+                    //             output.textContent += `\n    - Characteristic UUID: ${characteristic.uuid}`;
+                    //         });
+                    //     });
+                    // });
                 })
                 .catch(error => {
-                    output.textContent += `\nError: ${error}`;
+                    output.textContent += `\nError Bluetooth Connection : ${error}`;
+                    output.style.color = '#ff0000';
                 });
         });
     </script>
@@ -144,7 +151,13 @@
                 branch: "S.I Group KPS",
                 branch_id: '1001'
             }
-        ]
+        ];
+        const listBluetoothInfo = [
+            {
+                device_name: "",
+                uuid: ''
+            }
+        ];
         function checkPlatform() {
             const userAgent = navigator.userAgent.toLowerCase();
             const platform = navigator.platform.toLowerCase();
@@ -168,6 +181,7 @@
         document.getElementById('platformDevice').textContent = `platformDevice: ${detectedPlatform}`;
         if (detectedPlatform === 'android' && tg.platform === 'unknown') {
             document.getElementById('bluetoothInfo').style.display = 'block';
+            document.getElementById('platformAndroid').style.display = 'none';
         }
         if (detectedPlatform === 'android' && tg.platform === 'android') {
             document.getElementById('platformAndroid').style.display = 'block';
