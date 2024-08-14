@@ -88,7 +88,7 @@
     <div id="scanqrAndroid">
         <div id="qr-result"></div>
         <div id="video-container">
-            <video id="qr-video" width="100%" height="80%"></video>
+            <video id="qr-video" width="100%" height="60%"></video>
         </div>
         <canvas id="qr-canvas">qr canvas</canvas>
         <button id="scanButton" onclick="startScanning()">Scan QR Code</button>
@@ -131,9 +131,10 @@
 
         function stopScanning() {
             scanning = false;
-            video.pause();
-            video.srcObject.getTracks().forEach(track => track.stop());
+            // video.pause();
             video.style.display = 'none';
+            video.srcObject.getTracks().forEach(track => track.stop());
+
             // qrResult.textContent += " (Scanning stopped)";
         }
 
