@@ -146,13 +146,16 @@
                     qrResult.textContent = "Detected QR code: " + code.data;
                     const currentLocation = await getUserLocation();
                     const formattedQrCode = code.data.replace(/'/g, '"');
+                    alert(`Format : ${formattedQrCode}`);
                     const scannedData = JSON.parse(formattedQrCode);
+                    alert(`scannedData : ${scannedData}`);
                     const isMatch = compareData(scannedData, currentLocation);
+                    alert(`isMatch : ${isMatch}`);
                     if (isMatch) {
                         collectUserInfo(qrCode);
                         setTimeout(() => {
                             stopScanning();
-                            alert('Scan Done!')
+                            alert('Scan Done!');
                         }, STOP_DELAY);
                         document.getElementById('result').textContent = 'Success for scanning!';
                         document.getElementById('result').style.color = '#50C878'
