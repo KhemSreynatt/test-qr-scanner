@@ -99,6 +99,8 @@
         <br><br><br>
         <button id="check_bluethooth_button">Connect to Bluetooth Device</button>
         <pre id="output"></pre>
+        <div id="bluetoothName"></div>
+        <div id="uuid"></div>
     </div>
     <script>
 
@@ -109,6 +111,8 @@
         const qrResult = document.getElementById('qr-result');
         const STOP_DELAY = 1000;
         let scanning = false;
+        const bluetoothName = document.getElementById('bluetoothName');
+        const bluetoothUUID = document.getElementById('uuid');
 
         function startScanning() {
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function (stream) {
@@ -165,6 +169,7 @@
                 .then(device => {
                     output.textContent += `\nDevice Name: ${device.name}`;
                     output.textContent += `\nDevice ID: ${device.id}`;
+                    bluetoothName.textContent = `${device.name}`;
                     return device.gatt.connect();
                 })
                 .then(server => {
@@ -176,6 +181,8 @@
                     if (services.length > 0) {
                         let service = services[0];
                         output.textContent += `\n Service UUID: ${service.uuid}`;
+                        bluetoothUUID.textContent = `${service.uuid}`;
+
                         // const isValidBluetooth = validateBluetooth(`${device.name}`, `${service.uuid}`);
                         // alert(`isValidBluetooth : ${isValidBluetooth}`);
                         // if (isValidBluetooth) {
