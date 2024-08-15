@@ -238,7 +238,8 @@
         const MAX_DISTANCE = 80;
         const userId = tg.initDataUnsafe?.user?.id;
         localStorage.setItem('tg_id', userId);
-        const local_tgId = localStorage.getItem('tg_id');
+        const tg_Id = localStorage.getItem('tg_id');
+        const local_tgId = parseInt(tg_Id, 10);
         document.getElementById('tg_id').textContent = local_tgId;
 
         const listWifiInfo = [
