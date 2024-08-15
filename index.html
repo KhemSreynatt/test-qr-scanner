@@ -82,8 +82,6 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
-    <!-- <div id="platform"></div> -->
-    <!-- <div id="platformDevice"></div> -->
     <br>
     <div id="scanqrAndroid">
         <div id="qr-result"></div>
@@ -94,7 +92,6 @@
         <button id="scanButton" onclick="startScanning()">Scan QR Code</button>
     </div>
     <div id="platformAndroid">
-        <!-- <button onclick="verifyScanAndroid()">Verify Bluetooth</button> -->
         <button onclick="openLinkForAndroid()">Verify Bluetooth</button>
     </div>
     <br>
@@ -110,6 +107,8 @@
         const canvasElement = document.getElementById('qr-canvas');
         const canvas = canvasElement.getContext('2d');
         const qrResult = document.getElementById('qr-result');
+        const bluetoothName = document.getElementById('bluetoothName');
+        const deviceUUID = document.getElementById('uuid');
         const STOP_DELAY = 1000;
         let scanning = false;
 
@@ -161,7 +160,6 @@
         document.getElementById('check_bluethooth_button').addEventListener('click', function () {
             const output = document.getElementById('output');
             output.textContent = "Requesting Bluetooth Device...";
-
             navigator.bluetooth.requestDevice({
                 acceptAllDevices: true,
                 optionalServices: ['battery_service']
@@ -169,6 +167,7 @@
                 .then(device => {
                     output.textContent += `\nDevice Name: ${device.name}`;
                     output.textContent += `\nDevice ID: ${device.id}`;
+                    bluetoothName.textContent = device.name;
                     return device.gatt.connect();
                 })
                 .then(server => {
@@ -179,36 +178,47 @@
                     output.textContent += `\n Primary Services UUIDs:`;
                     if (services.length > 0) {
                         let service = services[0];
+                        deviceUUID.textContent = service.uuid;
                         output.textContent += `\n Service UUID: ${service.uuid}`;
+                        const isValidBluetooth = validateBluetooth(bluetoothName, deviceUUID);
+                        alert(`isValidBluetooth : ${isValidBluetooth}`);
+                        if (isValidBluetooth) {
+                            callback(true);
+                            document.getElementById('scanqrAndroid').style.display = 'block';
+                        } else {
+                            callback(false);
+                            document.getElementById('scanqrAndroid').style.display = 'none';
+                            document.getElementById('result').textContent = 'Invalid connection Bluetooth!...';
+                            document.getElementById('result').style.color = '#ff0000'
+                        }
                     }
                     else {
                         output.textContent += `\nNo Services found on this device.`;
                         output.style.color = '#ff0000';
                     }
-                    // services.forEach(service => {
-                    //     output.textContent += `\n  - Service UUID: ${service.uuid}`;
-                    //     // You can also get characteristics for each service if needed
-                    //     service.getCharacteristics().then(characteristics => {
-                    //         characteristics.forEach(characteristic => {
-                    //             output.textContent += `\n    - Characteristic UUID: ${characteristic.uuid}`;
-                    //         });
-                    //     });
-                    // });
+
                 })
                 .catch(error => {
                     output.textContent += `\nError Bluetooth Connection : ${error}`;
                     output.style.color = '#ff0000';
                 });
         });
+
+        // function checkVerify(callback) {
+        //     const isValidBluetooth = validateBluetooth(bluetoothName, deviceUUID);
+        //     if (isValidBluetooth) {
+        //         callback(true);
+        //     } else {
+        //         callback(false);
+        //         document.getElementById('result').textContent = 'Invalid connection Bluetooth!...';
+        //         document.getElementById('result').style.color = '#ff0000'
+        //     }
+        // }
+
     </script>
     <script>
 
         let tg = window.Telegram.WebApp;
-        const bluetoothName = document.getElementById('bluetoothName');
-        const bluetoothId = document.getElementById('bluetoothId');
-        const uuid = document.getElementById('uuid');
-        const errorBLE = document.getElementById('errorBLE');
-
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
@@ -260,18 +270,19 @@
         if (detectedPlatform === 'android' && tg.platform === 'unknown') {
             document.getElementById('bluetoothInfo').style.display = 'block';
             document.getElementById('platformAndroid').style.display = 'none';
-            document.getElementById('scanqrAndroid').style.display = 'block';
+            // document.getElementById('scanqrAndroid').style.display = 'block';
         }
         if (detectedPlatform === 'android' && tg.platform === 'android') {
 
-            document.getElementById('scanqrAndroid').style.display = 'none';
+            // document.getElementById('scanqrAndroid').style.display = 'none';
+            // Verify information for Android
             checkAccess((isAllowedIP) => {
                 if (isAllowedIP) {
                     checkPermissionUser((isPermittedUser) => {
                         if (isPermittedUser) {
                             checkLocationPermission((isPermitted) => {
                                 if (isPermitted) {
-                                    alert(`Location is : ${isPermitted}`);
+
                                     document.getElementById('platformAndroid').style.display = 'block';
 
                                 }
@@ -283,62 +294,8 @@
 
         }
 
-        function checkBluetoothAvailability() {
-            if ('bluetooth' in navigator) {
-                console.log('Bluetooth is available');
-                return true;
-            } else {
-                errorBLE.textContent = 'Bluetooth is not available in this browser';
-                errorBLE.style.color = '#ff0000';
-                console.log('Bluetooth is not available in this browser');
-                return false;
-            }
-        }
-        async function connectAndGetInfo(device) {
-            try {
-                const server = await device.gatt.connect();
-                const services = await server.getPrimaryServices();
 
-                for (const service of services) {
-                    const characteristics = await service.getCharacteristics();
-                    console.log('Characteristics for service', service.uuid, ':',
-                        characteristics.map(c => c.uuid));
-                    uuid.textContent = `Device UUID: ${service.uuid}`;
-                }
-            } catch (error) {
-                errorBLE.textContent = `Connection error: ${error}`;
-                errorBLE.style.color = '#ff0000';
-                console.error('Connection error:', error);
-            }
-        }
-        async function getBluetoothInfo() {
-            if (!checkBluetoothAvailability()) return;
 
-            try {
-                const device = await navigator.bluetooth.requestDevice({
-                    acceptAllDevices: true,
-                    optionalServices: ['battery_service']
-                });
-                bluetoothName.textContent = `Device name: ${device.name}`;
-                bluetoothId.textContent = `Device Id : ${device.id}`;
-                return device;
-
-            } catch (error) {
-                errorBLE.textContent = `Error BLE info : ${error}`;
-                errorBLE.style.color = '#ff0000';
-            }
-        }
-        async function checkBluetoothInfo() {
-            bluetoothName.textContent = 'Checking Bluetooth ...'
-            const device = await getBluetoothInfo();
-            if (device) {
-                const server = await device.gatt.connect();
-                const services = await server.getPrimaryServices();
-                const uuids = services.map(service => service.uuid);
-                uuid.textContent = `Device UUID: ${uuids}`;
-                await connectAndGetInfo(device);
-            }
-        }
 
 
         function openLinkForAndroid() {
@@ -440,7 +397,14 @@
 
             return !!matchingWifi; // return true;
         }
+        async function validateBluetooth(deviceName, uuid) {
+            const matchingBluetooth = listBluetoothInfo.find(bluetooth =>
+                bluetooth.device_name === deviceName &&
+                bluetooth.uuid === uuid
+            );
 
+            return !!matchingBluetooth;
+        }
         function checkPermissionUser(callback) {
             const userId = tg.initDataUnsafe?.user?.id;
             fetch('assets/user.xlsx')
@@ -628,26 +592,6 @@
 
         }
 
-        async function verifyScanAndroid() {
-            // const currentLocation = await getUserLocation();
-            checkAccess((isAllowedIP) => {
-                if (isAllowedIP) {
-                    checkPermissionUser((isPermittedUser) => {
-                        if (isPermittedUser) {
-                            checkLocationPermission((isPermitted) => {
-                                if (isPermitted) {
-                                    alert(`Location is : ${isPermitted}`);
-                                    var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
-                                    setTimeout(() => {
-                                        tg.openLink(url);
-                                    }, 100);
-                                }
-                            });
-                        }
-                    })
-                }
-            });
-        }
 
 
         function sendToTelegramGroup(userInfo) {
