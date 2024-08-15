@@ -185,7 +185,7 @@
                         const isValidBluetooth = validateBluetooth(bluetoothName, bluetoothUUID);
                         document.getElementById('isValidBluetooth').textContent = `isValidBluetooth: ${isValidBluetooth},\nuuid :${bluetoothUUID}, \nname: ${bluetoothName}`;
                         if (isValidBluetooth) {
-                            output.textContent.style.display = 'none';
+                            // output.textContent.style.display = 'none';
                             document.getElementById('scanqrAndroid').style.display = 'block';
                         } else {
                             document.getElementById('scanqrAndroid').style.display = 'none';
