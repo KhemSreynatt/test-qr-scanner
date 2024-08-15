@@ -622,8 +622,11 @@
                             checkLocationPermission((isPermitted) => {
                                 if (isPermitted) {
                                     alert(`Location is : ${isPermitted}`);
-                                    openLinkForAndroid();
+                                    var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
 
+                                    setTimeout(() => {
+                                        tg.openLink(url);
+                                    }, 100);
                                 }
                             });
                         }
