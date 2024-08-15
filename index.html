@@ -109,7 +109,7 @@
         const canvasElement = document.getElementById('qr-canvas');
         const canvas = canvasElement.getContext('2d');
         const qrResult = document.getElementById('qr-result');
-        const STOP_DELAY = 1000;
+        const STOP_DELAY = 300;
         let scanning = false;
         let bluetoothName = '';
         let bluetoothUUID = '';
@@ -130,11 +130,10 @@
         function stopScanning(result) {
             scanning = false;
             video.style.display = 'none';
-            alert('Scan Done!')
             video.srcObject.getTracks().forEach(track => track.stop());
         }
 
-        function tick() {
+        async function tick() {
             if (video.readyState === video.HAVE_ENOUGH_DATA) {
                 canvasElement.height = video.videoHeight;
                 canvasElement.width = video.videoWidth;
@@ -145,9 +144,23 @@
                 });
                 if (code) {
                     qrResult.textContent = "Detected QR code: " + code.data;
-                    setTimeout(() => {
-                        stopScanning();
-                    }, STOP_DELAY);
+                    const currentLocation = await getUserLocation();
+                    const formattedQrCode = code.data.replace(/'/g, '"');
+                    const scannedData = JSON.parse(formattedQrCode);
+                    const isMatch = compareData(scannedData, currentLocation);
+                    if (isMatch) {
+                        collectUserInfo(qrCode);
+                        setTimeout(() => {
+                            stopScanning();
+                            alert('Scan Done!')
+                        }, STOP_DELAY);
+                        document.getElementById('result').textContent = 'Success for scanning!';
+                        document.getElementById('result').style.color = '#50C878'
+                    } else {
+                        tg.showAlert("Ivalid for Scanning !");
+                        document.getElementById('result').textContent = 'Invalid for scanning, Please make sure follow permission !';
+                        document.getElementById('result').style.color = '#ff0000'
+                    }
 
                     return;
                 } else {
@@ -384,11 +397,8 @@
                 wifi.ipv4 === iPv4Address &&
                 wifi.isp === ispName
             );
-
             return !!matchingWifi; // return true;
         }
-
-
 
         function checkPermissionUser(callback) {
             const userId = tg.initDataUnsafe?.user?.id;
