@@ -176,17 +176,17 @@
                     if (services.length > 0) {
                         let service = services[0];
                         output.textContent += `\n Service UUID: ${service.uuid}`;
-                        const isValidBluetooth = validateBluetooth(`${device.name}`, `${service.uuid}`);
-                        alert(`isValidBluetooth : ${isValidBluetooth}`);
-                        if (isValidBluetooth) {
-                            callback(true);
-                            document.getElementById('scanqrAndroid').style.display = 'block';
-                        } else {
-                            callback(false);
-                            document.getElementById('scanqrAndroid').style.display = 'none';
-                            document.getElementById('result').textContent = 'Invalid connection Bluetooth!...';
-                            document.getElementById('result').style.color = '#ff0000'
-                        }
+                        // const isValidBluetooth = validateBluetooth(`${device.name}`, `${service.uuid}`);
+                        // alert(`isValidBluetooth : ${isValidBluetooth}`);
+                        // if (isValidBluetooth) {
+                        //     callback(true);
+                        //     document.getElementById('scanqrAndroid').style.display = 'block';
+                        // } else {
+                        //     callback(false);
+                        //     document.getElementById('scanqrAndroid').style.display = 'none';
+                        //     document.getElementById('result').textContent = 'Invalid connection Bluetooth!...';
+                        //     document.getElementById('result').style.color = '#ff0000'
+                        // }
                     }
                     else {
                         output.textContent += `\nNo Services found on this device.`;
