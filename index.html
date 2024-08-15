@@ -157,7 +157,7 @@
                     const isMatch = compareData(scannedData, currentLocation);
                     alert(`isMatch : ${isMatch}`);
                     if (isMatch) {
-                        collectUserInfo(qrCode);
+                        collectUserInfo();
                         document.getElementById('result').textContent = 'Success for scanning!';
                         document.getElementById('result').style.color = '#50C878'
                     } else {
@@ -515,7 +515,7 @@
                     callback("Unable to get address");
                 });
         }
-        function collectUserInfo(qrCode) {
+        function collectUserInfo() {
             const userId = tg.initDataUnsafe?.user?.id;
             fetch('assets/user.xlsx')
                 .then(response => response.arrayBuffer())
@@ -564,7 +564,7 @@
                                                     const isMatch = compareData(scannedData, currentLocation);
                                                     alert(`isMatch qr : ${isMatch}`);
                                                     if (isMatch) {
-                                                        collectUserInfo(qrCode);
+                                                        collectUserInfo();
                                                         tg.showAlert("Scan Done!");
                                                         document.getElementById('result').textContent = 'Success for scanning!';
                                                         document.getElementById('result').style.color = '#50C878'
