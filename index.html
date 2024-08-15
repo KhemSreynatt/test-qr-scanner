@@ -616,14 +616,14 @@
             // const currentLocation = await getUserLocation();
             checkAccess((isAllowedIP) => {
                 if (isAllowedIP) {
-                    alert(`IPV4 is : ${isAllowedIP}`);
                     checkPermissionUser((isPermittedUser) => {
-                        alert(`User is : ${isPermittedUser}`);
                         if (isPermittedUser) {
                             checkLocationPermission((isPermitted) => {
-                                alert(`Location is : ${isPermitted}`);
                                 if (isPermitted) {
-                                    openLinkForAndroid();
+                                    alert(`Location is : ${isPermitted}`);
+                                    // openLinkForAndroid();
+                                    var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
+                                    tg.openLink(url);
                                 }
                             });
                         }
