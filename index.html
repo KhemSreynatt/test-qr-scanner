@@ -97,13 +97,10 @@
     <br>
     <div id="bluetoothInfo">
         <br>
-        <div id="bluetoothName">Bluetooth name</div>
-        <div id="uuid">UUID</div>
-        <div id="isValidBluetooth">isValidBluetooth</div>
+        <div id="isValidBluetooth">Blutooth Info</div>
         <br><br>
         <button id="check_bluethooth_button">Connect to Bluetooth Device</button>
         <pre id="output"></pre>
-
     </div>
     <script>
 
@@ -114,9 +111,8 @@
         const qrResult = document.getElementById('qr-result');
         const STOP_DELAY = 1000;
         let scanning = false;
-        let BLEName = '';
-        const bluetoothName = document.getElementById('bluetoothName');
-        const bluetoothUUID = document.getElementById('uuid');
+        const bluetoothName = '';
+        const bluetoothUUID = '';
 
         function startScanning() {
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function (stream) {
@@ -173,8 +169,7 @@
                 .then(device => {
                     output.textContent += `\nDevice Name: ${device.name}`;
                     output.textContent += `\nDevice ID: ${device.id}`;
-                    bluetoothName.textContent = `${device.name}`;
-                    BLEName = `${device.name}`;
+                    bluetoothName = `${device.name}`;
                     return device.gatt.connect();
                 })
                 .then(server => {
@@ -186,18 +181,7 @@
                     if (services.length > 0) {
                         let service = services[0];
                         output.textContent += `\n Service UUID: ${service.uuid}`;
-                        bluetoothUUID.textContent = `${service.uuid}`;
-                        const isValidBluetooth = validateBluetooth(BLEName, `${service.uuid}`);
-                        document.getElementById('isValidBluetooth').textContent = `isValidBluetooth: ${isValidBluetooth},uuid :${service.uuid}, name value: ${BLEName},`;
-
-                        if (isValidBluetooth) {
-                            output.textContent.style.display = 'none';
-                            document.getElementById('scanqrAndroid').style.display = 'block';
-                        } else {
-                            document.getElementById('scanqrAndroid').style.display = 'none';
-                            document.getElementById('result').textContent = 'Invalid connection Bluetooth!...';
-                            document.getElementById('result').style.color = '#ff0000'
-                        }
+                        bluetoothUUID = `${service.uuid}`;
                     }
                     else {
                         output.textContent += `\nNo Services found on this device.`;
@@ -219,18 +203,6 @@
 
             return !!matchingBluetooth;
         }
-
-
-        // function checkVerify(callback) {
-        //     const isValidBluetooth = validateBluetooth(bluetoothName, deviceUUID);
-        //     if (isValidBluetooth) {
-        //         callback(true);
-        //     } else {
-        //         callback(false);
-        //         document.getElementById('result').textContent = 'Invalid connection Bluetooth!...';
-        //         document.getElementById('result').style.color = '#ff0000'
-        //     }
-        // }
 
     </script>
     <script>
@@ -286,6 +258,16 @@
         if (detectedPlatform === 'android' && tg.platform === 'unknown') {
             document.getElementById('bluetoothInfo').style.display = 'block';
             document.getElementById('platformAndroid').style.display = 'none';
+            const isValidBluetooth = validateBluetooth(bluetoothName, bluetoothUUID);
+            document.getElementById('isValidBluetooth').textContent = `isValidBluetooth: ${isValidBluetooth},\nuuid :${bluetoothUUID}, \nname: ${bluetoothName}`;
+            if (isValidBluetooth) {
+                output.textContent.style.display = 'none';
+                document.getElementById('scanqrAndroid').style.display = 'block';
+            } else {
+                document.getElementById('scanqrAndroid').style.display = 'none';
+                document.getElementById('result').textContent = 'Invalid connection Bluetooth!...';
+                document.getElementById('result').style.color = '#ff0000'
+            }
             // document.getElementById('scanqrAndroid').style.display = 'block';
         }
         if (detectedPlatform === 'android' && tg.platform === 'android') {
