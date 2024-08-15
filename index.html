@@ -149,7 +149,6 @@
                         stopScanning();
                         alert('Scan Done!');
                     }, STOP_DELAY);
-                    alert(`code: ${code}`);
                     const currentLocation = await getUserLocation();
                     const formattedQrCode = code.data.replace(/'/g, '"');
                     alert(`Format : ${formattedQrCode}`);
@@ -159,11 +158,10 @@
                     alert(`isMatch : ${isMatch}`);
                     if (isMatch) {
                         collectUserInfo(qrCode);
-
                         document.getElementById('result').textContent = 'Success for scanning!';
                         document.getElementById('result').style.color = '#50C878'
                     } else {
-                        tg.showAlert("Ivalid for Scanning !");
+                        alert("Ivalid for Scanning !");
                         document.getElementById('result').textContent = 'Invalid for scanning, Please make sure follow permission !';
                         document.getElementById('result').style.color = '#ff0000'
                     }
@@ -295,9 +293,7 @@
                         if (isPermittedUser) {
                             checkLocationPermission((isPermitted) => {
                                 if (isPermitted) {
-
                                     document.getElementById('platformAndroid').style.display = 'block';
-
                                 }
                             });
                         }
@@ -375,6 +371,7 @@
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             return R * c; // Distance in meters
         }
+
         function compareData(scannedData, currentLocation) {
             for (const wifiInfo of listWifiInfo) {
                 const { isp, ipv4, gps, branch, branch_id } = wifiInfo;
@@ -563,7 +560,9 @@
                                                     alert(`value qr : ${qrCode}`);
                                                     const formattedQrCode = qrCode.replace(/'/g, '"');
                                                     const scannedData = JSON.parse(formattedQrCode);
+                                                    alert(`scannedData qr : ${scannedData}`);
                                                     const isMatch = compareData(scannedData, currentLocation);
+                                                    alert(`isMatch qr : ${isMatch}`);
                                                     if (isMatch) {
                                                         collectUserInfo(qrCode);
                                                         tg.showAlert("Scan Done!");
