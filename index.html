@@ -107,8 +107,6 @@
         const canvasElement = document.getElementById('qr-canvas');
         const canvas = canvasElement.getContext('2d');
         const qrResult = document.getElementById('qr-result');
-        const bluetoothName = document.getElementById('bluetoothName');
-        const deviceUUID = document.getElementById('uuid');
         const STOP_DELAY = 1000;
         let scanning = false;
 
@@ -167,7 +165,6 @@
                 .then(device => {
                     output.textContent += `\nDevice Name: ${device.name}`;
                     output.textContent += `\nDevice ID: ${device.id}`;
-                    bluetoothName.textContent = device.name;
                     return device.gatt.connect();
                 })
                 .then(server => {
@@ -178,9 +175,8 @@
                     output.textContent += `\n Primary Services UUIDs:`;
                     if (services.length > 0) {
                         let service = services[0];
-                        deviceUUID.textContent = service.uuid;
                         output.textContent += `\n Service UUID: ${service.uuid}`;
-                        const isValidBluetooth = validateBluetooth(bluetoothName, deviceUUID);
+                        const isValidBluetooth = validateBluetooth(`${device.name}`, `${service.uuid}`);
                         alert(`isValidBluetooth : ${isValidBluetooth}`);
                         if (isValidBluetooth) {
                             callback(true);
