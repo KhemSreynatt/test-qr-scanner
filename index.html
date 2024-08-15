@@ -83,7 +83,7 @@
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
     <br>
-    <div id="userID">user ID</div>
+    <div id="tg_id">user ID</div>
     <div id="scanqrAndroid">
         <div id="qr-result"></div>
         <div id="video-container">
@@ -237,7 +237,9 @@
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
         const userId = tg.initDataUnsafe?.user?.id;
-        document.getElementById('userID').textContent = userId;
+        localStorage.setItem('tg_id', userId);
+        const local_tgId = localStorage.getItem('tg_id');
+        document.getElementById('tg_id').textContent = local_tgId;
 
         const listWifiInfo = [
             {
@@ -411,7 +413,7 @@
                     const sheetName = workbook.SheetNames[0];
                     const sheet = workbook.Sheets[sheetName];
                     const jsonData = XLSX.utils.sheet_to_json(sheet);
-                    const filteredUsers = jsonData.filter(user => user.Telegram_id === userId);
+                    const filteredUsers = jsonData.filter(user => user.Telegram_id === local_tgId);
                     if (filteredUsers.length > 0) {
                         callback(true);
                     } else {
@@ -523,7 +525,7 @@
                     const sheetName = workbook.SheetNames[0];
                     const sheet = workbook.Sheets[sheetName];
                     const jsonData = XLSX.utils.sheet_to_json(sheet);
-                    const filteredUsers = jsonData.filter(user => user.Telegram_id === userId);
+                    const filteredUsers = jsonData.filter(user => user.Telegram_id === local_tgId);
                     filteredUsers.forEach(user => {
                         navigator.geolocation.getCurrentPosition(
                             (position) => {
