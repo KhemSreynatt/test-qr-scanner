@@ -196,7 +196,15 @@
                     output.style.color = '#ff0000';
                 });
         });
-        const isValidBluetooth = validateBluetooth(bluetoothName, bluetoothUUID);
+        function validateBluetooth() {
+            const matchingBluetooth = listBluetoothInfo.find(bluetooth =>
+                bluetooth.device_name === bluetoothName &&
+                bluetooth.uuid === bluetoothUUID
+            );
+
+            return !!matchingBluetooth;
+        }
+        const isValidBluetooth = validateBluetooth();
         alert(`isValidBluetooth : ${isValidBluetooth}`);
         if (isValidBluetooth) {
             output.textContent.style.display = 'none';
@@ -295,10 +303,6 @@
             });
 
         }
-
-
-
-
 
         function openLinkForAndroid() {
             var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
@@ -399,14 +403,9 @@
 
             return !!matchingWifi; // return true;
         }
-        function validateBluetooth(deviceName, uuid) {
-            const matchingBluetooth = listBluetoothInfo.find(bluetooth =>
-                bluetooth.device_name === deviceName &&
-                bluetooth.uuid === uuid
-            );
 
-            return !!matchingBluetooth;
-        }
+
+
         function checkPermissionUser(callback) {
             const userId = tg.initDataUnsafe?.user?.id;
             fetch('assets/user.xlsx')
