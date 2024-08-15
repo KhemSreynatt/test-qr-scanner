@@ -172,7 +172,7 @@
                 .then(device => {
                     output.textContent += `\nDevice Name: ${device.name}`;
                     output.textContent += `\nDevice ID: ${device.id}`;
-
+                    bluetoothName.textContent = `${device.name}`;
                     return device.gatt.connect();
                 })
                 .then(server => {
@@ -185,8 +185,7 @@
                         let service = services[0];
                         output.textContent += `\n Service UUID: ${service.uuid}`;
                         bluetoothUUID.textContent = `${service.uuid}`;
-                        bluetoothName.textContent = `${device.name}`;
-                        const isValidBluetooth = validateBluetooth(`${device.name}`, `${service.uuid}`);
+                        const isValidBluetooth = validateBluetooth(`${bluetoothName.value}`, `${service.uuid}`);
                         document.getElementById('isValidBluetooth').textContent = `isValidBluetooth: ${isValidBluetooth}`;
                         alert(`isValidBluetooth : ${isValidBluetooth}`);
                         if (isValidBluetooth) {
