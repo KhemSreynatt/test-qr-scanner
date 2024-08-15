@@ -327,7 +327,7 @@
 
         function openLinkForAndroid() {
             var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
-            tg.openLink(url);
+            Telegram.WebApp.openLink(url);
         }
         async function getIPv4FromApi() {
             try {
@@ -620,7 +620,7 @@
                     alert(`ip is : ${isAllowedIP}`);
                     var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
                     setTimeout(() => {
-                        tg.openLink(url);
+                        Telegram.WebApp.openLink(url);
                     }, 100);
                     // checkPermissionUser((isPermittedUser) => {
                     //     if (isPermittedUser) {
