@@ -151,11 +151,8 @@
                     }, STOP_DELAY);
                     const currentLocation = await getUserLocation();
                     const formattedQrCode = code.data.replace(/'/g, '"');
-                    alert(`Format : ${formattedQrCode}`);
                     const scannedData = JSON.parse(formattedQrCode);
-                    alert(`scannedData : ${scannedData}`);
                     const isMatch = compareData(scannedData, currentLocation);
-                    alert(`isMatch : ${isMatch}`);
                     if (isMatch) {
                         collectUserInfo();
                         document.getElementById('result').textContent = 'Success for scanning!';
@@ -238,6 +235,7 @@
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
+        const userId = tg.initDataUnsafe?.user?.id;
 
         const listWifiInfo = [
             {
@@ -404,7 +402,6 @@
         }
 
         function checkPermissionUser(callback) {
-            const userId = tg.initDataUnsafe?.user?.id;
             fetch('assets/user.xlsx')
                 .then(response => response.arrayBuffer())
                 .then(data => {
@@ -516,7 +513,7 @@
                 });
         }
         function collectUserInfo() {
-            const userId = tg.initDataUnsafe?.user?.id;
+
             fetch('assets/user.xlsx')
                 .then(response => response.arrayBuffer())
                 .then(data => {
@@ -557,12 +554,9 @@
                                             }, function (qrCode) {
                                                 tg.closeScanQrPopup();
                                                 try {
-                                                    alert(`value qr : ${qrCode}`);
                                                     const formattedQrCode = qrCode.replace(/'/g, '"');
                                                     const scannedData = JSON.parse(formattedQrCode);
-                                                    alert(`scannedData qr : ${scannedData}`);
                                                     const isMatch = compareData(scannedData, currentLocation);
-                                                    alert(`isMatch qr : ${isMatch}`);
                                                     if (isMatch) {
                                                         collectUserInfo();
                                                         tg.showAlert("Scan Done!");
