@@ -185,7 +185,7 @@
                         const isValidBluetooth = validateBluetooth(bluetoothName, bluetoothUUID);
                         document.getElementById('isValidBluetooth').textContent = `isValidBluetooth: ${isValidBluetooth},\nuuid :${bluetoothUUID}, \nname: ${bluetoothName}`;
                         if (isValidBluetooth) {
-                            // output.textContent.style.display = 'none';
+                            document.getElementById('bluetoothInfo').style.display = 'none';
                             document.getElementById('scanqrAndroid').style.display = 'block';
                         } else {
                             document.getElementById('scanqrAndroid').style.display = 'none';
@@ -268,12 +268,8 @@
         if (detectedPlatform === 'android' && tg.platform === 'unknown') {
             document.getElementById('bluetoothInfo').style.display = 'block';
             document.getElementById('platformAndroid').style.display = 'none';
-            // document.getElementById('scanqrAndroid').style.display = 'block';
         }
         if (detectedPlatform === 'android' && tg.platform === 'android') {
-
-            // document.getElementById('scanqrAndroid').style.display = 'none';
-            // Verify information for Android
             checkAccess((isAllowedIP) => {
                 if (isAllowedIP) {
                     checkPermissionUser((isPermittedUser) => {
