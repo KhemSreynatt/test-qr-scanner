@@ -114,6 +114,7 @@
         const qrResult = document.getElementById('qr-result');
         const STOP_DELAY = 1000;
         let scanning = false;
+        let BLEName = '';
         const bluetoothName = document.getElementById('bluetoothName');
         const bluetoothUUID = document.getElementById('uuid');
 
@@ -173,6 +174,7 @@
                     output.textContent += `\nDevice Name: ${device.name}`;
                     output.textContent += `\nDevice ID: ${device.id}`;
                     bluetoothName.textContent = `${device.name}`;
+                    BLEName = `${device.name}`;
                     return device.gatt.connect();
                 })
                 .then(server => {
@@ -185,8 +187,8 @@
                         let service = services[0];
                         output.textContent += `\n Service UUID: ${service.uuid}`;
                         bluetoothUUID.textContent = `${service.uuid}`;
-                        const isValidBluetooth = validateBluetooth(`${bluetoothName}`, `${service.uuid}`);
-                        document.getElementById('isValidBluetooth').textContent = `isValidBluetooth: ${isValidBluetooth},uuid :${service.uuid}, name value: ${bluetoothName.value}, name : ${bluetoothName}`;
+                        const isValidBluetooth = validateBluetooth(BLEName, `${service.uuid}`);
+                        document.getElementById('isValidBluetooth').textContent = `isValidBluetooth: ${isValidBluetooth},uuid :${service.uuid}, name value: ${BLEName},`;
 
                         if (isValidBluetooth) {
                             output.textContent.style.display = 'none';
