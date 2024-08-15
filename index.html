@@ -613,12 +613,15 @@
         }
 
         async function verifyScanAndroid() {
-            const currentLocation = await getUserLocation();
+            // const currentLocation = await getUserLocation();
             checkAccess((isAllowedIP) => {
                 if (isAllowedIP) {
+                    alert(`IPV4 is : ${isAllowedIP}`);
                     checkPermissionUser((isPermittedUser) => {
+                        alert(`User is : ${isPermittedUser}`);
                         if (isPermittedUser) {
                             checkLocationPermission((isPermitted) => {
+                                alert(`Location is : ${isPermitted}`);
                                 if (isPermitted) {
                                     openLinkForAndroid()
                                 }
