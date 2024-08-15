@@ -82,8 +82,8 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
-    <div id="platform"></div>
-    <div id="platformDevice"></div>
+    <!-- <div id="platform"></div> -->
+    <!-- <div id="platformDevice"></div> -->
     <br>
     <div id="scanqrAndroid">
         <div id="qr-result"></div>
@@ -207,7 +207,6 @@
         const bluetoothId = document.getElementById('bluetoothId');
         const uuid = document.getElementById('uuid');
         const errorBLE = document.getElementById('errorBLE');
-        document.getElementById('platform').textContent = `Platform TMA: ${tg.platform}`;
 
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
@@ -217,7 +216,7 @@
             {
                 isp: "S.I Group",
                 ipv4: "203.217.168.61",
-                ipv6: "2404:b300:12:80::d7",
+                // ipv6: "2404:b300:12:80::d7",
                 gps: '11.556330952721005, 104.9217849523827',
                 branch: "S.I Group HQ",
                 branch_id: '1000'
@@ -225,7 +224,7 @@
             {
                 isp: "S.I Group",
                 ipv4: "203.217.168.45",
-                ipv6: "2404:b300:12:9::12",
+                // ipv6: "2404:b300:12:9::12",
                 gps: '11.556249586635088, 104.92181846761173',
                 branch: "S.I Group KPS",
                 branch_id: '1001'
@@ -257,7 +256,6 @@
         }
         const detectedPlatform = checkPlatform();
 
-        document.getElementById('platformDevice').textContent = `platformDevice: ${detectedPlatform}`;
         if (detectedPlatform === 'android' && tg.platform === 'unknown') {
             document.getElementById('bluetoothInfo').style.display = 'block';
             document.getElementById('platformAndroid').style.display = 'none';
@@ -325,10 +323,9 @@
             }
         }
 
-        // 
+
         function openLinkForAndroid() {
             var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
-            // Telegram.WebApp.openLink(url);
             tg.openLink(url);
         }
         async function getIPv4FromApi() {
@@ -342,16 +339,16 @@
             }
         }
 
-        async function getIPv6FromApi() {
-            try {
-                const response = await fetch('https://api6.ipify.org?format=json');
-                const data = await response.json();
-                return data.ip;
-            } catch (error) {
-                console.error('Error fetching IP:', error);
-                return null;
-            }
-        }
+        // async function getIPv6FromApi() {
+        //     try {
+        //         const response = await fetch('https://api6.ipify.org?format=json');
+        //         const data = await response.json();
+        //         return data.ip;
+        //     } catch (error) {
+        //         console.error('Error fetching IP:', error);
+        //         return null;
+        //     }
+        // }
 
         async function getISPNameFromApi() {
             try {
@@ -397,37 +394,34 @@
         }
         function compareData(scannedData, currentLocation) {
             for (const wifiInfo of listWifiInfo) {
-                const { isp, ipv4, ipv6, gps, branch, branch_id } = wifiInfo;
+                const { isp, ipv4, gps, branch, branch_id } = wifiInfo;
                 const [qrLat, qrLng] = gps.split(',').map(Number);
                 const [scannedLat, scannedLng] = scannedData.gps.split(',').map(Number);
 
                 const isIPv4Match = ipv4 === scannedData.ipv4;
-                const isIPv6Match = ipv6 === scannedData.ipv6;
+                const isISPMatch = isp === scannedData.isp;
                 const isBranchMatch = branch === scannedData.branch;
                 const isBranchIdMatch = branch_id === scannedData.branch_id;
                 const distanceToQrLocation = haversineDistance(scannedLat, scannedLng, currentLocation.latitude, currentLocation.longitude);
                 const distanceToItemLocation = haversineDistance(qrLat, qrLng, currentLocation.latitude, currentLocation.longitude);
                 const isGPSMatch = distanceToQrLocation <= 60 && distanceToItemLocation <= 60; // Check if within 100 meters
-                if (isIPv4Match && isIPv6Match && isBranchMatch && isBranchIdMatch && isGPSMatch) {
+                if (isIPv4Match && isISPMatch && isBranchMatch && isBranchIdMatch && isGPSMatch) {
                     return wifiInfo; // Return the matching wifi info
                 }
             }
             return null; // No match found
         }
 
-        async function validateWifiInfo(iPv4Address, iPv6Address, ispName) {
-            // if ISP not allow -> no need to check ip
-            if (!isAllowedISP(ispName)) {
-                return false;
-            }
+        async function validateWifiInfo(iPv4Address, ispName) {
+            // if (!isAllowedISP(ispName)) {
+            //     return false;
+            // }
             const matchingWifi = listWifiInfo.find(wifi =>
                 wifi.ipv4 === iPv4Address &&
-                wifi.isp === ispName &&
-                wifi.ipv6 === iPv6Address
-
+                wifi.isp === ispName
             );
-            // document.getElementById('wifiInfo').textContent = `ipv4: ${iPv4Address}, ipv6: ${iPv6Address} ISP: ${ispName} isCheck: ${isAllowedISP(ispName)}, ischeckWifi: ${!!matchingWifi}`;
-            return !!matchingWifi; // Returns true if a match is found, false otherwise
+
+            return !!matchingWifi; // return true;
         }
 
         function checkPermissionUser(callback) {
@@ -472,10 +466,10 @@
         // Check Network
         async function checkAccess(callback) {
             const ipV4 = await getIPv4FromApi();
-            const ipV6 = await getIPv6FromApi();
+            // const ipV6 = await getIPv6FromApi();
             const ispName = await getISPNameFromApi();
-            // alert(`IPV6: ${ipV6}`)
-            const isValid = await validateWifiInfo(ipV4, ipV6, ispName);
+
+            const isValid = await validateWifiInfo(ipV4, ispName);
             if (isValid) {
                 callback(true);
             } else {
@@ -633,7 +627,6 @@
                     })
                 }
             });
-
         }
 
 
