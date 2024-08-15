@@ -617,20 +617,24 @@
             // const currentLocation = await getUserLocation();
             checkAccess((isAllowedIP) => {
                 if (isAllowedIP) {
-                    checkPermissionUser((isPermittedUser) => {
-                        if (isPermittedUser) {
-                            checkLocationPermission((isPermitted) => {
-                                if (isPermitted) {
-                                    alert(`Location is : ${isPermitted}`);
-                                    var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
-
-                                    setTimeout(() => {
-                                        tg.openLink(url);
-                                    }, 100);
-                                }
-                            });
-                        }
-                    })
+                    alert(`ip is : ${isAllowedIP}`);
+                    var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
+                    setTimeout(() => {
+                        tg.openLink(url);
+                    }, 100);
+                    // checkPermissionUser((isPermittedUser) => {
+                    //     if (isPermittedUser) {
+                    //         checkLocationPermission((isPermitted) => {
+                    //             if (isPermitted) {
+                    //                 alert(`Location is : ${isPermitted}`);
+                    //                 var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
+                    //                 setTimeout(() => {
+                    //                     tg.openLink(url);
+                    //                 }, 100);
+                    //             }
+                    //         });
+                    //     }
+                    // })
                 }
             });
         }
