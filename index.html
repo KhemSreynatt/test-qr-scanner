@@ -185,9 +185,9 @@
                         let service = services[0];
                         output.textContent += `\n Service UUID: ${service.uuid}`;
                         bluetoothUUID.textContent = `${service.uuid}`;
-                        const isValidBluetooth = validateBluetooth(`${bluetoothName.value}`, `${service.uuid}`);
-                        document.getElementById('isValidBluetooth').textContent = `isValidBluetooth: ${isValidBluetooth}`;
-                        alert(`isValidBluetooth : ${isValidBluetooth}`);
+                        const isValidBluetooth = validateBluetooth(`${bluetoothName}`, `${service.uuid}`);
+                        document.getElementById('isValidBluetooth').textContent = `isValidBluetooth: ${isValidBluetooth},uuid :${service.uuid}, name value: ${bluetoothName.value}, name : ${bluetoothName}`;
+
                         if (isValidBluetooth) {
                             output.textContent.style.display = 'none';
                             document.getElementById('scanqrAndroid').style.display = 'block';
@@ -208,6 +208,7 @@
                     output.style.color = '#ff0000';
                 });
         });
+
         function validateBluetooth(deviceName, uuid) {
             const matchingBluetooth = listBluetoothInfo.find(bluetooth =>
                 bluetooth.device_name === deviceName &&
