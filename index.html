@@ -94,8 +94,8 @@
         <button id="scanButton" onclick="startScanning()">Scan QR Code</button>
     </div>
     <div id="platformAndroid">
-        <button onclick="verifyScanAndroid()">Verify Bluetooth</button>
-        <button onclick="openLinkForAndroid()">Route new page</button>
+        <!-- <button onclick="verifyScanAndroid()">Verify Bluetooth</button> -->
+        <button onclick="openLinkForAndroid()">Verify Bluetooth</button>
     </div>
     <br>
     <div id="bluetoothInfo">
@@ -263,8 +263,24 @@
             document.getElementById('scanqrAndroid').style.display = 'block';
         }
         if (detectedPlatform === 'android' && tg.platform === 'android') {
-            document.getElementById('platformAndroid').style.display = 'block';
+
             document.getElementById('scanqrAndroid').style.display = 'none';
+            checkAccess((isAllowedIP) => {
+                if (isAllowedIP) {
+                    checkPermissionUser((isPermittedUser) => {
+                        if (isPermittedUser) {
+                            checkLocationPermission((isPermitted) => {
+                                if (isPermitted) {
+                                    alert(`Location is : ${isPermitted}`);
+                                    document.getElementById('platformAndroid').style.display = 'block';
+
+                                }
+                            });
+                        }
+                    })
+                }
+            });
+
         }
 
         function checkBluetoothAvailability() {
@@ -469,7 +485,6 @@
             const ipV4 = await getIPv4FromApi();
             // const ipV6 = await getIPv6FromApi();
             const ispName = await getISPNameFromApi();
-
             const isValid = await validateWifiInfo(ipV4, ispName);
             if (isValid) {
                 callback(true);
@@ -617,24 +632,19 @@
             // const currentLocation = await getUserLocation();
             checkAccess((isAllowedIP) => {
                 if (isAllowedIP) {
-                    alert(`ip is : ${isAllowedIP}`);
-                    var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
-                    setTimeout(() => {
-                        Telegram.WebApp.openLink(url);
-                    }, 100);
-                    // checkPermissionUser((isPermittedUser) => {
-                    //     if (isPermittedUser) {
-                    //         checkLocationPermission((isPermitted) => {
-                    //             if (isPermitted) {
-                    //                 alert(`Location is : ${isPermitted}`);
-                    //                 var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
-                    //                 setTimeout(() => {
-                    //                     tg.openLink(url);
-                    //                 }, 100);
-                    //             }
-                    //         });
-                    //     }
-                    // })
+                    checkPermissionUser((isPermittedUser) => {
+                        if (isPermittedUser) {
+                            checkLocationPermission((isPermitted) => {
+                                if (isPermitted) {
+                                    alert(`Location is : ${isPermitted}`);
+                                    var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
+                                    setTimeout(() => {
+                                        tg.openLink(url);
+                                    }, 100);
+                                }
+                            });
+                        }
+                    })
                 }
             });
         }
