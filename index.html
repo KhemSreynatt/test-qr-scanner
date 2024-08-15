@@ -99,6 +99,7 @@
         <br>
         <div id="bluetoothName">Bluetooth name</div>
         <div id="uuid">UUID</div>
+        <div id="isValidBluetooth">isValidBluetooth</div>
         <br><br>
         <button id="check_bluethooth_button">Connect to Bluetooth Device</button>
         <pre id="output"></pre>
@@ -171,7 +172,7 @@
                 .then(device => {
                     output.textContent += `\nDevice Name: ${device.name}`;
                     output.textContent += `\nDevice ID: ${device.id}`;
-                    bluetoothName.textContent = `${device.name}`;
+
                     return device.gatt.connect();
                 })
                 .then(server => {
@@ -184,6 +185,18 @@
                         let service = services[0];
                         output.textContent += `\n Service UUID: ${service.uuid}`;
                         bluetoothUUID.textContent = `${service.uuid}`;
+                        bluetoothName.textContent = `${device.name}`;
+                        const isValidBluetooth = validateBluetooth(`${device.name}`, `${service.uuid}`);
+                        document.getElementById('isValidBluetooth').textContent = `isValidBluetooth: ${isValidBluetooth}`;
+                        alert(`isValidBluetooth : ${isValidBluetooth}`);
+                        if (isValidBluetooth) {
+                            output.textContent.style.display = 'none';
+                            document.getElementById('scanqrAndroid').style.display = 'block';
+                        } else {
+                            document.getElementById('scanqrAndroid').style.display = 'none';
+                            document.getElementById('result').textContent = 'Invalid connection Bluetooth!...';
+                            document.getElementById('result').style.color = '#ff0000'
+                        }
                     }
                     else {
                         output.textContent += `\nNo Services found on this device.`;
@@ -196,24 +209,16 @@
                     output.style.color = '#ff0000';
                 });
         });
-        function validateBluetooth() {
+        function validateBluetooth(deviceName, uuid) {
             const matchingBluetooth = listBluetoothInfo.find(bluetooth =>
-                bluetooth.device_name === bluetoothName &&
-                bluetooth.uuid === bluetoothUUID
+                bluetooth.device_name === deviceName &&
+                bluetooth.uuid === uuid
             );
 
             return !!matchingBluetooth;
         }
-        const isValidBluetooth = validateBluetooth();
-        alert(`isValidBluetooth : ${isValidBluetooth}`);
-        if (isValidBluetooth) {
-            output.textContent.style.display = 'none';
-            document.getElementById('scanqrAndroid').style.display = 'block';
-        } else {
-            document.getElementById('scanqrAndroid').style.display = 'none';
-            document.getElementById('result').textContent = 'Invalid connection Bluetooth!...';
-            document.getElementById('result').style.color = '#ff0000'
-        }
+
+
         // function checkVerify(callback) {
         //     const isValidBluetooth = validateBluetooth(bluetoothName, deviceUUID);
         //     if (isValidBluetooth) {
@@ -276,7 +281,6 @@
             }
         }
         const detectedPlatform = checkPlatform();
-
         if (detectedPlatform === 'android' && tg.platform === 'unknown') {
             document.getElementById('bluetoothInfo').style.display = 'block';
             document.getElementById('platformAndroid').style.display = 'none';
