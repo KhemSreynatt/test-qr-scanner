@@ -143,7 +143,13 @@
                     inversionAttempts: "dontInvert",
                 });
                 if (code) {
+
                     qrResult.textContent = "Detected QR code: " + code.data;
+                    setTimeout(() => {
+                        stopScanning();
+                        alert('Scan Done!');
+                    }, STOP_DELAY);
+                    alert(`code: ${code}`);
                     const currentLocation = await getUserLocation();
                     const formattedQrCode = code.data.replace(/'/g, '"');
                     alert(`Format : ${formattedQrCode}`);
@@ -153,10 +159,7 @@
                     alert(`isMatch : ${isMatch}`);
                     if (isMatch) {
                         collectUserInfo(qrCode);
-                        setTimeout(() => {
-                            stopScanning();
-                            alert('Scan Done!');
-                        }, STOP_DELAY);
+
                         document.getElementById('result').textContent = 'Success for scanning!';
                         document.getElementById('result').style.color = '#50C878'
                     } else {
@@ -557,6 +560,7 @@
                                             }, function (qrCode) {
                                                 tg.closeScanQrPopup();
                                                 try {
+                                                    alert(`value qr : ${qrCode}`);
                                                     const formattedQrCode = qrCode.replace(/'/g, '"');
                                                     const scannedData = JSON.parse(formattedQrCode);
                                                     const isMatch = compareData(scannedData, currentLocation);
