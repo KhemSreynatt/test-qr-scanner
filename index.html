@@ -84,12 +84,17 @@
     <div id="result">Scan result will appear here</div>
     <br>
     <!--  -->
-    <h3>Test Data Storage </h3>
-    <input type="text" id="dataInput" placeholder="Enter data">
-    <button onclick="saveData()">Save Data</button>
-    <button onclick="loadData()">Load Data</button>
-    <p id="outputs"></p>
+    <h2>Telegram Mini App</h2>
+    <div id="telegram-content">
+        <!-- Button to store data and open the same link -->
+        <button onclick="storeDataAndOpenLink()">Store Data and Open Link</button>
+    </div>
+    <div id="web-content">
+        <!-- Placeholder for displaying data -->
+        <p id="outputs"></p>
+    </div>
     <!--  -->
+
     <div id="tg_id">user ID</div>
     <div id="telegramId">telegram Id</div>
     <div id="scanqrAndroid">
@@ -111,60 +116,56 @@
         <button id="check_bluethooth_button">Connect to Bluetooth Device</button>
         <pre id="output"></pre>
     </div>
+
     <!--  -->
     <script>
-        const DATA_KEY = 'exampleData';
+        // Initialize the Telegram Web Apps SDK
+        Telegram.WebApp.ready();
 
-        function saveData() {
-            const data = document.getElementById('dataInput').value;
-            if (window.Telegram && window.Telegram.WebApp) {
-                // We're in Telegram Mini App
-                window.Telegram.WebApp.CloudStorage.setItem(DATA_KEY, data)
-                    .then(() => {
-                        document.getElementById('outputs').textContent = 'Data saved in Telegram';
-                        // Generate a link to open in browser
-                        const url = `${window.location.origin}${window.location.pathname}?data=${encodeURIComponent(data)}`;
-                        document.getElementById('outputs').innerHTML += `<br>Open this link in browser: <a href="${url}" target="_blank">${url}</a>`;
-                    })
-                    .catch(error => {
-                        document.getElementById('outputs').textContent = 'Error saving data: ' + error;
-                    });
-            } else {
-                // We're in a regular browser
-                localStorage.setItem(DATA_KEY, data);
-                document.getElementById('outputs').textContent = 'Data saved in browser';
+        // Function to detect if the page is opened within Telegram
+        function isTelegramWebView() {
+            return navigator.userAgent.includes('Telegram');
+        }
+
+        // Function to store data and open the same page in a web browser
+        function storeDataAndOpenLink() {
+            // Data to be stored
+            const data = {
+                ssid: "YourSSID",
+                password: "YourPassword",
+                ipAddress: "192.168.0.1"
+            };
+
+            // Store data in localStorage
+            localStorage.setItem("wifiData", JSON.stringify(data));
+
+            // Open the same page in the web browser using tg.openLink
+            const url = window.location.href;
+            Telegram.WebApp.openLink(url);
+        }
+
+        // Function to retrieve and display data if not in Telegram WebView
+        function retrieveData() {
+            // Only retrieve and display data if NOT in Telegram WebView
+            if (!isTelegramWebView()) {
+                // Retrieve data from localStorage
+                const data = localStorage.getItem("wifiData");
+
+                if (data) {
+                    // Parse and display the data
+                    const wifiData = JSON.parse(data);
+                    document.getElementById("outputs").textContent = `SSID: ${wifiData.ssid}, Password: ${wifiData.password}, IP Address: ${wifiData.ipAddress}`;
+                } else {
+                    document.getElementById("outputs").textContent = "No data found.";
+                }
             }
         }
 
-        function loadData() {
-            if (window.Telegram && window.Telegram.WebApp) {
-                // We're in Telegram Mini App
-                window.Telegram.WebApp.CloudStorage.getItem(DATA_KEY)
-                    .then(data => {
-                        document.getElementById('outputs').textContent = 'Data from Telegram: ' + data;
-                    })
-                    .catch(error => {
-                        document.getElementById('outputs').textContent = 'Error loading data: ' + error;
-                    });
-            } else {
-                // We're in a regular browser
-                const data = localStorage.getItem(DATA_KEY);
-                document.getElementById('outputs').textContent = 'Data from browser: ' + data;
-            }
-        }
-
-        // Check if we're opening from a link with data
-        window.onload = function () {
-            const urlParams = new URLSearchParams(window.location.search);
-            const dataFromUrl = urlParams.get('data');
-
-            if (dataFromUrl) {
-                localStorage.setItem(DATA_KEY, dataFromUrl);
-                document.getElementById('outputs').textContent = 'Data transferred from URL: ' + dataFromUrl;
-            }
-        };
+        // Call retrieveData function on page load
+        window.onload = retrieveData;
     </script>
     <!--  -->
+
     <script>
 
         //   Scan for android 
