@@ -239,8 +239,8 @@
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
         const userId = tg.initDataUnsafe?.user?.id;
-        function isTelegramMiniApp() {
-            return navigator.userAgent.includes("Telegram");
+        function isTelegramWebApp() {
+            return window.Telegram && window.Telegram.WebApp;
         }
         function isAndroid() {
             return /Android/i.test(navigator.userAgent);
@@ -250,11 +250,11 @@
             return /Chrome/i.test(navigator.userAgent);
         }
         function showButtonIfAppropriate() {
-            alert(`isAndroid : ${isAndroid()}, isChrome : ${isChrome()}, isChrome : ${isChrome()}`);
+            alert(`isAndroid : ${isAndroid()}, isChrome : ${isChrome()}, isTelegramMiniApp : ${isTelegramWebApp()}`);
             if (isAndroid() && isChrome()) {
                 document.getElementById('platformAndroid').style.display = 'none';
                 document.getElementById('bluetoothInfo').style.display = 'block';
-            } else if (isTelegramMiniApp() && isAndroid()) {
+            } else if (isTelegramWebApp() && isAndroid()) {
                 document.getElementById('platformAndroid').style.display = 'block';
             }
         }
