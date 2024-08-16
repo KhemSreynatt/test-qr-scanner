@@ -84,6 +84,7 @@
     <div id="result">Scan result will appear here</div>
     <br>
     <div id="tg_id">user ID</div>
+    <div id="telegramId">telegram Id</div>
     <div id="scanqrAndroid">
         <div id="qr-result"></div>
         <div id="video-container">
@@ -155,7 +156,7 @@
                     const scannedData = JSON.parse(formattedQrCode);
                     const isMatch = compareData(scannedData, currentLocation);
                     if (isMatch) {
-                        collectUserInfo();
+                        collectUserInfoAndroid();
                         document.getElementById('result').textContent = 'Success for scanning!';
                         document.getElementById('result').style.color = '#50C878'
                     } else {
@@ -237,10 +238,7 @@
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
         const userId = tg.initDataUnsafe?.user?.id;
-        localStorage.setItem('tg_id', userId);
-        const tg_Id = localStorage.getItem('tg_id');
-        const local_tgId = parseInt(tg_Id, 10);
-        document.getElementById('tg_id').textContent = local_tgId;
+
 
         const listWifiInfo = [
             {
@@ -294,6 +292,10 @@
                 if (isAllowedIP) {
                     checkPermissionUser((isPermittedUser) => {
                         if (isPermittedUser) {
+                            localStorage.setItem('tg_id', userId);
+                            const getId = localStorage.getItem('tg_id');
+                            const locaId = parseInt(getId, 10);
+                            document.getElementById('telegramId').textContent = `TMA ID:  ${locaId}`;
                             checkLocationPermission((isPermitted) => {
                                 if (isPermitted) {
                                     document.getElementById('platformAndroid').style.display = 'block';
@@ -304,6 +306,34 @@
                 }
             });
 
+        }
+        function collectUserInfoAndroid() {
+            fetch('assets/user.xlsx')
+                .then(response => response.arrayBuffer())
+                .then(data => {
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(sheet);
+                    const tg_Id = localStorage.getItem('tg_id');
+                    const local_tgId = parseInt(tg_Id, 10);
+                    document.getElementById('tg_id').textContent = `TMA Local : ${local_tgId}`;
+                    const filteredUsers = jsonData.filter(user => user.Telegram_id === local_tgId);
+                    filteredUsers.forEach(user => {
+                        navigator.geolocation.getCurrentPosition(
+                            (position) => {
+                                const latitude = position.coords.latitude;
+                                const longitude = position.coords.longitude;
+                                getAddressFromCoordinates(latitude, longitude, user.Name, user.Phone, user.ID, user.Branch);
+                            },
+                            (error) => {
+                                console.error("Error getting location:", error);
+                                document.getElementById('result').textContent = "Unable to get your location.";
+                                document.getElementById('result').style.color = '#ff0000'
+                            }
+                        );
+                    });
+                })
         }
 
         function openLinkForAndroid() {
@@ -414,7 +444,7 @@
                     const sheetName = workbook.SheetNames[0];
                     const sheet = workbook.Sheets[sheetName];
                     const jsonData = XLSX.utils.sheet_to_json(sheet);
-                    const filteredUsers = jsonData.filter(user => user.Telegram_id === local_tgId);
+                    const filteredUsers = jsonData.filter(user => user.Telegram_id === userId);
                     if (filteredUsers.length > 0) {
                         callback(true);
                     } else {
@@ -517,8 +547,7 @@
                     callback("Unable to get address");
                 });
         }
-        function collectUserInfo() {
-
+        function collectUserInfoIOS() {
             fetch('assets/user.xlsx')
                 .then(response => response.arrayBuffer())
                 .then(data => {
@@ -526,7 +555,7 @@
                     const sheetName = workbook.SheetNames[0];
                     const sheet = workbook.Sheets[sheetName];
                     const jsonData = XLSX.utils.sheet_to_json(sheet);
-                    const filteredUsers = jsonData.filter(user => user.Telegram_id === local_tgId);
+                    const filteredUsers = jsonData.filter(user => user.Telegram_id === userId);
                     filteredUsers.forEach(user => {
                         navigator.geolocation.getCurrentPosition(
                             (position) => {
@@ -563,7 +592,7 @@
                                                     const scannedData = JSON.parse(formattedQrCode);
                                                     const isMatch = compareData(scannedData, currentLocation);
                                                     if (isMatch) {
-                                                        collectUserInfo();
+                                                        collectUserInfoIOS();
                                                         tg.showAlert("Scan Done!");
                                                         document.getElementById('result').textContent = 'Success for scanning!';
                                                         document.getElementById('result').style.color = '#50C878'
