@@ -84,11 +84,6 @@
     <div id="result">Scan result will appear here</div>
     <br>
     <!--  -->
-    <h2>Telegram Mini App</h2>
-    <div id="telegram-content">
-        <!-- Button to store data and open the same link -->
-        <button onclick="storeDataAndOpenLink()">Store Data and Open Link</button>
-    </div>
     <div id="web-content">
         <!-- Placeholder for displaying data -->
         <p id="outputs"></p>
@@ -253,14 +248,15 @@
         function isTelegramWebView() {
             return navigator.userAgent.includes('Telegram');
         }
-        function storeDataAndOpenLink() {
+        function storeData() {
             localStorage.setItem("telegram_id", userId);
         }
         function retrieveData() {
             if (!isTelegramWebView()) {
                 const data = localStorage.getItem("telegram_id");
+                const getValue = parseInt(data, 10);
                 if (data) {
-                    document.getElementById("outputs").textContent = `Telegram Id: ${data}`;
+                    document.getElementById("outputs").textContent = `Telegram Id: ${getValue}`;
                 } else {
                     document.getElementById("outputs").textContent = "No data found.";
                 }
@@ -365,6 +361,7 @@
         }
 
         function openLinkForAndroid() {
+            storeData();
             var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
             Telegram.WebApp.openLink(url);
         }
