@@ -239,6 +239,9 @@
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
         const userId = tg.initDataUnsafe?.user?.id;
+        function isTelegramMiniApp() {
+            return navigator.userAgent.includes("Telegram");
+        }
         function isAndroid() {
             return /Android/i.test(navigator.userAgent);
         }
@@ -247,9 +250,12 @@
             return /Chrome/i.test(navigator.userAgent);
         }
         function showButtonIfAppropriate() {
-            const platformAndroid = document.getElementById('platformAndroid');
+            alert(`isAndroid : ${isAndroid()}, isChrome : ${isChrome()}, isChrome : ${isChrome()}`);
             if (isAndroid() && isChrome()) {
-                platformAndroid.style.display = 'none';
+                document.getElementById('platformAndroid').style.display = 'none';
+                document.getElementById('bluetoothInfo').style.display = 'block';
+            } else if (isTelegramMiniApp() && isAndroid()) {
+                document.getElementById('platformAndroid').style.display = 'block';
             }
         }
         window.onload = showButtonIfAppropriate;
@@ -295,26 +301,26 @@
         }
         const detectedPlatform = checkPlatform();
         document.getElementById('platformDevice').textContent = `Platform Device: ${detectedPlatform}`;
-        if (detectedPlatform == 'android' && tg.platform === 'unknown') {
-            document.getElementById('bluetoothInfo').style.display = 'block';
-            document.getElementById('platformAndroid').style.display = 'none';
-        }
-        if (detectedPlatform === 'android' && tg.platform === 'android') {
-            checkAccess((isAllowedIP) => {
-                if (isAllowedIP) {
-                    checkPermissionUser((isPermittedUser) => {
-                        if (isPermittedUser) {
-                            checkLocationPermission((isPermitted) => {
-                                if (isPermitted) {
-                                    document.getElementById('platformAndroid').style.display = 'block';
-                                }
-                            });
-                        }
-                    })
-                }
-            });
+        // if (detectedPlatform == 'android' && tg.platform === 'unknown') {
+        //     document.getElementById('bluetoothInfo').style.display = 'block';
+        //     document.getElementById('platformAndroid').style.display = 'none';
+        // }
+        // if (detectedPlatform === 'android' && tg.platform === 'android') {
+        //     checkAccess((isAllowedIP) => {
+        //         if (isAllowedIP) {
+        //             checkPermissionUser((isPermittedUser) => {
+        //                 if (isPermittedUser) {
+        //                     checkLocationPermission((isPermitted) => {
+        //                         if (isPermitted) {
+        //                             document.getElementById('platformAndroid').style.display = 'block';
+        //                         }
+        //                     });
+        //                 }
+        //             })
+        //         }
+        //     });
 
-        }
+        // }
         function collectUserInfoAndroid() {
             fetch('assets/user.xlsx')
                 .then(response => response.arrayBuffer())
