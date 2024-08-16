@@ -199,7 +199,7 @@
                         output.textContent += `\n Service UUID: ${service.uuid}`;
                         bluetoothUUID = `${service.uuid}`;
                         const isValidBluetooth = validateBluetooth(bluetoothName, bluetoothUUID);
-                        document.getElementById('isValidBluetooth').textContent = `isValidBluetooth: ${isValidBluetooth},\nuuid :${bluetoothUUID}, \nname: ${bluetoothName}`;
+                        // document.getElementById('isValidBluetooth').textContent = `isValidBluetooth: ${isValidBluetooth},\nuuid :${bluetoothUUID}, \nname: ${bluetoothName}`;
                         if (isValidBluetooth) {
                             document.getElementById('bluetoothInfo').style.display = 'none';
                             document.getElementById('scanqrAndroid').style.display = 'block';
