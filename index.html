@@ -105,6 +105,7 @@
     <div id="platformAndroid">
         <button onclick="openLinkForAndroid()">Verify Bluetooth</button>
     </div>
+    <button onclick="clearDataStorage">Remove Data Storage</button>
     <br>
     <div id="bluetoothInfo">
         <br>
@@ -248,6 +249,9 @@
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
         const userId = tg.initDataUnsafe?.user?.id;
+        function clearDataStorage() {
+            localStorage.removeItem('telegram_id');
+        }
         function storeData() {
             localStorage.setItem("telegram_id", userId);
         }
