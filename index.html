@@ -265,10 +265,10 @@
             return /Chrome/i.test(navigator.userAgent);
         }
         function showButtonIfAppropriate() {
-            alert(`isAndroid : ${isAndroid()}, isChrome : ${isChrome()}, isTelegramMiniApp : ${isTelegramWebApp()}`);
-            if (isAndroid() && isTelegramWebApp()) {
+            alert(`TelegramMiniApp : ${window.Telegram, window.Telegram.WebApp}`);
+            if (window.Telegram && window.Telegram.WebApp) {
                 document.getElementById('platformAndroid').style.display = 'block';
-            } else if (!isTelegramWebApp() && isAndroid()) {
+            } else {
                 document.getElementById('platformAndroid').style.display = 'none';
                 document.getElementById('bluetoothInfo').style.display = 'block';
             }
