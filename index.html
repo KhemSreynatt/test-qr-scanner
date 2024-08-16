@@ -92,6 +92,7 @@
 
     <div id="platformDevice"></div>
     <div id="plateformTMA"></div>
+    <div id="browser"></div>
     <br>
     <!-- <div id="telegramId">telegram Id</div> -->
     <div id="scanqrAndroid">
@@ -104,9 +105,8 @@
     </div>
     <div id="platformAndroid">
         <button onclick="openLinkForAndroid()">Verify Bluetooth</button>
-
-
     </div>
+    <button onclick="storeData()">Data Storage</button>
     <button style="margin-top: 10px;" onclick="clearDataStorage()">Remove Data Storage</button>
     <br>
     <div id="bluetoothInfo">
@@ -272,7 +272,7 @@
             const data = localStorage.getItem("telegram_id");
             const getValue = parseInt(data, 10);
             if (data) {
-                document.getElementById("outputs").textContent = `Telegram Id: ${getValue}`;
+                // document.getElementById("outputs").textContent = `Telegram Id: ${getValue}`;
                 console.log("Data retrieved from localStorage:", getValue);
                 return getValue;
             } else {
@@ -281,7 +281,7 @@
                 return null;
             }
         }
-        window.onload = retrieveData;
+        // window.onload = retrieveData;
 
         const listWifiInfo = [
             {
@@ -325,6 +325,7 @@
         }
         const detectedPlatform = checkPlatform();
         const isVerify = JSON.parse(localStorage.getItem('isVerify'));
+        alert(`Boolean : ${isVerify}`)
         document.getElementById('platformDevice').textContent = `Platform Device: ${detectedPlatform}`;
         if (isVerify) {
             document.getElementById('bluetoothInfo').style.display = 'block';
@@ -374,8 +375,9 @@
         }
 
         function openLinkForAndroid() {
-            storeData();
+            // storeData();
             // var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
+            document.getElementById("browser").textContent = `Web Browser  : ${userId}`;
             const url = window.location.href;
             Telegram.WebApp.openLink(url);
 
