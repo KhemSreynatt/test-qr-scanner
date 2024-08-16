@@ -96,7 +96,7 @@
     <!--  -->
 
     <div id="tg_id">user ID</div>
-    <div id="telegramId">telegram Id</div>
+    <!-- <div id="telegramId">telegram Id</div> -->
     <div id="scanqrAndroid">
         <div id="qr-result"></div>
         <div id="video-container">
@@ -116,55 +116,6 @@
         <button id="check_bluethooth_button">Connect to Bluetooth Device</button>
         <pre id="output"></pre>
     </div>
-
-    <!--  -->
-    <script>
-        // Initialize the Telegram Web Apps SDK
-        Telegram.WebApp.ready();
-
-        // Function to detect if the page is opened within Telegram
-        function isTelegramWebView() {
-            return navigator.userAgent.includes('Telegram');
-        }
-
-        // Function to store data and open the same page in a web browser
-        function storeDataAndOpenLink() {
-            // Data to be stored
-            const data = {
-                ssid: "YourSSID",
-                password: "YourPassword",
-                ipAddress: "192.168.0.1"
-            };
-
-            // Store data in localStorage
-            localStorage.setItem("wifiData", JSON.stringify(data));
-
-            // Open the same page in the web browser using tg.openLink
-            const url = window.location.href;
-            Telegram.WebApp.openLink(url);
-        }
-
-        // Function to retrieve and display data if not in Telegram WebView
-        function retrieveData() {
-            // Only retrieve and display data if NOT in Telegram WebView
-            if (!isTelegramWebView()) {
-                // Retrieve data from localStorage
-                const data = localStorage.getItem("wifiData");
-
-                if (data) {
-                    // Parse and display the data
-                    const wifiData = JSON.parse(data);
-                    document.getElementById("outputs").textContent = `SSID: ${wifiData.ssid}, Password: ${wifiData.password}, IP Address: ${wifiData.ipAddress}`;
-                } else {
-                    document.getElementById("outputs").textContent = "No data found.";
-                }
-            }
-        }
-
-        // Call retrieveData function on page load
-        window.onload = retrieveData;
-    </script>
-    <!--  -->
 
     <script>
 
@@ -299,7 +250,23 @@
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
         const userId = tg.initDataUnsafe?.user?.id;
-
+        function isTelegramWebView() {
+            return navigator.userAgent.includes('Telegram');
+        }
+        function storeDataAndOpenLink() {
+            localStorage.setItem("telegram_id", userId);
+        }
+        function retrieveData() {
+            if (!isTelegramWebView()) {
+                const data = localStorage.getItem("telegram_id");
+                if (data) {
+                    document.getElementById("outputs").textContent = `Telegram Id: ${data}`;
+                } else {
+                    document.getElementById("outputs").textContent = "No data found.";
+                }
+            }
+        }
+        window.onload = retrieveData;
 
         const listWifiInfo = [
             {
@@ -353,10 +320,10 @@
                 if (isAllowedIP) {
                     checkPermissionUser((isPermittedUser) => {
                         if (isPermittedUser) {
-                            localStorage.setItem('tg_id', userId);
-                            const getId = localStorage.getItem('tg_id');
-                            const locaId = parseInt(getId, 10);
-                            document.getElementById('telegramId').textContent = `TMA ID:  ${locaId}`;
+                            // localStorage.setItem('tg_id', userId);
+                            // const getId = localStorage.getItem('tg_id');
+                            // const locaId = parseInt(getId, 10);
+                            // document.getElementById('telegramId').textContent = `TMA ID:  ${locaId}`;
                             checkLocationPermission((isPermitted) => {
                                 if (isPermitted) {
                                     document.getElementById('platformAndroid').style.display = 'block';
@@ -376,10 +343,10 @@
                     const sheetName = workbook.SheetNames[0];
                     const sheet = workbook.Sheets[sheetName];
                     const jsonData = XLSX.utils.sheet_to_json(sheet);
-                    const tg_Id = localStorage.getItem('tg_id');
-                    const local_tgId = parseInt(tg_Id, 10);
-                    document.getElementById('tg_id').textContent = `TMA Local : ${local_tgId}`;
-                    const filteredUsers = jsonData.filter(user => user.Telegram_id === local_tgId);
+                    // const tg_Id = localStorage.getItem('tg_id');
+                    // const local_tgId = parseInt(tg_Id, 10);
+                    // document.getElementById('tg_id').textContent = `TMA Local : ${local_tgId}`;
+                    const filteredUsers = jsonData.filter(user => user.Telegram_id === userId);
                     filteredUsers.forEach(user => {
                         navigator.geolocation.getCurrentPosition(
                             (position) => {
