@@ -234,6 +234,9 @@
     <script>
 
         let tg = window.Telegram.WebApp;
+        var isTelegram = navigator.userAgent.includes("Telegram");
+        var isChrome = navigator.userAgent.includes("Chrome");
+        alert(`Telegram: ${isTelegram}, Chrome: ${isChrome}`);
         document.getElementById('plateformTMA').textContent = `plateformTMA : ${tg.platform}`;
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
