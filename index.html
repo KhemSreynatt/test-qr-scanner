@@ -90,7 +90,9 @@
     </div>
     <!--  -->
 
-    <div id="tg_id">user ID</div>
+    <div id="platformDevice"></div>
+    <div id="plateformTMA"></div>
+    <br>
     <!-- <div id="telegramId">telegram Id</div> -->
     <div id="scanqrAndroid">
         <div id="qr-result"></div>
@@ -241,25 +243,21 @@
     <script>
 
         let tg = window.Telegram.WebApp;
+        document.getElementById('plateformTMA').textContent = `plateformTMA : ${tg.platform}`;
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
         const userId = tg.initDataUnsafe?.user?.id;
-        function isTelegramWebView() {
-            return navigator.userAgent.includes('Telegram');
-        }
         function storeData() {
             localStorage.setItem("telegram_id", userId);
         }
         function retrieveData() {
-            if (!isTelegramWebView()) {
-                const data = localStorage.getItem("telegram_id");
-                const getValue = parseInt(data, 10);
-                if (data) {
-                    document.getElementById("outputs").textContent = `Telegram Id: ${getValue}`;
-                } else {
-                    document.getElementById("outputs").textContent = "No data found.";
-                }
+            const data = localStorage.getItem("telegram_id");
+            const getValue = parseInt(data, 10);
+            if (data) {
+                document.getElementById("outputs").textContent = `Telegram Id: ${getValue}`;
+            } else {
+                document.getElementById("outputs").textContent = "No data found.";
             }
         }
         window.onload = retrieveData;
@@ -307,6 +305,7 @@
             }
         }
         const detectedPlatform = checkPlatform();
+        document.getElementById('platformDevice').textContent = `Platform Device: ${detectedPlatform}`;
         if (detectedPlatform === 'android' && tg.platform === 'unknown') {
             document.getElementById('bluetoothInfo').style.display = 'block';
             document.getElementById('platformAndroid').style.display = 'none';
@@ -362,7 +361,8 @@
 
         function openLinkForAndroid() {
             storeData();
-            var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
+            // var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
+            const url = window.location.href;
             Telegram.WebApp.openLink(url);
         }
         async function getIPv4FromApi() {
