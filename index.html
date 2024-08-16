@@ -258,10 +258,10 @@
             document.getElementById("outputs").textContent = "Data removed.";
             console.log("Data removed from localStorage.");
         }
-        const number = 1223344;
+
         function storeData() {
-            localStorage.setItem("telegram_id", number);
-            console.log("Data stored in localStorage:", number);
+            localStorage.setItem("telegram_id", userId);
+            console.log("Data stored in localStorage:", userId);
         }
         function retrieveData() {
             const data = localStorage.getItem("telegram_id");
