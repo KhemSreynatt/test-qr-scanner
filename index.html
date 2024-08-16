@@ -239,7 +239,20 @@
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
         const userId = tg.initDataUnsafe?.user?.id;
+        function isAndroid() {
+            return /Android/i.test(navigator.userAgent);
+        }
 
+        function isChrome() {
+            return /Chrome/i.test(navigator.userAgent);
+        }
+        function showButtonIfAppropriate() {
+            const platformAndroid = document.getElementById('platformAndroid');
+            if (isAndroid() && isChrome()) {
+                platformAndroid.style.display = 'none';
+            }
+        }
+        window.onload = showButtonIfAppropriate;
         const listWifiInfo = [
             {
                 isp: "S.I Group",
@@ -281,8 +294,6 @@
             }
         }
         const detectedPlatform = checkPlatform();
-        const isVerify = JSON.parse(localStorage.getItem('isVerify'));
-        alert(`Boolean : ${isVerify}`)
         document.getElementById('platformDevice').textContent = `Platform Device: ${detectedPlatform}`;
         if (detectedPlatform == 'android' && tg.platform === 'unknown') {
             document.getElementById('bluetoothInfo').style.display = 'block';
