@@ -251,6 +251,7 @@
         const userId = tg.initDataUnsafe?.user?.id;
         function clearDataStorage() {
             localStorage.removeItem('telegram_id');
+            document.getElementById("outputs").textContent = "Data removed.";
         }
         function storeData() {
             localStorage.setItem("telegram_id", userId);
