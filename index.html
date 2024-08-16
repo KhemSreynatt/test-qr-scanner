@@ -169,6 +169,7 @@
                     const isMatch = compareData(scannedData, currentLocation);
                     if (isMatch) {
                         collectUserInfoAndroid();
+                        clearBoolean();
                         document.getElementById('result').textContent = 'Success for scanning!';
                         document.getElementById('result').style.color = '#50C878'
                     } else {
@@ -251,7 +252,7 @@
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
         const userId = tg.initDataUnsafe?.user?.id;
-        let isVerify = false;
+
 
         function clearDataStorage() {
             localStorage.removeItem("telegram_id");
@@ -259,10 +260,13 @@
             document.getElementById("outputs").textContent = "Data removed.";
             console.log("Data removed from localStorage.");
         }
+        function clearBoolean() {
+            localStorage.removeItem('isVerify');
+        }
 
         function storeData() {
             localStorage.setItem("telegram_id", userId);
-            console.log("Data stored in localStorage:", userId);
+            localStorage.setItem('isVerify', JSON.stringify(true));
         }
         function retrieveData() {
             const data = localStorage.getItem("telegram_id");
@@ -283,7 +287,6 @@
             {
                 isp: "S.I Group",
                 ipv4: "203.217.168.61",
-                // ipv6: "2404:b300:12:80::d7",
                 gps: '11.556330952721005, 104.9217849523827',
                 branch: "S.I Group HQ",
                 branch_id: '1000'
@@ -291,7 +294,6 @@
             {
                 isp: "S.I Group",
                 ipv4: "203.217.168.45",
-                // ipv6: "2404:b300:12:9::12",
                 gps: '11.556249586635088, 104.92181846761173',
                 branch: "S.I Group KPS",
                 branch_id: '1001'
@@ -322,8 +324,9 @@
             }
         }
         const detectedPlatform = checkPlatform();
+        const isVerify = JSON.parse(localStorage.getItem('isVerify'));
         document.getElementById('platformDevice').textContent = `Platform Device: ${detectedPlatform}`;
-        if (detectedPlatform === 'android' && tg.platform === 'unknown') {
+        if (isVerify) {
             document.getElementById('bluetoothInfo').style.display = 'block';
             document.getElementById('platformAndroid').style.display = 'none';
         }
@@ -371,14 +374,11 @@
         }
 
         function openLinkForAndroid() {
-            isVerify = true;
             storeData();
             // var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
             const url = window.location.href;
             Telegram.WebApp.openLink(url);
-            if (isVerify) {
-                document.getElementById('platformAndroid').style.display = 'none';
-            }
+
         }
         async function getIPv4FromApi() {
             try {
@@ -390,18 +390,6 @@
                 return null;
             }
         }
-
-        // async function getIPv6FromApi() {
-        //     try {
-        //         const response = await fetch('https://api6.ipify.org?format=json');
-        //         const data = await response.json();
-        //         return data.ip;
-        //     } catch (error) {
-        //         console.error('Error fetching IP:', error);
-        //         return null;
-        //     }
-        // }
-
         async function getISPNameFromApi() {
             try {
                 const response = await fetch('https://api.ipgeolocation.io/ipgeo?apiKey=2cf99163f991498496efb5ef404199fc&fields=isp')
