@@ -104,10 +104,10 @@
     </div>
     <div id="platformAndroid">
         <button onclick="openLinkForAndroid()">Verify Bluetooth</button>
-        <br>
-        <button style="margin-top: 10px;" onclick="clearDataStorage()">Remove Data Storage</button>
-    </div>
 
+
+    </div>
+    <button style="margin-top: 10px;" onclick="clearDataStorage()">Remove Data Storage</button>
     <br>
     <div id="bluetoothInfo">
         <br>
@@ -251,6 +251,7 @@
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
         const userId = tg.initDataUnsafe?.user?.id;
+        let isVerify = false;
 
         function clearDataStorage() {
             localStorage.removeItem("telegram_id");
@@ -269,9 +270,11 @@
             if (data) {
                 document.getElementById("outputs").textContent = `Telegram Id: ${getValue}`;
                 console.log("Data retrieved from localStorage:", getValue);
+                return getValue;
             } else {
                 document.getElementById("outputs").textContent = "No data found.";
                 console.log("No data found in localStorage.");
+                return null;
             }
         }
         window.onload = retrieveData;
@@ -329,10 +332,6 @@
                 if (isAllowedIP) {
                     checkPermissionUser((isPermittedUser) => {
                         if (isPermittedUser) {
-                            // localStorage.setItem('tg_id', userId);
-                            // const getId = localStorage.getItem('tg_id');
-                            // const locaId = parseInt(getId, 10);
-                            // document.getElementById('telegramId').textContent = `TMA ID:  ${locaId}`;
                             checkLocationPermission((isPermitted) => {
                                 if (isPermitted) {
                                     document.getElementById('platformAndroid').style.display = 'block';
@@ -352,10 +351,8 @@
                     const sheetName = workbook.SheetNames[0];
                     const sheet = workbook.Sheets[sheetName];
                     const jsonData = XLSX.utils.sheet_to_json(sheet);
-                    // const tg_Id = localStorage.getItem('tg_id');
-                    // const local_tgId = parseInt(tg_Id, 10);
-                    // document.getElementById('tg_id').textContent = `TMA Local : ${local_tgId}`;
-                    const filteredUsers = jsonData.filter(user => user.Telegram_id === userId);
+                    const telegramId = retrieveData();
+                    const filteredUsers = jsonData.filter(user => user.Telegram_id === telegramId);
                     filteredUsers.forEach(user => {
                         navigator.geolocation.getCurrentPosition(
                             (position) => {
@@ -374,10 +371,14 @@
         }
 
         function openLinkForAndroid() {
+            isVerify = true;
             storeData();
             // var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
             const url = window.location.href;
             Telegram.WebApp.openLink(url);
+            if (isVerify) {
+                document.getElementById('platformAndroid').style.display = 'none';
+            }
         }
         async function getIPv4FromApi() {
             try {
@@ -449,7 +450,6 @@
                 const { isp, ipv4, gps, branch, branch_id } = wifiInfo;
                 const [qrLat, qrLng] = gps.split(',').map(Number);
                 const [scannedLat, scannedLng] = scannedData.gps.split(',').map(Number);
-
                 const isIPv4Match = ipv4 === scannedData.ipv4;
                 const isISPMatch = isp === scannedData.isp;
                 const isBranchMatch = branch === scannedData.branch;
@@ -495,7 +495,7 @@
                 .catch(error => {
                     callback(false);
                     document.getElementById('result').textContent = `User is not allowed!`;
-                    document.getElementById('result').style.color = '#ff0000'
+                    document.getElementById('result').style.color = '#ff0000';
                 });
         }
 
