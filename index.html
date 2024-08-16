@@ -166,7 +166,7 @@
 
                     return;
                 } else {
-                    qrResult.textContent = "No QR code detected.";
+                    qrResult.textContent = "";
                 }
             }
             if (scanning) {
@@ -177,26 +177,26 @@
         document.getElementById('check_bluethooth_button').addEventListener('click', function () {
 
             const output = document.getElementById('output');
-            output.textContent = "Requesting Bluetooth Device...";
+            output.textContent = "Please wait!, Bluetooth Connecting....";
             navigator.bluetooth.requestDevice({
                 acceptAllDevices: true,
                 optionalServices: ['battery_service']
             })
                 .then(device => {
-                    output.textContent += `\nDevice Name: ${device.name}`;
-                    output.textContent += `\nDevice ID: ${device.id}`;
+                    // output.textContent += `\nDevice Name: ${device.name}`;
+                    // output.textContent += `\nDevice ID: ${device.id}`;
                     bluetoothName = `${device.name}`;
                     return device.gatt.connect();
                 })
                 .then(server => {
-                    output.textContent += `\nConnected to GATT Server`;
+                    // output.textContent += `\nConnected to GATT Server`;
                     return server.getPrimaryServices(); // Get all primary services
                 })
                 .then(services => {
-                    output.textContent += `\n Primary Services UUIDs:`;
+                    // output.textContent += `\n Primary Services UUIDs:`;
                     if (services.length > 0) {
                         let service = services[0];
-                        output.textContent += `\n Service UUID: ${service.uuid}`;
+                        // output.textContent += `\n Service UUID: ${service.uuid}`;
                         bluetoothUUID = `${service.uuid}`;
                         const isValidBluetooth = validateBluetooth(bluetoothName, bluetoothUUID);
 
