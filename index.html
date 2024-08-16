@@ -104,8 +104,10 @@
     </div>
     <div id="platformAndroid">
         <button onclick="openLinkForAndroid()">Verify Bluetooth</button>
+        <br>
+        <button style="margin-top: 10px;" onclick="clearDataStorage()">Remove Data Storage</button>
     </div>
-    <button onclick="clearDataStorage">Remove Data Storage</button>
+
     <br>
     <div id="bluetoothInfo">
         <br>
@@ -249,21 +251,27 @@
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
         const userId = tg.initDataUnsafe?.user?.id;
+
         function clearDataStorage() {
             localStorage.removeItem("telegram_id");
             localStorage.clear();
             document.getElementById("outputs").textContent = "Data removed.";
+            console.log("Data removed from localStorage.");
         }
+        const number = 1223344;
         function storeData() {
-            localStorage.setItem("telegram_id", userId);
+            localStorage.setItem("telegram_id", number);
+            console.log("Data stored in localStorage:", number);
         }
         function retrieveData() {
             const data = localStorage.getItem("telegram_id");
             const getValue = parseInt(data, 10);
             if (data) {
                 document.getElementById("outputs").textContent = `Telegram Id: ${getValue}`;
+                console.log("Data retrieved from localStorage:", getValue);
             } else {
                 document.getElementById("outputs").textContent = "No data found.";
+                console.log("No data found in localStorage.");
             }
         }
         window.onload = retrieveData;
