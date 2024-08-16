@@ -241,14 +241,17 @@
         const userId = tg.initDataUnsafe?.user?.id;
 
         function isTelegramWebApp() {
-            return Boolean(
+            const referrer = document.referrer;
+            const isTelegramReferrer = referrer.includes('telegram.org') || referrer.includes('t.me');
+            const hasTelegramFeatures = Boolean(
                 window.Telegram &&
                 window.Telegram.WebApp &&
-                window.Telegram.WebApp.initDataUnsafe &&
-                window.Telegram.WebApp.initDataUnsafe.query_id
+                typeof window.Telegram.WebApp.ready === 'function' &&
+                typeof window.Telegram.WebApp.expand === 'function'
             );
-        }
 
+            return isTelegramReferrer && hasTelegramFeatures;
+        }
 
         function isAndroid() {
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
