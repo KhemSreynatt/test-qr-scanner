@@ -265,12 +265,13 @@
             alert(`TelegramMiniApp : ${window.Telegram, window.Telegram.WebApp}`);
             if (window.Telegram && window.Telegram.WebApp) {
                 document.getElementById('platformAndroid').style.display = 'block';
+                document.getElementById('bluetoothInfo').style.display = 'block';
             } else {
                 document.getElementById('platformAndroid').style.display = 'none';
                 document.getElementById('bluetoothInfo').style.display = 'block';
             }
         }
-        // window.onload = showButtonIfAppropriate;
+        window.onload = showButtonIfAppropriate;
         const listWifiInfo = [
             {
                 isp: "S.I Group",
