@@ -250,7 +250,8 @@
         const MAX_DISTANCE = 80;
         const userId = tg.initDataUnsafe?.user?.id;
         function clearDataStorage() {
-            localStorage.removeItem('telegram_id');
+            localStorage.removeItem("telegram_id");
+            localStorage.clear();
             document.getElementById("outputs").textContent = "Data removed.";
         }
         function storeData() {
