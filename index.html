@@ -241,7 +241,12 @@
         const userId = tg.initDataUnsafe?.user?.id;
 
         function isTelegramWebApp() {
-            return Boolean(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData);
+            return Boolean(
+                window.Telegram &&
+                window.Telegram.WebApp &&
+                window.Telegram.WebApp.initDataUnsafe &&
+                window.Telegram.WebApp.initDataUnsafe.query_id
+            );
         }
 
 
