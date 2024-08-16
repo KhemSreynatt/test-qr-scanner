@@ -83,18 +83,10 @@
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
     <br>
-    <!--  -->
-    <div id="web-content">
-        <!-- Placeholder for displaying data -->
-        <p id="outputs"></p>
-    </div>
-    <!--  -->
-
     <div id="platformDevice"></div>
     <div id="plateformTMA"></div>
     <div id="browser"></div>
     <br>
-    <!-- <div id="telegramId">telegram Id</div> -->
     <div id="scanqrAndroid">
         <div id="qr-result"></div>
         <div id="video-container">
@@ -106,13 +98,9 @@
     <div id="platformAndroid">
         <button onclick="openLinkForAndroid()">Verify Bluetooth</button>
     </div>
-    <button onclick="storeData()">Data Storage</button>
-    <button style="margin-top: 10px;" onclick="clearDataStorage()">Remove Data Storage</button>
     <br>
     <div id="bluetoothInfo">
         <br>
-        <div id="isValidBluetooth">Blutooth Info</div>
-        <br><br>
         <button id="check_bluethooth_button">Connect to Bluetooth Device</button>
         <pre id="output"></pre>
     </div>
@@ -169,7 +157,6 @@
                     const isMatch = compareData(scannedData, currentLocation);
                     if (isMatch) {
                         collectUserInfoAndroid();
-                        clearBoolean();
                         document.getElementById('result').textContent = 'Success for scanning!';
                         document.getElementById('result').style.color = '#50C878'
                     } else {
@@ -253,36 +240,6 @@
         const MAX_DISTANCE = 80;
         const userId = tg.initDataUnsafe?.user?.id;
 
-
-        function clearDataStorage() {
-            localStorage.removeItem("telegram_id");
-            localStorage.clear();
-            document.getElementById("outputs").textContent = "Data removed.";
-            console.log("Data removed from localStorage.");
-        }
-        function clearBoolean() {
-            localStorage.removeItem('isVerify');
-        }
-
-        function storeData() {
-            localStorage.setItem("telegram_id", userId);
-            localStorage.setItem('isVerify', JSON.stringify(true));
-        }
-        function retrieveData() {
-            const data = localStorage.getItem("telegram_id");
-            const getValue = parseInt(data, 10);
-            if (data) {
-                // document.getElementById("outputs").textContent = `Telegram Id: ${getValue}`;
-                console.log("Data retrieved from localStorage:", getValue);
-                return getValue;
-            } else {
-                document.getElementById("outputs").textContent = "No data found.";
-                console.log("No data found in localStorage.");
-                return null;
-            }
-        }
-        // window.onload = retrieveData;
-
         const listWifiInfo = [
             {
                 isp: "S.I Group",
@@ -327,7 +284,7 @@
         const isVerify = JSON.parse(localStorage.getItem('isVerify'));
         alert(`Boolean : ${isVerify}`)
         document.getElementById('platformDevice').textContent = `Platform Device: ${detectedPlatform}`;
-        if (isVerify) {
+        if (detectedPlatform == 'android' && tg.platform === 'unknown') {
             document.getElementById('bluetoothInfo').style.display = 'block';
             document.getElementById('platformAndroid').style.display = 'none';
         }
@@ -355,8 +312,7 @@
                     const sheetName = workbook.SheetNames[0];
                     const sheet = workbook.Sheets[sheetName];
                     const jsonData = XLSX.utils.sheet_to_json(sheet);
-                    const telegramId = retrieveData();
-                    const filteredUsers = jsonData.filter(user => user.Telegram_id === telegramId);
+                    const filteredUsers = jsonData.filter(user => user.Telegram_id === userId);
                     filteredUsers.forEach(user => {
                         navigator.geolocation.getCurrentPosition(
                             (position) => {
