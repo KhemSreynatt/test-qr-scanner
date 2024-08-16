@@ -240,35 +240,13 @@
         const MAX_DISTANCE = 80;
         const userId = tg.initDataUnsafe?.user?.id;
 
-        function isTelegramWebApp() {
-            const referrer = document.referrer;
-            const isTelegramReferrer = referrer.includes('telegram.org') || referrer.includes('t.me');
-            const hasTelegramFeatures = Boolean(
-                window.Telegram &&
-                window.Telegram.WebApp &&
-                typeof window.Telegram.WebApp.ready === 'function' &&
-                typeof window.Telegram.WebApp.expand === 'function'
-            );
-
-            return isTelegramReferrer && hasTelegramFeatures;
-        }
-
-        function isAndroid() {
-            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            return /android/i.test(userAgent);
-        }
-
-        function isChrome() {
-            return /Chrome/i.test(navigator.userAgent);
-        }
         function showButtonIfAppropriate() {
-            alert(`TelegramMiniApp : ${window.Telegram, window.Telegram.WebApp}`);
-            if (window.Telegram && window.Telegram.WebApp) {
+            if (tg.platform === 'android' && detectedPlatform === 'android') {
                 document.getElementById('platformAndroid').style.display = 'block';
                 document.getElementById('bluetoothInfo').style.display = 'block';
             } else {
                 document.getElementById('platformAndroid').style.display = 'none';
-                document.getElementById('bluetoothInfo').style.display = 'block';
+                document.getElementById('bluetoothInfo').style.display = 'none';
             }
         }
         window.onload = showButtonIfAppropriate;
@@ -363,7 +341,7 @@
         function openLinkForAndroid() {
             // storeData();
             // var url = 'https://khemsreynatt.github.io/test-qr-scanner/';
-            document.getElementById("browser").textContent = `Web Browser  : ${userId}`;
+
             const url = window.location.href;
             Telegram.WebApp.openLink(url);
 
