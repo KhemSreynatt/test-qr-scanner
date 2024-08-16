@@ -239,11 +239,15 @@
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
         const userId = tg.initDataUnsafe?.user?.id;
+
         function isTelegramWebApp() {
-            return window.Telegram && window.Telegram.WebApp;
+            return Boolean(window.Telegram && window.Telegram.WebApp);
         }
+
+
         function isAndroid() {
-            return /Android/i.test(navigator.userAgent);
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            return /android/i.test(userAgent);
         }
 
         function isChrome() {
