@@ -255,11 +255,11 @@
         }
         function showButtonIfAppropriate() {
             alert(`isAndroid : ${isAndroid()}, isChrome : ${isChrome()}, isTelegramMiniApp : ${isTelegramWebApp()}`);
-            if (isAndroid() && isChrome()) {
+            if (isAndroid() && isTelegramWebApp()) {
+                document.getElementById('platformAndroid').style.display = 'block';
+            } else if (!isTelegramWebApp() && isAndroid()) {
                 document.getElementById('platformAndroid').style.display = 'none';
                 document.getElementById('bluetoothInfo').style.display = 'block';
-            } else if (isTelegramWebApp() && isAndroid()) {
-                document.getElementById('platformAndroid').style.display = 'block';
             }
         }
         window.onload = showButtonIfAppropriate;
