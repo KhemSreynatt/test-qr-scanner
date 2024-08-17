@@ -112,11 +112,11 @@
     </div>
     <!-- TMA Running  -->
     <script>
-        function isTelegramWebView() {
-            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            alert(`userAgent : ${userAgent}`);
-            return userAgent.includes("Telegram");
+        function isTelegramWebApp() {
+            return typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe !== undefined;
         }
+        alert(`Running : ${isTelegramWebApp()}`);
+
         document.addEventListener("DOMContentLoaded", function () {
             const buttonA = document.getElementById("buttonA");
             const buttonB = document.getElementById("buttonB");
