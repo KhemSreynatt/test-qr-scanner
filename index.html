@@ -89,7 +89,6 @@
             <video id="qr-video" width="100%" height="60%"></video>
         </div>
         <canvas id="qr-canvas">qr canvas</canvas>
-        <!-- <button id="scanButton" onclick="startScanning()">Scan QR Code</button> -->
     </div>
     <div id="platformAndroid">
         <button style="background-color: #0f0fe7ee;" onclick="openLinkForAndroid()">Verify With Bluetooth</button>
@@ -229,16 +228,7 @@
         const MAX_DISTANCE = 80;
         const userId = tg.initDataUnsafe?.user?.id;
 
-        function showButtonIfAppropriate() {
-            if (tg.platform === 'android' && detectedPlatform === 'android') {
-                document.getElementById('platformAndroid').style.display = 'block';
-                document.getElementById('bluetoothInfo').style.display = 'block';
-            } else {
-                document.getElementById('platformAndroid').style.display = 'none';
-                document.getElementById('bluetoothInfo').style.display = 'none';
-            }
-        }
-        window.onload = showButtonIfAppropriate;
+
         const listWifiInfo = [
             {
                 isp: "S.I Group",
@@ -280,27 +270,25 @@
             }
         }
         const detectedPlatform = checkPlatform();
-        // document.getElementById('platformDevice').textContent = `Platform Device: ${detectedPlatform}`;
-        // if (detectedPlatform == 'android' && tg.platform === 'unknown') {
-        //     document.getElementById('bluetoothInfo').style.display = 'block';
-        //     document.getElementById('platformAndroid').style.display = 'none';
-        // }
-        // if (detectedPlatform === 'android' && tg.platform === 'android') {
-        //     checkAccess((isAllowedIP) => {
-        //         if (isAllowedIP) {
-        //             checkPermissionUser((isPermittedUser) => {
-        //                 if (isPermittedUser) {
-        //                     checkLocationPermission((isPermitted) => {
-        //                         if (isPermitted) {
-        //                             document.getElementById('platformAndroid').style.display = 'block';
-        //                         }
-        //                     });
-        //                 }
-        //             })
-        //         }
-        //     });
-
-        // }
+        if (detectedPlatform === 'android' && tg.platform === 'android') {
+            checkAccess((isAllowedIP) => {
+                if (isAllowedIP) {
+                    checkPermissionUser((isPermittedUser) => {
+                        if (isPermittedUser) {
+                            checkLocationPermission((isPermitted) => {
+                                if (isPermitted) {
+                                    document.getElementById('platformAndroid').style.display = 'block';
+                                    document.getElementById('bluetoothInfo').style.display = 'block';
+                                }
+                            });
+                        }
+                    })
+                }
+            });
+        } else {
+            document.getElementById('platformAndroid').style.display = 'none';
+            document.getElementById('bluetoothInfo').style.display = 'none';
+        }
         function collectUserInfoAndroid() {
             fetch('assets/user.xlsx')
                 .then(response => response.arrayBuffer())
@@ -456,7 +444,6 @@
         // Check Network
         async function checkAccess(callback) {
             const ipV4 = await getIPv4FromApi();
-            // const ipV6 = await getIPv6FromApi();
             const ispName = await getISPNameFromApi();
             const isValid = await validateWifiInfo(ipV4, ispName);
             if (isValid) {
@@ -657,7 +644,6 @@
         tg.expand();
 
     </script>
-    <!-- <script src="scan_qr_code.js"></script> -->
 </body>
 
 </html>
