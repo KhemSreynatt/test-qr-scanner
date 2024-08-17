@@ -89,7 +89,7 @@
             <video id="qr-video" width="100%" height="60%"></video>
         </div>
         <canvas id="qr-canvas">qr canvas</canvas>
-        <button id="scanButton" onclick="startScanning()">Scan QR Code</button>
+        <!-- <button id="scanButton" onclick="startScanning()">Scan QR Code</button> -->
     </div>
     <div id="platformAndroid">
         <button style="background-color: #0f0fe7ee;" onclick="openLinkForAndroid()">Verify With Bluetooth</button>
@@ -101,26 +101,7 @@
         <pre id="output"></pre>
     </div>
     <script>
-        function getBrowser() {
-            const userAgent = navigator.userAgent.toLowerCase();
 
-            if (userAgent.indexOf('chrome') > -1) {
-                return "Chrome";
-            } else if (userAgent.indexOf('safari') > -1) {
-                return "Safari";
-            } else if (userAgent.indexOf('firefox') > -1) {
-                return "Firefox";
-            } else if (userAgent.indexOf('msie') > -1 || !!document.documentMode) {
-                return "Internet Explorer";
-            } else if (userAgent.indexOf('edg') > -1) {
-                return "Edge";
-            } else {
-                return "Other";
-            }
-        }
-        alert(`Browser : ${getBrowser()}`);
-
-        window.onload = getBrowser;
         //   Scan for android 
         const video = document.getElementById('qr-video');
         const canvasElement = document.getElementById('qr-canvas');
@@ -208,10 +189,10 @@
                         let service = services[0];
                         bluetoothUUID = `${service.uuid}`;
                         const isValidBluetooth = validateBluetooth(bluetoothName, bluetoothUUID);
-
                         if (isValidBluetooth) {
                             document.getElementById('bluetoothInfo').style.display = 'none';
                             document.getElementById('scanqrAndroid').style.display = 'block';
+                            startScanning();
                         } else {
                             document.getElementById('scanqrAndroid').style.display = 'none';
                             document.getElementById('result').textContent = 'Invalid connection Bluetooth!...';
