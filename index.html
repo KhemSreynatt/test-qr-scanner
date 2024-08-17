@@ -75,12 +75,23 @@
             font-size: 1.2em;
             margin: 20px 0;
         }
+
+        #buttonA,
+        #buttonB {
+            display: none;
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+        }
     </style>
 </head>
 
 <body>
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
+    <br>
+    <button id="buttonA">Open in Chrome</button>
+    <button id="buttonB">Button B</button>
     <br>
     <br>
     <div id="scanqrAndroid">
@@ -99,6 +110,38 @@
         <button id="check_bluethooth_button">Connect to Bluetooth Device</button>
         <pre id="output"></pre>
     </div>
+    <!-- TMA Running  -->
+    <script>
+        function isTelegramWebView() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            return userAgent.includes("Telegram");
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const buttonA = document.getElementById("buttonA");
+            const buttonB = document.getElementById("buttonB");
+
+            if (isTelegramWebView()) {
+                // Show Button A inside Telegram WebView
+                buttonA.style.display = "inline-block";
+            } else {
+                // Show Button B when opened in Chrome
+                buttonB.style.display = "inline-block";
+            }
+
+            buttonA.addEventListener("click", function () {
+                const url = window.location.href;
+                Telegram.WebApp.openLink(url); // Open the current URL in Chrome
+
+                // Hide Button A
+                buttonA.style.display = "none";
+                // Simulate opening the link in Chrome
+                setTimeout(() => {
+                    buttonB.style.display = "inline-block";
+                }, 1000);
+            });
+        });
+    </script>
+    <!--  -->
     <script>
 
         //   Scan for android 
@@ -269,6 +312,7 @@
                 return 'Unknown';
             }
         }
+
         const detectedPlatform = checkPlatform();
         if (detectedPlatform === 'android' && tg.platform === 'android') {
             checkAccess((isAllowedIP) => {
