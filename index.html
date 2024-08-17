@@ -114,6 +114,7 @@
     <script>
         function isTelegramWebView() {
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            alert(`userAgent : ${userAgent}`);
             return userAgent.includes("Telegram");
         }
         document.addEventListener("DOMContentLoaded", function () {
