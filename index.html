@@ -92,7 +92,7 @@
         <button id="scanButton" onclick="startScanning()">Scan QR Code</button>
     </div>
     <div id="platformAndroid">
-        <button style="background-color: #0f0fe7ee;" onclick="openLinkForAndroid()">Open New Page</button>
+        <button style="background-color: #0f0fe7ee;" onclick="openLinkForAndroid()">Verify With Bluetooth</button>
     </div>
     <br>
     <div id="bluetoothInfo">
@@ -189,7 +189,7 @@
         }
         //   Scan for android 
         document.getElementById('check_bluethooth_button').addEventListener('click', function () {
-
+            document.getElementById('platformAndroid').style.display = 'none';
             const output = document.getElementById('output');
             output.textContent = "Please wait!, Bluetooth Connecting....";
             navigator.bluetooth.requestDevice({
@@ -211,11 +211,9 @@
 
                         if (isValidBluetooth) {
                             document.getElementById('bluetoothInfo').style.display = 'none';
-                            document.getElementById('platformAndroid').style.display = 'none';
                             document.getElementById('scanqrAndroid').style.display = 'block';
                         } else {
                             document.getElementById('scanqrAndroid').style.display = 'none';
-                            document.getElementById('platformAndroid').style.display = 'none';
                             document.getElementById('result').textContent = 'Invalid connection Bluetooth!...';
                             document.getElementById('result').style.color = '#ff0000'
                         }
