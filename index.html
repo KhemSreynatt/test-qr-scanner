@@ -84,10 +84,11 @@
                         stopScanning();
                         alert('Scan Done!');
                     }, STOP_DELAY);
-                    const currentLocation = await getUserLocation();
-                    const formattedQrCode = code.data.replace(/'/g, '"');
-                    const scannedData = JSON.parse(formattedQrCode);
-                    const isMatch = compareData(scannedData, currentLocation);
+                    const isMatch = checkScannedHash(code.data);
+                    // const currentLocation = await getUserLocation();
+                    // const formattedQrCode = code.data.replace(/'/g, '"');
+                    // const scannedData = JSON.parse(formattedQrCode);
+                    // const isMatch = compareData(scannedData, currentLocation);
                     if (isMatch) {
                         collectUserInfo();
                         document.getElementById('result').textContent = 'Success for scanning!';
@@ -188,6 +189,15 @@
                 uuid: '0000180f-0000-1000-8000-00805f9b34fb'
             }
         ];
+        const listHashingDataQR = [
+            '75075c79251aaeaa8352c6423338da5531cd2140a569b7b200e311bb6c10dd38',
+            '357260c8acf58863c0c1573be9edd3b2adb2db4410f5da561406a918a7c5f8b0',
+            'f2a29f6fe04541df0bc5329b6443b9057c96b014ece3c9aab02a619f649b283c',
+        ];
+
+        function checkScannedHash(scannedHash) {
+            return listHashingDataQR.includes(scannedHash);
+        }
         function checkPlatform() {
             const userAgent = navigator.userAgent.toLowerCase();
             const platform = navigator.platform.toLowerCase();
@@ -462,9 +472,10 @@
                                             }, function (qrCode) {
                                                 tg.closeScanQrPopup();
                                                 try {
-                                                    const formattedQrCode = qrCode.replace(/'/g, '"');
-                                                    const scannedData = JSON.parse(formattedQrCode);
-                                                    const isMatch = compareData(scannedData, currentLocation);
+                                                    const isMatch = checkScannedHash(qrCode);
+                                                    // const formattedQrCode = qrCode.replace(/'/g, '"');
+                                                    // const scannedData = JSON.parse(formattedQrCode);
+                                                    // const isMatch = compareData(scannedData, currentLocation);
                                                     if (isMatch) {
                                                         collectUserInfo();
                                                         tg.showAlert("Scan Done!");
