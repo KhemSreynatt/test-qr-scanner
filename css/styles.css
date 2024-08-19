@@ -1,0 +1,70 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    padding: 20px;
+    background-color: #f0f0f0;
+}
+
+#result {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: white;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    background-color: #00B5AC;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    bottom: 20px;
+}
+
+
+#bluetoothInfo {
+    display: none;
+    width: 100%;
+}
+
+#platformAndroid {
+    display: none;
+    width: 100%;
+}
+
+#scanqrAndroid {
+    display: none;
+    width: 100%;
+}
+
+#video-container {
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+#qr-canvas {
+    display: none;
+}
+
+#qr-result {
+    font-size: 1.2em;
+    margin: 20px 0;
+}
+
+#buttonA,
+#buttonB {
+    display: none;
+    padding: 10px 20px;
+    margin: 10px;
+    font-size: 16px;
+}

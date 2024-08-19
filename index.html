@@ -11,79 +11,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/platform/1.3.6/platform.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            padding: 20px;
-            background-color: #f0f0f0;
-        }
-
-        #result {
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: white;
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            background-color: #00B5AC;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            bottom: 20px;
-        }
-
-
-        #bluetoothInfo {
-            display: none;
-            width: 100%;
-        }
-
-        #platformAndroid {
-            display: none;
-            width: 100%;
-        }
-
-        #scanqrAndroid {
-            display: none;
-            width: 100%;
-        }
-
-        #video-container {
-            width: 100%;
-            max-width: 640px;
-            margin: 0 auto;
-        }
-
-        #qr-canvas {
-            display: none;
-        }
-
-        #qr-result {
-            font-size: 1.2em;
-            margin: 20px 0;
-        }
-
-        #buttonA,
-        #buttonB {
-            display: none;
-            padding: 10px 20px;
-            margin: 10px;
-            font-size: 16px;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body>
@@ -118,6 +47,10 @@
         let bluetoothName = '';
         let bluetoothUUID = '';
 
+        function openLinkForAndroid() {
+            const url = window.location.href;
+            Telegram.WebApp.openLink(url);
+        }
         function startScanning() {
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function (stream) {
                 scanning = true;
@@ -156,7 +89,7 @@
                     const scannedData = JSON.parse(formattedQrCode);
                     const isMatch = compareData(scannedData, currentLocation);
                     if (isMatch) {
-                        collectUserInfoAndroid();
+                        collectUserInfo();
                         document.getElementById('result').textContent = 'Success for scanning!';
                         document.getElementById('result').style.color = '#50C878'
                     } else {
@@ -209,7 +142,6 @@
                         output.textContent += `\nNo Services found on this device.`;
                         output.style.color = '#ff0000';
                     }
-
                 })
                 .catch(error => {
                     output.textContent += `\nError Bluetooth Connection : ${error}`;
@@ -222,7 +154,6 @@
                 bluetooth.device_name === deviceName &&
                 bluetooth.uuid === uuid
             );
-
             return !!matchingBluetooth;
         }
 
@@ -230,11 +161,10 @@
     <script>
 
         let tg = window.Telegram.WebApp;
+        const userId = tg.initDataUnsafe?.user?.id;
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
-        const userId = tg.initDataUnsafe?.user?.id;
-
 
         const listWifiInfo = [
             {
@@ -297,7 +227,7 @@
             document.getElementById('platformAndroid').style.display = 'none';
             document.getElementById('bluetoothInfo').style.display = 'none';
         }
-        function collectUserInfoAndroid() {
+        function collectUserInfo() {
             fetch('assets/user.xlsx')
                 .then(response => response.arrayBuffer())
                 .then(data => {
@@ -321,12 +251,6 @@
                         );
                     });
                 })
-        }
-
-        function openLinkForAndroid() {
-            const url = window.location.href;
-            Telegram.WebApp.openLink(url);
-
         }
         async function getIPv4FromApi() {
             try {
@@ -394,10 +318,10 @@
                 const distanceToItemLocation = haversineDistance(qrLat, qrLng, currentLocation.latitude, currentLocation.longitude);
                 const isGPSMatch = distanceToQrLocation <= 60 && distanceToItemLocation <= 60; // Check if within 100 meters
                 if (isIPv4Match && isISPMatch && isBranchMatch && isBranchIdMatch && isGPSMatch) {
-                    return wifiInfo; // Return the matching wifi info
+                    return wifiInfo;
                 }
             }
-            return null; // No match found
+            return null;
         }
 
         async function validateWifiInfo(iPv4Address, ispName) {
@@ -408,7 +332,7 @@
                 wifi.ipv4 === iPv4Address &&
                 wifi.isp === ispName
             );
-            return !!matchingWifi; // return true;
+            return !!matchingWifi;
         }
 
         function checkPermissionUser(callback) {
@@ -521,31 +445,7 @@
                     callback("Unable to get address");
                 });
         }
-        function collectUserInfoIOS() {
-            fetch('assets/user.xlsx')
-                .then(response => response.arrayBuffer())
-                .then(data => {
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const sheetName = workbook.SheetNames[0];
-                    const sheet = workbook.Sheets[sheetName];
-                    const jsonData = XLSX.utils.sheet_to_json(sheet);
-                    const filteredUsers = jsonData.filter(user => user.Telegram_id === userId);
-                    filteredUsers.forEach(user => {
-                        navigator.geolocation.getCurrentPosition(
-                            (position) => {
-                                const latitude = position.coords.latitude;
-                                const longitude = position.coords.longitude;
-                                getAddressFromCoordinates(latitude, longitude, user.Name, user.Phone, user.ID, user.Branch);
-                            },
-                            (error) => {
-                                console.error("Error getting location:", error);
-                                document.getElementById('result').textContent = "Unable to get your location.";
-                                document.getElementById('result').style.color = '#ff0000'
-                            }
-                        );
-                    });
-                })
-        }
+
 
         async function scanQRCode() {
             const currentLocation = await getUserLocation();
@@ -566,7 +466,7 @@
                                                     const scannedData = JSON.parse(formattedQrCode);
                                                     const isMatch = compareData(scannedData, currentLocation);
                                                     if (isMatch) {
-                                                        collectUserInfoIOS();
+                                                        collectUserInfo();
                                                         tg.showAlert("Scan Done!");
                                                         document.getElementById('result').textContent = 'Success for scanning!';
                                                         document.getElementById('result').style.color = '#50C878'
@@ -594,8 +494,6 @@
             }
 
         }
-
-
 
         function sendToTelegramGroup(userInfo) {
             const botToken = '7485708002:AAEy-gCr1lG9ZX6AXxpJdbo6GjA6xtJ5L5U';
