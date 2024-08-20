@@ -445,9 +445,13 @@
                         const userLat = position.coords.latitude;
                         const userLon = position.coords.longitude;
                         const distance = calculateDistance(CENTER_LAT, CENTER_LON, userLat, userLon);
-                        if (distance <= MAX_DISTANCE) { callback(true, distance); } else {
+                        if (distance <= MAX_DISTANCE) {
+                            callback(true, distance);
+                        }
+                        else {
                             document.getElementById('result').textContent = `You're outside the designated scanning area.`;
-                            document.getElementById('result').style.color = '#ff0000'; callback(false, distance);
+                            document.getElementById('result').style.color = '#ff0000';
+                            callback(false, distance);
                         }
                     }, (error) => {
                         document.getElementById('result').textContent = "Unable to get your location. Please enable location services.";
