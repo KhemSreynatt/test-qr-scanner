@@ -84,11 +84,11 @@
                         stopScanning();
                         alert('Scan Done!');
                     }, STOP_DELAY);
-                    const isMatch = checkScannedHash(code.data);
+                    // const isMatch = checkScannedHash(code.data);
                     // const currentLocation = await getUserLocation();
-                    // const formattedQrCode = code.data.replace(/'/g, '"');
-                    // const scannedData = JSON.parse(formattedQrCode);
-                    // const isMatch = compareData(scannedData, currentLocation);
+                    const formattedQrCode = code.data.replace(/'/g, '"');
+                    const scannedData = JSON.parse(formattedQrCode);
+                    const isMatch = verifyDataHashing(scannedData.hash, scannedData.branch);
                     if (isMatch) {
                         collectUserInfo();
                         document.getElementById('result').textContent = 'Success for scanning!';
@@ -194,6 +194,19 @@
             '357260c8acf58863c0c1573be9edd3b2adb2db4410f5da561406a918a7c5f8b0',
             'f2a29f6fe04541df0bc5329b6443b9057c96b014ece3c9aab02a619f649b283c',
         ];
+        const listHashingQRcode = [
+            { hash: 'a6db726d6399cabd937e7def65037ae93d098d3dc526e2a7b0b2afa343c98ca4', branch: 'S.I Group KPS' },
+            { hash: '30b57ab22e9211969a831222dba29efdac1b687b5e5d3aa8ae649b676cb5d784', branch: 'S.I Group HQ' },
+            { hash: 'e5d7be44852f53ab7fc63f743e5f19aa454c3e77b4f4564a7cecfe052d4411d0', branch: 'SINET SR' },
+        ];
+
+        async function verifyDataHashing(hash, branch) {
+            const hasingData = listHashingQRcode.find(data =>
+                data.hash === hash &&
+                data.branch === branch
+            );
+            return !!hasingData;
+        }
 
         function checkScannedHash(scannedHash) {
             return listHashingDataQR.includes(scannedHash);
@@ -301,6 +314,7 @@
                 }
             });
         }
+
         function haversineDistance(lat1, lon1, lat2, lon2) {
             const toRadians = (degree) => degree * (Math.PI / 180);
             const R = 6371e3; // Earth radius in meters
@@ -472,10 +486,10 @@
                                             }, function (qrCode) {
                                                 tg.closeScanQrPopup();
                                                 try {
-                                                    const isMatch = checkScannedHash(qrCode);
-                                                    // const formattedQrCode = qrCode.replace(/'/g, '"');
-                                                    // const scannedData = JSON.parse(formattedQrCode);
-                                                    // const isMatch = compareData(scannedData, currentLocation);
+                                                    // const isMatch = checkScannedHash(qrCode);
+                                                    const formattedQrCode = qrCode.replace(/'/g, '"');
+                                                    const scannedData = JSON.parse(formattedQrCode);
+                                                    const isMatch = verifyDataHashing(scannedData.hash, scannedData.branch);
                                                     if (isMatch) {
                                                         collectUserInfo();
                                                         tg.showAlert("Scan Done!");
