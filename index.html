@@ -84,11 +84,11 @@
                         stopScanning();
                         alert('Scan Done!');
                     }, STOP_DELAY);
-                    // const isMatch = checkScannedHash(code.data);
-                    // const currentLocation = await getUserLocation();
+
+                    const currentLocation = await getUserLocation();
                     const formattedQrCode = code.data.replace(/'/g, '"');
                     const scannedData = JSON.parse(formattedQrCode);
-                    const isMatch = verifyDataHashing(scannedData.hash, scannedData.branch);
+                    const isMatch = compareDatahashingQR(scannedData, currentLocation);
                     if (isMatch) {
                         collectUserInfo();
                         document.getElementById('result').textContent = 'Success for scanning!';
@@ -163,7 +163,6 @@
 
         let tg = window.Telegram.WebApp;
         const userId = tg.initDataUnsafe?.user?.id;
-        let userInfos;
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
@@ -190,28 +189,24 @@
                 uuid: '0000180f-0000-1000-8000-00805f9b34fb'
             }
         ];
-        const listHashingDataQR = [
-            '75075c79251aaeaa8352c6423338da5531cd2140a569b7b200e311bb6c10dd38',
-            '357260c8acf58863c0c1573be9edd3b2adb2db4410f5da561406a918a7c5f8b0',
-            'f2a29f6fe04541df0bc5329b6443b9057c96b014ece3c9aab02a619f649b283c',
-        ];
         const listHashingQRcode = [
-            { hash: 'a6db726d6399cabd937e7def65037ae93d098d3dc526e2a7b0b2afa343c98ca4', branch: 'S.I Group KPS' },
-            { hash: '30b57ab22e9211969a831222dba29efdac1b687b5e5d3aa8ae649b676cb5d784', branch: 'S.I Group HQ' },
-            { hash: 'e5d7be44852f53ab7fc63f743e5f19aa454c3e77b4f4564a7cecfe052d4411d0', branch: 'SINET SR' },
+            {
+                hash: 'a6db726d6399cabd937e7def65037ae93d098d3dc526e2a7b0b2afa343c98ca4',
+                branch: 'S.I Group KPS',
+                gps: "11.556249586635088, 104.92181846761173",
+            },
+            {
+                hash: '30b57ab22e9211969a831222dba29efdac1b687b5e5d3aa8ae649b676cb5d784',
+                branch: 'S.I Group HQ',
+                gps: "11.556330952721005, 104.9217849523827"
+            },
+            {
+                hash: 'e5d7be44852f53ab7fc63f743e5f19aa454c3e77b4f4564a7cecfe052d4411d0',
+                branch: 'SINET SR',
+                gps: "11.556249586635, 104.921818467"
+            },
         ];
 
-        async function verifyDataHashing(hash, branch) {
-            const hasingData = listHashingQRcode.find(data =>
-                data.hash === hash &&
-                data.branch === branch
-            );
-            return !!hasingData;
-        }
-
-        function checkScannedHash(scannedHash) {
-            return listHashingDataQR.includes(scannedHash);
-        }
         function checkPlatform() {
             const userAgent = navigator.userAgent.toLowerCase();
             const platform = navigator.platform.toLowerCase();
@@ -329,6 +324,24 @@
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             return R * c; // Distance in meters
         }
+
+        function compareDatahashingQR(scannedData, currentLocation) {
+            for (const dataHash of listHashingQRcode) {
+                const { hash, branch, gps } = dataHash;
+                const [qrLat, qrLng] = gps.split(',').map(Number);
+                const [scannedLat, scannedLng] = scannedData.gps.split(',').map(Number);
+                const isHash = hash === scannedData.hash;
+                const isBranch = branch === scannedData.branch;
+                const distanceToQrLocation = haversineDistance(scannedLat, scannedLng, currentLocation.latitude, currentLocation.longitude);
+                const distanceToItemLocation = haversineDistance(qrLat, qrLng, currentLocation.latitude, currentLocation.longitude);
+                const isGPSMatch = distanceToQrLocation <= 60 && distanceToItemLocation <= 60; // Check if within 100 meters
+                if (isHash && isBranch && isGPSMatch) {
+                    return dataHash;
+                }
+            }
+            return null;
+        }
+
 
         function compareData(scannedData, currentLocation) {
             for (const wifiInfo of listWifiInfo) {
@@ -463,7 +476,6 @@
                         address: data.display_name,
                     };
                     sendToTelegramGroup(userInfo);
-                    userInfos = userInfo;
                     callback(address);
                 })
                 .catch(error => {
@@ -486,13 +498,12 @@
                                             tg.showScanQrPopup({
                                                 text: "Please scan a QR code",
                                             }, function (qrCode) {
-                                                handleAttendance(qrCode);
                                                 tg.closeScanQrPopup();
                                                 try {
-                                                    // const isMatch = checkScannedHash(qrCode);
                                                     const formattedQrCode = qrCode.replace(/'/g, '"');
                                                     const scannedData = JSON.parse(formattedQrCode);
-                                                    const isMatch = verifyDataHashing(scannedData.hash, scannedData.branch);
+                                                    const isMatch = compareDatahashingQR(scannedData, currentLocation);
+
                                                     if (isMatch) {
                                                         collectUserInfo();
                                                         tg.showAlert("Scan Done!");
@@ -576,91 +587,6 @@
             tg.MainButton.show();
         }
         tg.expand();
-
-
-        //  test check status
-
-        function handlesendToTelegramGroup(message) {
-            const botToken = '7485708002:AAEy-gCr1lG9ZX6AXxpJdbo6GjA6xtJ5L5U';
-            const chatId = -4218196722;
-            const now = new Date();
-            const dateString = now.toLocaleDateString('en-CA', {
-                timeZone: 'Asia/Phnom_Penh'
-            });
-            const timeString = now.toLocaleTimeString('en-US', {
-                timeZone: 'Asia/Phnom_Penh',
-                hour12: false,
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    chat_id: chatId,
-                    text: message,
-                    parse_mode: 'Markdown'
-                }),
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Message sent to group:', data);
-                    document.getElementById('result').textContent = `Successfully For Scanning!`;
-                })
-                .catch(error => {
-                    console.error('Error sending message:', error);
-                    document.getElementById('result').textContent = `Scanned  Error sending to group. ${error}`;
-                });
-        }
-        function handleAttendance(data) {
-            const currentDate = new Date();
-            const dateString = currentDate.toISOString().split('T')[0];
-            const timeString = currentDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-            const attendanceKey = `attendance_${dateString}`;
-            const attendanceData = JSON.parse(localStorage.getItem(attendanceKey)) || {};
-
-            if (!attendanceData.clockIn) {
-                attendanceData.clockIn = {
-                    time: timeString,
-                    date: dateString
-                };
-                const message = `
-*Attendance scanned:*
-*Name :* ${userInfos.name}
-*Employee ID :* /${userInfos.employeeId}
-*Phone Number :* ${userInfos.phone}
-*GPS IN :* ${userInfos.gps}
-*Address IN :* ${userInfos.address}
-*Branch:* ${userInfos.branch}
-*Date IN:* ${dateString}
-*Time IN* ${timeString}
-        `;
-                handlesendToTelegramGroup(message);
-            } else if (!attendanceData.clockOut) {
-                attendanceData.clockOut = {
-                    time: timeString,
-                    date: dateString
-                };
-                const message = `
-*Attendance scanned:*
-*Name :* ${userInfos.name}
-*Employee ID :* /${userInfos.employeeId}
-*Phone Number :* ${userInfos.phone}
-*GPS OUT :* ${userInfos.gps}
-*Address OUT :* ${userInfos.address}
-*Branch:* ${userInfos.branch}
-*Date OUT:* ${dateString}
-*Time OUT* ${timeString}
-        `;
-                handlesendToTelegramGroup(message);
-            }
-
-            localStorage.setItem(attendanceKey, JSON.stringify(attendanceData));
-        }
     </script>
 </body>
 
