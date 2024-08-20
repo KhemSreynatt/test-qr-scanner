@@ -163,6 +163,7 @@
 
         let tg = window.Telegram.WebApp;
         const userId = tg.initDataUnsafe?.user?.id;
+        let userInfos;
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
         const MAX_DISTANCE = 80;
@@ -462,6 +463,7 @@
                         address: data.display_name,
                     };
                     sendToTelegramGroup(userInfo);
+                    userInfos = userInfo;
                     callback(address);
                 })
                 .catch(error => {
@@ -484,6 +486,7 @@
                                             tg.showScanQrPopup({
                                                 text: "Please scan a QR code",
                                             }, function (qrCode) {
+                                                handleAttendance(qrCode);
                                                 tg.closeScanQrPopup();
                                                 try {
                                                     // const isMatch = checkScannedHash(qrCode);
@@ -574,6 +577,90 @@
         }
         tg.expand();
 
+
+        //  test check status
+
+        function handlesendToTelegramGroup(message) {
+            const botToken = '7485708002:AAEy-gCr1lG9ZX6AXxpJdbo6GjA6xtJ5L5U';
+            const chatId = -4218196722;
+            const now = new Date();
+            const dateString = now.toLocaleDateString('en-CA', {
+                timeZone: 'Asia/Phnom_Penh'
+            });
+            const timeString = now.toLocaleTimeString('en-US', {
+                timeZone: 'Asia/Phnom_Penh',
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: message,
+                    parse_mode: 'Markdown'
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Message sent to group:', data);
+                    document.getElementById('result').textContent = `Successfully For Scanning!`;
+                })
+                .catch(error => {
+                    console.error('Error sending message:', error);
+                    document.getElementById('result').textContent = `Scanned  Error sending to group. ${error}`;
+                });
+        }
+        function handleAttendance(data) {
+            const currentDate = new Date();
+            const dateString = currentDate.toISOString().split('T')[0];
+            const timeString = currentDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            const attendanceKey = `attendance_${dateString}`;
+            const attendanceData = JSON.parse(localStorage.getItem(attendanceKey)) || {};
+
+            if (!attendanceData.clockIn) {
+                attendanceData.clockIn = {
+                    time: timeString,
+                    date: dateString
+                };
+                const message = `
+*Attendance scanned:*
+*Name :* ${userInfos.name}
+*Employee ID :* /${userInfos.employeeId}
+*Phone Number :* ${userInfos.phone}
+*GPS IN :* ${userInfos.gps}
+*Address IN :* ${userInfos.address}
+*Branch:* ${userInfos.branch}
+*Date IN:* ${dateString}
+*Time IN* ${timeString}
+        `;
+                handlesendToTelegramGroup(message);
+            } else if (!attendanceData.clockOut) {
+                attendanceData.clockOut = {
+                    time: timeString,
+                    date: dateString
+                };
+                const message = `
+*Attendance scanned:*
+*Name :* ${userInfos.name}
+*Employee ID :* /${userInfos.employeeId}
+*Phone Number :* ${userInfos.phone}
+*GPS OUT :* ${userInfos.gps}
+*Address OUT :* ${userInfos.address}
+*Branch:* ${userInfos.branch}
+*Date OUT:* ${dateString}
+*Time OUT* ${timeString}
+        `;
+                handlesendToTelegramGroup(message);
+            }
+
+            localStorage.setItem(attendanceKey, JSON.stringify(attendanceData));
+        }
     </script>
 </body>
 
