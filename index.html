@@ -19,7 +19,7 @@
     <h1>QR Code Scanner</h1>
     <div id="result">Scan result will appear here</div>
     <br>
-
+    <!-- <button onclick="getUserBranch()">Post data to DB</button> -->
     <div id="scanqrAndroid">
         <div id="qr-result"></div>
         <div id="video-container">
@@ -98,7 +98,6 @@
                         document.getElementById('result').textContent = 'Invalid for scanning, Please make sure follow permission !';
                         document.getElementById('result').style.color = '#ff0000'
                     }
-
                     return;
                 } else {
                     qrResult.textContent = "";
@@ -156,6 +155,37 @@
                 bluetooth.uuid === uuid
             );
             return !!matchingBluetooth;
+        }
+
+        async function submitAttendance() {
+            try {
+                const url = 'http://127.0.0.1:8000/api/check_attendances';
+                const header = {
+                    'Content-Type': 'application/json',
+                };
+                const data = {
+                    tg_id: "6957049018",
+                    gps: "11.55620799962, 104.921784487348",
+                    address: "SI Group Building, 93, Samdech Preah Sihanouk Boulevard (Street 274), Khan Daun Penh,Phnom Penh"
+                };
+                const response = await fetch(url, {
+                    headers: header,
+                    method: 'POST',
+                    body: JSON.stringify(data)
+
+                });
+                if (response.ok) {
+                    console.log('Successed for submit!');
+                } else {
+                    console.error(`Error ${response.status}`);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const result = await response.json();
+                console.log('Success:', result);
+            } catch (error) {
+                console.error('Error:', error);
+                throw error;
+            }
         }
 
     </script>
@@ -290,7 +320,6 @@
                 return null;
             }
         }
-
         function getUserLocation() {
             return new Promise((resolve, reject) => {
                 if (navigator.geolocation) {
@@ -311,6 +340,23 @@
             });
         }
 
+        function compareDataUser() {
+            return fetch('assets/user.xlsx')
+                .then(response => response.arrayBuffer())
+                .then(data => {
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(sheet);
+                    const filteredUser = jsonData.find(user => user.Telegram_id === userId);
+                    if (filteredUser) {
+                        return filteredUser.Branch; // Return the branch if found
+                    } else {
+                        throw new Error('User not found');
+                    }
+                });
+        }
+
         function haversineDistance(lat1, lon1, lat2, lon2) {
             const toRadians = (degree) => degree * (Math.PI / 180);
             const R = 6371e3; // Earth radius in meters
@@ -325,23 +371,24 @@
             return R * c; // Distance in meters
         }
 
-        function compareDatahashingQR(scannedData, currentLocation) {
+        function compareDatahashingQR(scannedData, currentLocation,) {
             for (const dataHash of listHashingQRcode) {
+                const branchUser = compareDataUser();
                 const { hash, branch, gps } = dataHash;
                 const [qrLat, qrLng] = gps.split(',').map(Number);
                 const [scannedLat, scannedLng] = scannedData.gps.split(',').map(Number);
                 const isHash = hash === scannedData.hash;
                 const isBranch = branch === scannedData.branch;
+                const isBranchUser = branchUser === scannedData.branch;
                 const distanceToQrLocation = haversineDistance(scannedLat, scannedLng, currentLocation.latitude, currentLocation.longitude);
                 const distanceToItemLocation = haversineDistance(qrLat, qrLng, currentLocation.latitude, currentLocation.longitude);
                 const isGPSMatch = distanceToQrLocation <= 60 && distanceToItemLocation <= 60; // Check if within 100 meters
-                if (isHash && isBranch && isGPSMatch) {
+                if (isHash && isBranch && isBranchUser && isGPSMatch) {
                     return dataHash;
                 }
             }
             return null;
         }
-
 
         function compareData(scannedData, currentLocation) {
             for (const wifiInfo of listWifiInfo) {
