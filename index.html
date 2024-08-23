@@ -380,6 +380,7 @@
                 const isHash = hash === scannedData.hash;
                 const isBranch = branch === scannedData.branch;
                 const isBranchUser = branchUser === scannedData.branch;
+                alert(`user branch: ${branchUser}, IS: ${isBranchUser}`);
                 const distanceToQrLocation = haversineDistance(scannedLat, scannedLng, currentLocation.latitude, currentLocation.longitude);
                 const distanceToItemLocation = haversineDistance(qrLat, qrLng, currentLocation.latitude, currentLocation.longitude);
                 const isGPSMatch = distanceToQrLocation <= 60 && distanceToItemLocation <= 60; // Check if within 100 meters
