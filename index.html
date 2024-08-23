@@ -373,18 +373,15 @@
 
         function compareDatahashingQR(scannedData, currentLocation,) {
             for (const dataHash of listHashingQRcode) {
-                const branchUser = compareDataUser();
                 const { hash, branch, gps } = dataHash;
                 const [qrLat, qrLng] = gps.split(',').map(Number);
                 const [scannedLat, scannedLng] = scannedData.gps.split(',').map(Number);
                 const isHash = hash === scannedData.hash;
                 const isBranch = branch === scannedData.branch;
-                const isBranchUser = branchUser === scannedData.branch;
-                alert(`user branch: ${branchUser}, IS: ${isBranchUser}`);
                 const distanceToQrLocation = haversineDistance(scannedLat, scannedLng, currentLocation.latitude, currentLocation.longitude);
                 const distanceToItemLocation = haversineDistance(qrLat, qrLng, currentLocation.latitude, currentLocation.longitude);
                 const isGPSMatch = distanceToQrLocation <= 60 && distanceToItemLocation <= 60; // Check if within 100 meters
-                if (isHash && isBranch && isBranchUser && isGPSMatch) {
+                if (isHash && isBranch && isGPSMatch) {
                     return dataHash;
                 }
             }
