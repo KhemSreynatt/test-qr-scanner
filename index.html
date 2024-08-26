@@ -84,18 +84,17 @@
                         stopScanning();
                         alert('Scan Done!');
                     }, STOP_DELAY);
-
                     const currentLocation = await getUserLocation();
                     const formattedQrCode = code.data.replace(/'/g, '"');
                     const scannedData = JSON.parse(formattedQrCode);
-                    const isMatch = compareDatahashingQR(scannedData, currentLocation);
+                    const isMatch = compareDataHashingQR(scannedData, currentLocation);
                     if (isMatch) {
                         collectUserInfo();
                         document.getElementById('result').textContent = 'Success for scanning!';
                         document.getElementById('result').style.color = '#50C878'
                     } else {
-                        alert("Ivalid for Scanning !");
-                        document.getElementById('result').textContent = 'Invalid for scanning, Please make sure follow permission !';
+                        alert("Invalid for Scanning !");
+                        document.getElementById('result').textContent = 'Invalid for your QR Code, Please make sure follow permission !';
                         document.getElementById('result').style.color = '#ff0000'
                     }
                     return;
@@ -107,7 +106,7 @@
                 requestAnimationFrame(tick);
             }
         }
-        //   Scan for android 
+        //    Scan for android 
         document.getElementById('check_bluethooth_button').addEventListener('click', function () {
             document.getElementById('platformAndroid').style.display = 'none';
             const output = document.getElementById('output');
@@ -172,7 +171,6 @@
                     headers: header,
                     method: 'POST',
                     body: JSON.stringify(data)
-
                 });
                 if (response.ok) {
                     console.log('Successed for submit!');
@@ -371,7 +369,7 @@
             return R * c; // Distance in meters
         }
 
-        function compareDatahashingQR(scannedData, currentLocation,) {
+        function compareDataHashingQR(scannedData, currentLocation,) {
             for (const dataHash of listHashingQRcode) {
                 const { hash, branch, gps } = dataHash;
                 const [qrLat, qrLng] = gps.split(',').map(Number);
@@ -468,7 +466,6 @@
                 document.getElementById('result').textContent = 'Invalid connection wifi!.';
                 document.getElementById('result').style.color = '#ff0000'
             }
-
         }
         // Check Map Zone
         function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -528,7 +525,6 @@
                     callback(address);
                 })
                 .catch(error => {
-                    console.error("Error getting address:", error);
                     callback("Unable to get address");
                 });
         }
@@ -551,15 +547,14 @@
                                                 try {
                                                     const formattedQrCode = qrCode.replace(/'/g, '"');
                                                     const scannedData = JSON.parse(formattedQrCode);
-                                                    const isMatch = compareDatahashingQR(scannedData, currentLocation);
-
+                                                    const isMatch = compareDataHashingQR(scannedData, currentLocation);
                                                     if (isMatch) {
                                                         collectUserInfo();
                                                         tg.showAlert("Scan Done!");
                                                         document.getElementById('result').textContent = 'Success for scanning!';
                                                         document.getElementById('result').style.color = '#50C878'
                                                     } else {
-                                                        tg.showAlert("Ivalid for Scanning !");
+                                                        tg.showAlert("Invalid for Scanning !");
                                                         document.getElementById('result').textContent = 'Invalid for scanning, Please make sure follow permission !';
                                                         document.getElementById('result').style.color = '#ff0000'
                                                     }
@@ -578,9 +573,7 @@
                         })
                     }
                 });
-
             }
-
         }
 
         function sendToTelegramGroup(userInfo) {
@@ -600,7 +593,7 @@
 *Attendance scanned:*
 *Name :* ${userInfo.name}
 *Employee ID :* /${userInfo.employeeId}
-*Phone Number :* ${userInfo.phone}
+*Phone Number :* /${userInfo.phone}
 *GPS :* ${userInfo.gps}
 *Address :* ${userInfo.address}
 *Branch:* ${userInfo.branch}
