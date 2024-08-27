@@ -193,7 +193,7 @@
         const userId = tg.initDataUnsafe?.user?.id;
         const CENTER_LAT = 11.55613804408328;
         const CENTER_LON = 104.9218005731158;
-        const MAX_DISTANCE = 80;
+        const MAX_DISTANCE = 60;
 
         const listWifiInfo = [
             {
@@ -305,7 +305,6 @@
                 const data = await response.json();
                 return data.ip;
             } catch (error) {
-                console.error('Error fetching IP:', error);
                 return null;
             }
         }
@@ -348,7 +347,7 @@
                     const jsonData = XLSX.utils.sheet_to_json(sheet);
                     const filteredUser = jsonData.find(user => user.Telegram_id === userId);
                     if (filteredUser) {
-                        return filteredUser.Branch; // Return the branch if found
+                        return filteredUser.Branch;
                     } else {
                         throw new Error('User not found');
                     }
@@ -366,7 +365,7 @@
                 Math.cos(φ1) * Math.cos(φ2) *
                 Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return R * c; // Distance in meters
+            return R * c;
         }
 
         function compareDataHashingQR(scannedData, currentLocation,) {
@@ -406,9 +405,6 @@
         }
 
         async function validateWifiInfo(iPv4Address, ispName) {
-            // if (!isAllowedISP(ispName)) {
-            //     return false;
-            // }
             const matchingWifi = listWifiInfo.find(wifi =>
                 wifi.ipv4 === iPv4Address &&
                 wifi.isp === ispName
